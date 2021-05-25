@@ -15,8 +15,9 @@ const theme = createMuiTheme({
           main: "#ED8B00" // NHS Orange
                   }
              },
+             typography: {
  fontFamily: font // Istok is very close to Frutiger, the NHS font
- });
+ }});
 
 // export default class App extends Component {
 //     constructor(props) {
