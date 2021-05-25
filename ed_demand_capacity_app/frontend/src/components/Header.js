@@ -23,7 +23,7 @@ export default function Header(props)  {
     const classes = useStyles();
 
     return (
-        <AppBar position="static">
+        <AppBar position="static" color="primary">
         <Toolbar>
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon />
