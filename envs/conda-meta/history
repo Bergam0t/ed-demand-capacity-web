@@ -1,3 +1,41 @@
 ==> 2021-05-24 17:31:56 <==
 # cmd: H:\Users\albat\anaconda3\Scripts\conda-script.py create --prefix ./envs
 # conda version: 4.10.1
+==> 2021-05-25 15:36:46 <==
+# cmd: H:\Users\albat\anaconda3\Scripts\conda-script.py install -c anaconda ipykernel
+# conda version: 4.10.1
++anaconda/noarch::backcall-0.2.0-py_0
++anaconda/noarch::colorama-0.4.4-py_0
++anaconda/noarch::decorator-4.4.2-py_0
++anaconda/noarch::jupyter_client-6.1.7-py_0
++anaconda/noarch::parso-0.8.0-py_0
++anaconda/noarch::prompt-toolkit-3.0.8-py_0
++anaconda/noarch::pygments-2.7.1-py_0
++anaconda/noarch::python-dateutil-2.8.1-py_0
++anaconda/noarch::six-1.15.0-py_0
++anaconda/noarch::traitlets-5.0.5-py_0
++anaconda/noarch::wcwidth-0.2.5-py_0
++anaconda/noarch::wheel-0.35.1-py_0
++anaconda/win-64::ca-certificates-2020.10.14-0
++anaconda/win-64::certifi-2020.6.20-py38_0
++anaconda/win-64::ipykernel-5.3.4-py38h5ca1d4c_0
++anaconda/win-64::ipython-7.18.1-py38h5ca1d4c_0
++anaconda/win-64::ipython_genutils-0.2.0-py38_0
++anaconda/win-64::jupyter_core-4.6.3-py38_0
++anaconda/win-64::libsodium-1.0.18-h62dcd97_0
++anaconda/win-64::openssl-1.1.1h-he774522_0
++anaconda/win-64::pickleshare-0.7.5-py38_1000
++anaconda/win-64::pip-20.2.4-py38_0
++anaconda/win-64::python-3.8.5-h5fd99cc_1
++anaconda/win-64::pywin32-227-py38he774522_1
++anaconda/win-64::pyzmq-19.0.2-py38ha925a31_1
++anaconda/win-64::setuptools-50.3.0-py38h9490d1a_1
++anaconda/win-64::sqlite-3.33.0-h2a8f88b_0
++anaconda/win-64::tornado-6.0.4-py38he774522_1
++anaconda/win-64::vc-14.1-h0510ff6_4
++anaconda/win-64::vs2015_runtime-14.16.27012-hf0eaf9b_3
++anaconda/win-64::wincertstore-0.2-py38_0
++anaconda/win-64::zeromq-4.3.2-ha925a31_3
++anaconda/win-64::zlib-1.2.11-vc14h1cdd9ab_1
++defaults/win-64::jedi-0.18.0-py38haa95532_1
+# update specs: ['ipykernel']
