@@ -3,18 +3,24 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import PeopleIcon from '@material-ui/icons/People';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import LayersIcon from '@material-ui/icons/Layers';
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
+import NotesIcon from '@material-ui/icons/Notes';
+import SettingsIcon from '@material-ui/icons/Settings';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import HistoryIcon from '@material-ui/icons/History';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import GroupIcon from '@material-ui/icons/Group';
+import Battery60Icon from '@material-ui/icons/Battery60';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import EventNoteIcon from '@material-ui/icons/EventNote';
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import WarningIcon from '@material-ui/icons/Warning';
 
 export const helpListItems = (
     <div>
         <ListItem button>
       <ListItemIcon>
-        <DashboardIcon />
+        <EmojiObjectsIcon />
       </ListItemIcon>
       <ListItemText primary="Getting Started" />
     </ListItem>
@@ -25,7 +31,7 @@ export const saveLoadItems = (
     <div>
         <ListItem button>
       <ListItemIcon>
-        <DashboardIcon />
+        <FolderOpenIcon />
       </ListItemIcon>
       <ListItemText primary="Load Model" />
     </ListItem>
@@ -36,37 +42,37 @@ export const mainListItems = (
   <div>
     <ListItem button>
       <ListItemIcon>
-        <DashboardIcon />
+        <NotesIcon />
       </ListItemIcon>
       <ListItemText primary="Organisational Notes" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <SettingsIcon />
       </ListItemIcon>
       <ListItemText primary="Emergency Department Settings" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <PeopleIcon />
+        <HistoryIcon />
       </ListItemIcon>
       <ListItemText primary="Historic Demand Data" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <BarChartIcon />
+        <ScheduleIcon />
       </ListItemIcon>
       <ListItemText primary="Shift Information" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <LayersIcon />
+        <GroupIcon />
       </ListItemIcon>
       <ListItemText primary="Factors Affecting Demand" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <LayersIcon />
+        <Battery60Icon />
       </ListItemIcon>
       <ListItemText primary="Factors Affecting Capacity" />
     </ListItem>
@@ -75,28 +81,28 @@ export const mainListItems = (
 
 export const secondaryListItems = (
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
+    <ListSubheader inset>Model Outputs</ListSubheader>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <ThumbsUpDownIcon />
       </ListItemIcon>
       <ListItemText primary="Core-Adhoc Balance" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <EventNoteIcon />
       </ListItemIcon>
       <ListItemText primary="Required vs Available Capacity" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <TrendingUpIcon />
       </ListItemIcon>
       <ListItemText primary="Expected Queue Sizes" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <WarningIcon />
       </ListItemIcon>
       <ListItemText primary="Areas of Concern" />
     </ListItem>

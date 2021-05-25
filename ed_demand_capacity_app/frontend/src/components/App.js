@@ -24,7 +24,7 @@ import Button from "@material-ui/core/Button";
 
 const font =  "'Istok Web', sans-serif;";
 
-const theme = createMuiTheme({
+const muiTheme = createMuiTheme({
     palette: {
        primary: {
           main: "#005EB8" // NHS Blue
@@ -67,13 +67,7 @@ const theme = createMuiTheme({
 //     );
 // }
 
-
-
-
-
-
-
-const drawerWidth = 240;
+const drawerWidth = 280;
 
 // Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
 
@@ -82,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
       display: 'flex',
     },
     toolbar: {
-      paddingRight: 24, // keep right padding when drawer closed
+      paddingRight: 4, // keep right padding when drawer closed
     },
     toolbarIcon: {
       display: 'flex',
@@ -107,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
       }),
     },
     menuButton: {
-      marginRight: 36,
+      marginRight: 12,
     },
     menuButtonHidden: {
       display: 'none',
@@ -168,7 +162,7 @@ const handleDrawerClose = () => {
 const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
 return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiTheme}>
     <div className={classes.root}>
     <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
         <Toolbar className={classes.toolbar}>
