@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
     },
   }));
 
-export default function Header(props)  {
+export default function Header()  {
     const classes = useStyles();
 
     return (
@@ -28,7 +28,7 @@ export default function Header(props)  {
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon />
             </IconButton>
-            <Typography variant="h6" className={classes.title}>
+            <Typography variant="h5" className={classes.title}>
             NHS Demand and Capacity - Emergency Department Model
             </Typography>
             <Button color="inherit">Login</Button>
