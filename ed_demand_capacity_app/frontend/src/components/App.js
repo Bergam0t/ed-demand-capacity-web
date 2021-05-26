@@ -20,6 +20,14 @@ import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Button from "@material-ui/core/Button";
+import DashboardContent from "./DashboardContent";
+import { 
+  BrowserRouter as Router, 
+  Switch, 
+  Route, 
+  Link, 
+  Redirect 
+} from "react-router-dom";
 
 
 const font =  "'Istok Web', sans-serif;";
@@ -162,6 +170,8 @@ const handleDrawerClose = () => {
 const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
 return (
+    <Router>
+    <Switch>
     <ThemeProvider theme={muiTheme}>
     <div className={classes.root}>
     <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -210,29 +220,13 @@ return (
     <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-        <Grid container spacing={3}>
-            {/* Chart */}
-            <Grid item xs={12} md={8} lg={9}>
-            <Paper className={fixedHeightPaper}>
-            </Paper>
-            </Grid>
-            {/* Recent Deposits */}
-            <Grid item xs={12} md={4} lg={3}>
-            <Paper className={fixedHeightPaper}>
-            </Paper>
-            </Grid>
-            {/* Recent Orders */}
-            <Grid item xs={12}>
-            <Paper className={classes.paper}>
-            </Paper>
-            </Grid>
-        </Grid>
-        <Box pt={4}>
-        </Box>
+          <DashboardContent />
         </Container>
     </main>
     </div>
     </ThemeProvider>
+    </Switch>
+    </Router>
 );
 }
 

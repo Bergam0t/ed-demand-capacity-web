@@ -15,10 +15,17 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import EventNoteIcon from '@material-ui/icons/EventNote';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WarningIcon from '@material-ui/icons/Warning';
+import { 
+    BrowserRouter as Router, 
+    Switch, 
+    Route, 
+    Link, 
+    Redirect 
+} from "react-router-dom";
 
 export const helpListItems = (
     <div>
-        <ListItem button>
+        <ListItem button to="/getting-started" component = { Link }>
       <ListItemIcon>
         <EmojiObjectsIcon />
       </ListItemIcon>
