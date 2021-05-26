@@ -47,11 +47,11 @@ export const saveLoadItems = (
 
 export const mainListItems = (
   <div>
-    <ListItem button>
+    <ListItem button to="/notes" component = { Link }>
       <ListItemIcon>
         <NotesIcon />
       </ListItemIcon>
-      <ListItemText primary="Organisational Notes" />
+      <ListItemText primary="Notes" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
@@ -59,7 +59,7 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Emergency Department Settings" />
     </ListItem>
-    <ListItem button>
+    <ListItem button to="/historic-demand" component = { Link }>
       <ListItemIcon>
         <HistoryIcon />
       </ListItemIcon>

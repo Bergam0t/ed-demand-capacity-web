@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import Typography from "@material-ui/core/Typography";
 
-export default function GettingStarted() {
+export default function HistoricDemandData() {
     return (
         <Typography variant="h3"> 
-        Getting Started (Placeholder)
+        Historic Demand Data (Placeholder)
         </Typography>
     )
 }

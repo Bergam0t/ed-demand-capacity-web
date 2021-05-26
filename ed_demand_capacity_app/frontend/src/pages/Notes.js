@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import Typography from "@material-ui/core/Typography";
 
-export default function GettingStarted() {
+export default function Notes() {
     return (
         <Typography variant="h3"> 
-        Getting Started (Placeholder)
+        Notes (Placeholder)
         </Typography>
     )
 }
