@@ -41,6 +41,7 @@ import {
                         Upload record-format data
                         <input
                             type="file"
+                            accept=".csv"
                             hidden
                         />
                     </Button>
@@ -64,6 +65,7 @@ import {
                         Upload Excel Model
                         <input
                             type="file"
+                            accept=".xls,.xlsx"
                             hidden
                         />
                     </Button>
