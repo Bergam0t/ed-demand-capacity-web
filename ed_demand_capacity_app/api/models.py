@@ -1,19 +1,30 @@
 from django.db import models
+from django.core.validators import MinValueValidator
+
 
 # See accepted answer here for what the different 'on_delete' options do
 # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
 
 # Create your models here.
 class Organisation(models.Model):
-    ods_code = models.CharField(max_length=3, default="", unique=True, primary_key=True)
+    ods_code = models.CharField(max_length=3, unique=True, primary_key=True)
     organisation_name = models.CharField(max_length=250, default="", unique=True)
 
 
 class Site(models.Model):
     ods_site_code = models.CharField(max_length=4, default="", unique=True, primary_key=True)
-    ods_code = models.ForeignKey(Organisation, default='Unknown', on_delete=models.SET_DEFAULT)
+    ods_code = models.ForeignKey(Organisation, on_delete=models.SET_DEFAULT, default='Unknown')
 
 
 # class EDModel(models.Model):
 #     ods_site_code = models.ForeignKey(Site, on_delete=models)
 #     model_owner_id = models.ForeignKey(
+
+# class HistoricData(models.Model):
+#     ods_site_code = models.ForeignKey(Site, on_delete=models.SET_DEFAULT, default='Unknown')
+#     date = models.DateTimeField()
+#     stream = models.CharField(max_length=50, default="")
+#     start_time = models.TimeField()
+#     end_time = models.TimeField()
+#     actual = models.BooleanField(default=True)
+#     stream_demand = models.IntegerField(validators = [MinValueValidator(0)])
