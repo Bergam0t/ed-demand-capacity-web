@@ -1,34 +1,67 @@
-import React, { Component } from "react";
-import Typography from "@material-ui/core/Typography";
-import { render } from 'react-dom';
-import {AgGridColumn, AgGridReact} from 'ag-grid-react';
-import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-material.css';
+import {
+    Box,
+    Container,
+    Grid,
+    Typography,
+    Button,
+    CardContent
+  } from '@material-ui/core';
+  import React, { Component } from "react";
+  import Card from '@material-ui/core/Card';
+//   import { makeStyles } from '@material-ui/core/styles';
 
-// export default function HistoricDemandData() {
-//     return (
-//         <Typography variant="h3"> 
-//         Historic Demand Data (Placeholder)
-//         </Typography>
-//     )
-// }
+//   const useStyles = makeStyles({
+//     pos: {
+//         marginBottom: 12,
+//       },
+//     });
 
-export default function HistoricDemandData() {
-    const rowData = [
-        {make: "Toyota", model: "Celica", price: 35000},
-        {make: "Ford", model: "Mondeo", price: 32000},
-        {make: "Porsche", model: "Boxter", price: 72000}
-    ];
- 
+  export default function HistoricDemandData() {
+
+    //const classes = useStyles();
+
     return (
-        <div className="ag-theme-material" style={{height: 400, width: 600}}>
-            <AgGridReact
-                rowData={rowData}>
-                <AgGridColumn field="make"></AgGridColumn>
-                <AgGridColumn field="model"></AgGridColumn>
-                <AgGridColumn field="price"></AgGridColumn>
-            </AgGridReact>
-        </div>
+    <Grid container spacing={1}>
+    
+    <Grid container item xs={6}>
+        <Card paddingBottom={4}>
+            <CardContent>
+            <Typography variant='h4'>
+                Is your data in record format?
+            </Typography>
+            <Typography variant='h6'>
+                <br/>
+                Record format data means you have one row per patient. 
+                <br/><br/>
+                Your data needs to contain columns for arrival date, arrival time, and stream.
+                <br/><br/>
+            </Typography>
+            <Button color="primary" variant="contained">
+                Upload record-format data
+            </Button>
+            </CardContent>   
+        </Card>
+    </Grid>
+
+    <Grid container item xs={6}>
+        <Card paddingBottom={4}>
+            <CardContent>
+            <Typography variant='h4'>
+                Is your data being imported from the Excel model?
+            </Typography>
+            <Typography variant='h6'>
+                <br/>
+                If you hvae previously filled in the Excel model, you can upload the Excel file
+                to extract the historic data in it. 
+                <br/><br/>
+            </Typography>
+            <Button color="primary" variant="contained">
+                Upload Excel Model
+            </Button>
+            </CardContent>   
+        </Card>
+    </Grid>
+
+    </Grid>
     );
- };
- 
+    }
