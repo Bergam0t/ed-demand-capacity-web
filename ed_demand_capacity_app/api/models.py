@@ -28,3 +28,7 @@ class Site(models.Model):
 #     end_time = models.TimeField()
 #     actual = models.BooleanField(default=True)
 #     stream_demand = models.IntegerField(validators = [MinValueValidator(0)])
+
+class HistoricData(models.Model):
+    uploaded_data = models.FileField(upload_to='historic_data')
+    # multipart_test = models.CharField(max_length=50)
