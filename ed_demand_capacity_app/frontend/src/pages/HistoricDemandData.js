@@ -78,7 +78,19 @@ class HistoricDemandData extends Component {
                                 onChange={this.handleFileChange}
                             />
                          </Button>
-                         <Button color="primary" variant="contained" component="label">
+                         <br/>
+                         {
+                            this.state.uploaded_data ? (
+                                <Typography variant="h6">File selected: {this.state.uploaded_data.name}</Typography>
+                            ) : (
+                                <Typography variant="h6">No file selected</Typography>
+                            )
+}
+                         <Button color="primary" 
+                                 variant="contained" 
+                                 component="label" 
+                                 disabled={!this.state.uploaded_data}
+                                 >
                             Confirm
                             <input
                                 type="submit"
@@ -102,7 +114,7 @@ class HistoricDemandData extends Component {
                         to extract the historic data in it. 
                         <br/><br/>
                     </Typography>
-                    <Button color="primary" variant="contained" component="label">
+                    <Button color="primary" variant="contained" component="label" disabled={true}>
                         Upload Excel Model
                         <input
                             type="file"
