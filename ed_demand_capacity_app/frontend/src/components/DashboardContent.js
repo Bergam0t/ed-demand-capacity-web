@@ -12,6 +12,7 @@ import GettingStarted from "../pages/GettingStarted"
 import HistoricDemandData from "../pages/HistoricDemandData";
 import Notes from "../pages/Notes"
 import PlaceholderDashboardContent from "./PlaceholderDashboardContent"
+import PlotHistoric from "../pages/PlotHistoric"
 
 export default function DashboardContent() {
     return (
@@ -20,6 +21,7 @@ export default function DashboardContent() {
                 <Route path='/getting-started' component={ GettingStarted } />
                 <Route path='/notes' component={ Notes } />
                 <Route path='/historic-demand' component={ HistoricDemandData } />
+                <Route path='/historic-demand-graphs' component={ PlotHistoric } />
                 </div>
     );
 }

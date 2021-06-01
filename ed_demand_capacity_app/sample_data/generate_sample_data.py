@@ -42,6 +42,9 @@ for date in date_range:
     if date.month == 1 or date.month == 2:
          n_rows_day += random.randint(10, 20)
 
+
+    # Need to come back and fix the arrival time generation as it currently has
+    # a different date to the date part
     day_data = {
 
     'date': [date for i in range(n_rows_day)],
@@ -56,5 +59,12 @@ for date in date_range:
 
 test_data_df = pd.concat(test_data).reset_index()
 test_data_df['hour'] = test_data_df['arrival_time'].apply(lambda x: pd.to_datetime(x).hour)
+# Correct the arrival time
+test_data_df['corrected_date_time'] = (
+     pd.to_datetime(test_data_df.date 
+                    + ':' 
+                    + test_data_df['arrival_time'].dt.time.astype('str'), 
+                    format='%Y-%m-%d:%H:%M:%S')
+)
 
 test_data_df.to_csv(output_filepath + output_filename)

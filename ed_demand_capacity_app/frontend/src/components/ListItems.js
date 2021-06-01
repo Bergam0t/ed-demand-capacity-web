@@ -90,7 +90,7 @@ export const mainListItems = (
 export const secondaryListItems = (
   <div>
     <ListSubheader inset>Model Outputs</ListSubheader>
-    <ListItem button>
+    <ListItem button to="/historic-demand-graphs" component = { Link }>
       <ListItemIcon>
         <TimelineIcon />
       </ListItemIcon>
