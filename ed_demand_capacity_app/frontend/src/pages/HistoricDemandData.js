@@ -21,6 +21,7 @@ class HistoricDemandData extends Component {
 
     state = {
         uploaded_data: null,
+        successful_submission: null,
       };
     
       handleFileChange = (e) => {
@@ -35,7 +36,8 @@ class HistoricDemandData extends Component {
         let form_data = new FormData();
         form_data.append('uploaded_data', 
                          this.state.uploaded_data, 
-                         this.state.uploaded_data.name);
+                         this.state.uploaded_data.name,
+                         );
         let url = 'http://localhost:8000/api/historic-data';
         axios.post(url, form_data, {
           headers: {
@@ -44,8 +46,15 @@ class HistoricDemandData extends Component {
         })
             .then(res => {
               console.log(res.data);
+              if(res.ok) {
+                this.setState({
+                    uploaded_data: null,
+                    successful_submission: "File uploaded successfully!"
+                  })    
+            }
             })
             .catch(err => console.log(err))
+        
       };
 
     //const classes = useStyles();

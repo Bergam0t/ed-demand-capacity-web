@@ -12,4 +12,4 @@ class OrganisationSerializer(serializers.ModelSerializer):
 class UploadedHistoricDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricData
-        fields = ('uploaded_data', )
+        fields = ('uploaded_data', 'upload_time', 'uploader')

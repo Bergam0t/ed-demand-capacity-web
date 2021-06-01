@@ -7,13 +7,22 @@ from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Organisation(models.Model):
-    ods_code = models.CharField(max_length=3, unique=True, primary_key=True)
-    organisation_name = models.CharField(max_length=250, default="", unique=True)
+    ods_code = models.CharField(max_length=3, 
+                                unique=True, 
+                                primary_key=True)
+    organisation_name = models.CharField(max_length=250, 
+                                         default="", 
+                                         unique=True)
 
 
 class Site(models.Model):
-    ods_site_code = models.CharField(max_length=4, default="", unique=True, primary_key=True)
-    ods_code = models.ForeignKey(Organisation, on_delete=models.SET_DEFAULT, default='Unknown')
+    ods_site_code = models.CharField(max_length=4, 
+                                     default="", 
+                                     unique=True,
+                                     primary_key=True)
+    ods_code = models.ForeignKey(Organisation, 
+                                 on_delete=models.SET_DEFAULT, 
+                                 default='Unknown')
 
 
 # class EDModel(models.Model):
@@ -31,4 +40,7 @@ class Site(models.Model):
 
 class HistoricData(models.Model):
     uploaded_data = models.FileField(upload_to='historic_data')
-    # multipart_test = models.CharField(max_length=50)
+    uploader = models.CharField(max_length=50, 
+                                default='Not recorded')
+    upload_time = models.DateTimeField(auto_now_add=True, 
+                                       blank=True)

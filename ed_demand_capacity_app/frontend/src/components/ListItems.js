@@ -15,6 +15,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import EventNoteIcon from '@material-ui/icons/EventNote';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WarningIcon from '@material-ui/icons/Warning';
+import TimelineIcon from '@material-ui/icons/Timeline';
 import { 
     BrowserRouter as Router, 
     Switch, 
@@ -89,6 +90,12 @@ export const mainListItems = (
 export const secondaryListItems = (
   <div>
     <ListSubheader inset>Model Outputs</ListSubheader>
+    <ListItem button>
+      <ListItemIcon>
+        <TimelineIcon />
+      </ListItemIcon>
+      <ListItemText primary="Historic Data Graphs" />
+    </ListItem>
     <ListItem button>
       <ListItemIcon>
         <ThumbsUpDownIcon />
