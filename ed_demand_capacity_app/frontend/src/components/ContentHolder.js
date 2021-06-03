@@ -147,7 +147,7 @@ export default function ContentHolder() {
                 {/* <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
                 </Badge> */}
-                <Button color="inherit">Login</Button>
+                <Button color="inherit" to="/login" component = { Link }>Login</Button>
             </IconButton>
             </Toolbar>
         </AppBar>
