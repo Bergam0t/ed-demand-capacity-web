@@ -31,7 +31,6 @@ const muiTheme = createMuiTheme({
  fontFamily: font // Istok is very close to Frutiger, the NHS font
  }});
 
-const drawerWidth = 280;
 
 // Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
 
@@ -115,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 export default function App() {
-  const classes = useStyles();
+  
 
 
   return (
