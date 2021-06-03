@@ -30,6 +30,7 @@
     "ag-grid-community": "^25.2.1",
     "ag-grid-react": "^25.2.0",
     "axios": "^0.21.1",
+    "plotly": "^1.0.6",
     "plotly.js": "^1.58.4",
     "react-plotly.js": "^2.5.1",
     "react-router-dom": "^5.2.0"
