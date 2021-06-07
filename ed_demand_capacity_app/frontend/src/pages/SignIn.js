@@ -68,6 +68,9 @@ function SignIn(props) {
 
   const handleLogin = (e, data) => {
     e.preventDefault();
+    // console.log({email})
+    // console.log({password})
+    console.log({data})
     fetch('http://localhost:8000/api/token-auth/', {
       method: 'POST',
       headers: {
@@ -75,8 +78,11 @@ function SignIn(props) {
       },
       body: JSON.stringify(data)
     })
-      .then(res => res.json())
+      .then(res => 
+        res.json()
+      )
       .then(json => {
+        console.log(json);
         localStorage.setItem('token', json.token);
         setLoggedIn(true)
       });
@@ -92,7 +98,7 @@ function SignIn(props) {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <form className={classes.form} onSubmit={handleLogin}>
+          <form className={classes.form} onSubmit={(e) => handleLogin(e, ({email, password}))}>
             <TextField
               variant="outlined"
               margin="normal"
