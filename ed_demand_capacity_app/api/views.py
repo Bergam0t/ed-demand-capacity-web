@@ -101,9 +101,19 @@ class PlotlyTimeSeriesMostRecent(APIView):
 
         imported = pd.read_csv(historic_data.uploaded_data)
         imported['arrival_time'] = pd.to_datetime(imported['arrival_time'])
-        imported['corrected_date_time'] = pd.to_datetime(imported.date + ':' + imported['arrival_time'].dt.time.astype('str'), format='%Y-%m-%d:%H:%M:%S')
-        pivot_dt = imported.pivot_table(index='corrected_date_time', columns='stream', values='nhs_number', aggfunc='count').fillna(0)
+        imported['corrected_date_time'] = (
+            pd.to_datetime(imported.date 
+                           + ':' 
+                           + imported['arrival_time'].dt.time.astype('str'), 
+                           format='%Y-%m-%d:%H:%M:%S')
+        )
+        pivot_dt = imported.pivot_table(index='corrected_date_time', 
+                                        columns='stream', 
+                                        values='nhs_number', 
+                                        aggfunc='count').fillna(0)
         plotting_df_ms = pivot_dt.resample('MS').sum()[1:-1]
-        fig = px.line(data_frame=plotting_df_ms.reset_index(), x='corrected_date_time', y=plotting_df_ms.columns)
+        fig = px.line(data_frame=plotting_df_ms.reset_index(), 
+                      x='corrected_date_time', 
+                      y=plotting_df_ms.columns)
 
         return Response(fig.to_json(), status=status.HTTP_200_OK)

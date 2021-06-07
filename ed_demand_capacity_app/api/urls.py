@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import *
+from rest_framework_jwt.views import obtain_jwt_token
+
 
 urlpatterns = [
     path('organisation', 
@@ -20,5 +22,7 @@ urlpatterns = [
     path('most-recently-uploaded-historic-data-plotly-ms', 
          PlotlyTimeSeriesMostRecent.as_view(), 
          name='most_recent_hist_plotly_ms'),
+
+     path('token-auth/', obtain_jwt_token),
 
 ]

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { render } from "react-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
@@ -117,16 +117,37 @@ export default function App() {
   
 
 
+    const [logged_in, setLoggedIn] = useState(localStorage.getItem('token') ? true : false);
+    const [email, setEmail] = useState('');
+
+  
+
   return (
-      <Router>
-        <Switch>
-          <ThemeProvider theme={muiTheme}>
-            <ContentHolder />
-          </ThemeProvider>
-        </Switch>
-      </Router>
+    <Router>
+      <Switch>
+        <ThemeProvider theme={muiTheme}>
+          <ContentHolder />
+        </ThemeProvider>
+      </Switch>
+    </Router>
   );
-  }
+  };
+
+// class App extends Component {
+
+//   render () {
+//     return (
+//       <Router>
+//         <Switch>
+//           <ThemeProvider theme={muiTheme}>
+//             <ContentHolder />
+//           </ThemeProvider>
+//         </Switch>
+//       </Router>
+//   );
+//   }
+
+// }
 
 const appDiv = document.getElementById("app");
 render(<App/>, appDiv);
