@@ -130,7 +130,7 @@ export default function ContentHolder() {
 
     const classes = useStyles();
 
-    const LoginLogoutButton = ({loggedIn}) => {
+    const LoginLogoutButton = ({}) => {
       if (loggedIn) {
         return <Button color="inherit" to="/logout" component = { Link }>Logout</Button>;
       } 
