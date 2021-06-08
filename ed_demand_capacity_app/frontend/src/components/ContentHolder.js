@@ -29,7 +29,8 @@ import Box from '@material-ui/core/Box';
 import Button from "@material-ui/core/Button";
 import DashboardContent from "./DashboardContent";
 import { makeStyles } from '@material-ui/core/styles';
-import {useStoreState} from 'easy-peasy';
+import { useStoreState } from 'easy-peasy';
+import { useStoreActions } from 'easy-peasy';
 
 // Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
 
@@ -130,9 +131,11 @@ export default function ContentHolder() {
 
     const classes = useStyles();
 
+    const toggleLogOut = useStoreActions((actions) => actions.logoutAction);
+
     const LoginLogoutButton = ({}) => {
       if (loggedIn) {
-        return <Button color="inherit" to="/logout" component = { Link }>Logout</Button>;
+        return <Button color="inherit" onClick={toggleLogOut}>Logout</Button>;
       } 
       return <Button color="inherit" to="/login" component = { Link }>Login</Button>;
     };

@@ -9,4 +9,9 @@ export default {
         state.loggedIn = true;
     }),
 
+    logoutAction: action((state) => {
+        localStorage.removeItem('token');
+        state.loggedIn = false;
+    })
+
 };
