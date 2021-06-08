@@ -9,6 +9,11 @@ urlpatterns = [
     path('', index, name=''),
 ]
 
+# Add in wildcards that will mop up any requests that go to a specific page
+# Without this, navigating to a specific URL manually will return an error
+# Also allows the use of the back button
+# From OBAA's answer here 
+# https://stackoverflow.com/questions/40826295/react-routing-and-django-url-conflict
 urlpatterns += [
     # match the root
     re_path(r'^$', index),

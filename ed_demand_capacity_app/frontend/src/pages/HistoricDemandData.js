@@ -41,7 +41,8 @@ class HistoricDemandData extends Component {
         let url = 'http://localhost:8000/api/historic-data';
         axios.post(url, form_data, {
           headers: {
-            'content-type': 'multipart/form-data'
+            'content-type': 'multipart/form-data',
+            'authorization': `JWT ${localStorage.getItem('token')}`
           }
         })
             .then(res => {

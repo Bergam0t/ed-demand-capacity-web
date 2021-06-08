@@ -27,7 +27,11 @@ export default class PlotHistoric extends Component {
   }
 
   componentDidMount () { 
-    fetch('/api/most-recently-uploaded-historic-data-plotly-ms')
+    fetch('/api/most-recently-uploaded-historic-data-plotly-ms', {
+      headers: {
+        Authorization: `JWT ${localStorage.getItem('token')}`
+      }
+    })
         .then((response) => {
             return response.json();
             
