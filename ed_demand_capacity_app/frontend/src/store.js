@@ -2,7 +2,7 @@ import { action } from 'easy-peasy';
 
 export default {
     // States
-    loggedIn: false,
+    loggedIn: localStorage.getItem('token') ? true : false,
 
     // Actions
     loggedInTrue: action((state) => {
