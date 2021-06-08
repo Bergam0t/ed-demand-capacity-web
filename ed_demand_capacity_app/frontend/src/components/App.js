@@ -2,7 +2,8 @@ import React, { Component, useState } from "react";
 import { render } from "react-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
-import { ToastProvider } from 'react-toast-notifications';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import ContentHolder from "./ContentHolder"
 
@@ -45,15 +46,15 @@ export default function App() {
 
   return (
     <StoreProvider store={store}>
-      <ToastProvider>
         <Router>
           <Switch>
             <ThemeProvider theme={muiTheme}>
-              <ContentHolder />
+            <ToastContainer />
+                <ContentHolder />
+                
             </ThemeProvider>
           </Switch>
         </Router>
-      </ToastProvider>
     </StoreProvider>
   );
 };

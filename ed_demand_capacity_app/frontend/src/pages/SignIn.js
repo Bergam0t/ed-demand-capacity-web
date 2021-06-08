@@ -21,7 +21,7 @@ import { useStoreActions } from 'easy-peasy';
 import {useStoreState} from 'easy-peasy';
 import {useHistory} from "react-router-dom";
 import { useToasts } from 'react-toast-notifications'
-
+import { toast } from 'react-toastify';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -54,12 +54,18 @@ function SignIn(props) {
   // Local state for login page only
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
-  // Import state from store as loggedIn status is valuable to 
-  // access in other components
-  const loggedInS = useStoreState((state) => state.loggedIn);
 
-  const { addToast } = useToasts();
+  // const { addToast } = useToasts();
+
+  const notify = () => toast.success('Login Successful', {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    });
 
   // const handle_change = e => {
   //   const name = e.target.name;
@@ -101,10 +107,7 @@ function SignIn(props) {
         localStorage.setItem('token', json.token);
         toggleLogIn();
         history.goBack();
-        addToast("Successfully Logged In!", {
-          appearance: 'success',
-          autoDismiss: true,
-        });
+        notify();
       });
     }
 
