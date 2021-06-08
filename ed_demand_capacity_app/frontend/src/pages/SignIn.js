@@ -17,6 +17,11 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import PropTypes from 'prop-types';
+import { useStoreActions } from 'easy-peasy';
+import {useStoreState} from 'easy-peasy';
+import {useHistory} from "react-router-dom";
+import { useToasts } from 'react-toast-notifications'
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -42,11 +47,19 @@ const useStyles = makeStyles((theme) => ({
 
 function SignIn(props) {
 
-  const classes = useStyles();
+  const history = useHistory();
 
+  const classes = useStyles();
+  
+  // Local state for login page only
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
+  
+  // Import state from store as loggedIn status is valuable to 
+  // access in other components
+  const loggedInS = useStoreState((state) => state.loggedIn);
+
+  const { addToast } = useToasts();
 
   // const handle_change = e => {
   //   const name = e.target.name;
@@ -66,6 +79,8 @@ function SignIn(props) {
     setPassword(e.target.value)
   }
 
+  const toggleLogIn = useStoreActions((actions) => actions.loggedInTrue);
+
   const handleLogin = (e, data) => {
     e.preventDefault();
     // console.log({email})
@@ -84,7 +99,12 @@ function SignIn(props) {
       .then(json => {
         console.log(json);
         localStorage.setItem('token', json.token);
-        setLoggedIn(true)
+        toggleLogIn();
+        history.goBack();
+        addToast("Successfully Logged In!", {
+          appearance: 'success',
+          autoDismiss: true,
+        });
       });
     }
 

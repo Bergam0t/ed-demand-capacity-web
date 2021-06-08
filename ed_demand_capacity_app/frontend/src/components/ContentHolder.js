@@ -1,6 +1,6 @@
 // Use this similar to HomePage in the sample app
 // Routing code happens here? 
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { 
     BrowserRouter as Router, 
     Switch, 
@@ -29,7 +29,9 @@ import Box from '@material-ui/core/Box';
 import Button from "@material-ui/core/Button";
 import DashboardContent from "./DashboardContent";
 import { makeStyles } from '@material-ui/core/styles';
+import {useStoreState} from 'easy-peasy';
 
+// Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -124,7 +126,16 @@ export default function ContentHolder() {
     };
     // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
+    const loggedIn = useStoreState(state => state.loggedIn)
+
     const classes = useStyles();
+
+    const LoginLogoutButton = ({loggedIn}) => {
+      if (loggedIn) {
+        return <Button color="inherit" to="/logout" component = { Link }>Logout</Button>;
+      } 
+      return <Button color="inherit" to="/login" component = { Link }>Login</Button>;
+    };
 
     return (
         <div className={classes.root}>
@@ -147,7 +158,7 @@ export default function ContentHolder() {
                 {/* <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
                 </Badge> */}
-                <Button color="inherit" to="/login" component = { Link }>Login</Button>
+                <LoginLogoutButton />
             </IconButton>
             </Toolbar>
         </AppBar>
