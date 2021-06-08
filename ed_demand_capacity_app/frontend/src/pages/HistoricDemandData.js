@@ -17,13 +17,25 @@ import {
 //       },
 //     });
 
+import { useStoreState } from 'easy-peasy';
+
+// const loggedIn = useStoreState(state => state.loggedIn)
+
+
+
 class HistoricDemandData extends Component {
 
     state = {
         uploaded_data: null,
         successful_submission: null,
       };
-    
+   
+    //   checkLoggedIn() {
+    //     if (!loggedIn) {
+    //         this.props.history.push('/login')
+    //     }
+    // }
+
       handleFileChange = (e) => {
         this.setState({
           uploaded_data: e.target.files[0]
@@ -61,7 +73,9 @@ class HistoricDemandData extends Component {
     //const classes = useStyles();
 
     render() {
+
     return (
+        
         <div>
             <Grid container spacing={1}>
             

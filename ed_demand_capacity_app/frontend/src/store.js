@@ -26,15 +26,12 @@ export default {
         state.loggedIn = true;
     }),
 
-
     // Logging Out
-
-
-
     logoutAction: action((state) => {
         localStorage.removeItem('token');
         state.loggedIn = false;
         notifyLogout();
+        console.log(localStorage.getItem('token'))
     })
 
 };

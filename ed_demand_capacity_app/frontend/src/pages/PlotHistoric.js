@@ -5,6 +5,7 @@ import React, { Component, useState, useEffect } from "react";
 
 import createPlotlyComponent from 'react-plotly.js/factory'
 import CircularProgress from '@material-ui/core/CircularProgress';
+import {useStoreState} from 'easy-peasy';
 
 const Plot = createPlotlyComponent(Plotly);
 
@@ -26,12 +27,23 @@ export default class PlotHistoric extends Component {
     };
   }
 
-  componentDidMount () { 
-    fetch('/api/most-recently-uploaded-historic-data-plotly-ms', {
-      headers: {
-        Authorization: `JWT ${localStorage.getItem('token')}`
+  fetchData() {
+    const loggedIn = localStorage.getItem('token') ? true : false
+
+    if (loggedIn) {
+      return fetch('/api/most-recently-uploaded-historic-data-plotly-ms', {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`
+        }
+      }) } else {
+        return fetch('/api/most-recently-uploaded-historic-data-plotly-ms')
       }
-    })
+  };
+
+  componentDidMount () { 
+
+        this.fetchData()
+
         .then((response) => {
             return response.json();
             
