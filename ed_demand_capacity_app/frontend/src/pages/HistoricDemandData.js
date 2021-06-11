@@ -24,12 +24,31 @@ import { useStoreState } from 'easy-peasy';
 
 
 class HistoricDemandData extends Component {
+    constructor(props) {
+        super(props);
+    this.getHeaders = this.getHeaders.bind(this);
+    }
 
     state = {
         uploaded_data: null,
         successful_submission: null,
+        loggedIn: localStorage.getItem('token') ? true : false
       };
+
+    
    
+    getHeaders() {
+    if (this.state.loggedIn) {
+        return  {
+            'content-type': 'multipart/form-data',
+            'authorization': `JWT ${localStorage.getItem('token')}`
+          }
+    } else {
+        return  {
+            'content-type': 'multipart/form-data'
+          }
+    }};
+
     //   checkLoggedIn() {
     //     if (!loggedIn) {
     //         this.props.history.push('/login')
@@ -51,11 +70,14 @@ class HistoricDemandData extends Component {
                          this.state.uploaded_data.name,
                          );
         let url = 'http://localhost:8000/api/historic-data';
+        let conditional_request_headers = this.getHeaders();
+        console.log(conditional_request_headers)
         axios.post(url, form_data, {
-          headers: {
-            'content-type': 'multipart/form-data',
-            'authorization': `JWT ${localStorage.getItem('token')}`
-          }
+            headers: conditional_request_headers
+        //   headers: {
+        //     'content-type': 'multipart/form-data',
+        //     'authorization': `JWT ${localStorage.getItem('token')}`
+        //   }
         })
             .then(res => {
               console.log(res.data);

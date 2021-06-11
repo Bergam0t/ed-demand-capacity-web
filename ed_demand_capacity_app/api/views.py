@@ -32,8 +32,8 @@ class HistoricDataView(APIView):
 
     def post(self, request, *args, **kwargs):
         # If the current user doesn't have a current session with our server
-        if not self.request.session.exists(self.request.session.session_key):
-            self.request.session.create()
+        if not request.session.exists(request.session.session_key):
+            request.session.create()
         
         log.info(request.data)
 
@@ -44,7 +44,9 @@ class HistoricDataView(APIView):
             # Update with the session key
             # I had to do it here as it throws a wobbly if you try 
             # to modify the request data, even if you copy it first
-            historic_data_instance.uploader = self.request.session.session_key
+            historic_data_instance.uploader_session = request.session.session_key
+            # if request.user.is_authenticated():
+            #     historic_data_instance.uploader_email = 
             historic_data_instance.save()
 
             return Response(historic_data_serializer.data, 
@@ -57,7 +59,7 @@ class HistoricDataView(APIView):
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):
-        uploader = self.request.session.session_key
+        uploader = request.session.session_key
         # For some reason session id doesn't appear to be persisting properly
         # So for now just take the last object regardless of uploader
         # queryset = HistoricData.objects.filter(uploader=uploader)

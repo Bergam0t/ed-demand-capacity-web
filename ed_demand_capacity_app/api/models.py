@@ -40,7 +40,9 @@ class Site(models.Model):
 
 class HistoricData(models.Model):
     uploaded_data = models.FileField(upload_to='historic_data')
-    uploader = models.CharField(max_length=50, 
-                                default='Not recorded')
+    uploader_session = models.CharField(max_length=50, 
+                                        default='Not recorded')
+    uploader_email = models.CharField(max_length=150, 
+                                      default='Not logged in')
     upload_time = models.DateTimeField(auto_now_add=True, 
                                        blank=True)
