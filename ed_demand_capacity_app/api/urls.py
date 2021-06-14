@@ -14,6 +14,10 @@ urlpatterns = [
     path('most-recently-uploaded-historic-data', 
          DisplayMostRecentlyUploadedRawData.as_view(), 
          name='most_recent_hist'),
+
+    path('most-recently-uploaded-historic-data-own', 
+         DisplayMostRecentlyUploadedOwnRawData.as_view(), 
+         name='most_recent_hist'),
     
     path('most-recently-uploaded-historic-data-pandas', 
          MostRecentAsPandas.as_view(), 

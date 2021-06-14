@@ -13,6 +13,7 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
+logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 
 
@@ -32,8 +33,10 @@ class HistoricDataView(APIView):
 
     def post(self, request, *args, **kwargs):
         # If the current user doesn't have a current session with our server
-        if not request.session.exists(request.session.session_key):
-            request.session.create()
+        # then create one
+        log.info(self.request.session.session_key)
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         
         log.info(request.data)
 
@@ -44,29 +47,49 @@ class HistoricDataView(APIView):
             # Update with the session key
             # I had to do it here as it throws a wobbly if you try 
             # to modify the request data, even if you copy it first
-            historic_data_instance.uploader_session = request.session.session_key
+            log.info(self.request.session.session_key)
+            historic_data_instance.uploader_session = self.request.session.session_key
             # if request.user.is_authenticated():
             #     historic_data_instance.uploader_email = 
+            # historic_data_instance.save(update_fields=['uploader_session'])
             historic_data_instance.save()
 
             return Response(historic_data_serializer.data, 
                             status=status.HTTP_201_CREATED)
         else:
-            print('error', historic_data_serializer.errors)
+            log.error('error', historic_data_serializer.errors)
             return Response(historic_data_serializer.errors, 
                             status=status.HTTP_400_BAD_REQUEST)
 
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):
-        uploader = request.session.session_key
+        # uploader = request.session.session_key
         # For some reason session id doesn't appear to be persisting properly
         # So for now just take the last object regardless of uploader
         # queryset = HistoricData.objects.filter(uploader=uploader)
         queryset = HistoricData.objects
+        log.info(f"Session Key without self: {request.session.session_key}")
+        log.info(f"Session Key with self: {self.request.session.session_key}")
         historic_data = queryset.last()
         # serializer = UploadedHistoricDataSerializer(historic_data, 
         #                                             many=False)
+        
+        return Response(UploadedHistoricDataSerializer(historic_data, 
+                                                    many=False).data, status=status.HTTP_200_OK)
+
+class DisplayMostRecentlyUploadedOwnRawData(APIView):
+    def get(self, request, *args, **kwargs):
+        # if not request.session.exists(request.session.session_key):
+        #     request.session.create()
+        # Filter down to last uploaded data (as id'd by session key)
+        
+        uploader = request.session.session_key
+        log.info(request.session.session_key)
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+
+        # If owner has >1 uploaded data, find the most recent
+        historic_data = queryset.last()
 
         return Response(UploadedHistoricDataSerializer(historic_data, 
                                                     many=False).data, status=status.HTTP_200_OK)
