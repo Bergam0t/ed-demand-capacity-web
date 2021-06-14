@@ -41,7 +41,6 @@ const muiTheme = createMuiTheme({
 // const store = createStore(persist(storeFile));
 const store = createStore(storeFile);
 
-
 export default function App() {
 
   return (
@@ -51,7 +50,6 @@ export default function App() {
             <ThemeProvider theme={muiTheme}>
             <ToastContainer />
                 <ContentHolder />
-                
             </ThemeProvider>
           </Switch>
         </Router>

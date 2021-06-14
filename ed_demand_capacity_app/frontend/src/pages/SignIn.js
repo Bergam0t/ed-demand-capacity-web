@@ -106,9 +106,14 @@ function SignIn(props) {
       }
     )
 
-      .then(response => 
-          response.json()
-      )
+      .then((response) => {
+        if (!response.ok) {
+          setLoginFailMessage("Error logging in. Please check your username and password and try again.")
+          throw new Error('Failed to login')
+        } else {
+          return response.json();
+        }
+      })
           .then(json => {
               console.log(json);
               localStorage.setItem('token', json.access);

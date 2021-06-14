@@ -20,7 +20,7 @@ urlpatterns = [
 
 urlpatterns += [
     path('current_user/', current_user),
-    # path('current_user_2/', GetCurrentUser.as_view()),
+    path('current_user_email_json/', current_user_email_json),
     path('users/', UserList.as_view()),
     path('list-all-users/', ViewUserList.as_view())
 ]

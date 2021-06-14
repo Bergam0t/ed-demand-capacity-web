@@ -1,6 +1,6 @@
 // Use this similar to HomePage in the sample app
 // Routing code happens here? 
-import React, { Component, useState } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { 
     BrowserRouter as Router, 
     Switch, 
@@ -140,6 +140,13 @@ export default function ContentHolder() {
       } 
       return <Button color="inherit" to="/login" component = { Link }>Login</Button>;
     };
+    
+    const userEmail = useStoreState(state => state.userEmail)
+    const fetchInitialStateEmail = useStoreActions(actions => actions.fetchInitialStateEmail);
+
+    useEffect(() => {
+      fetchInitialStateEmail(); 
+    }, [])
 
     return (
         <div className={classes.root}>
@@ -179,7 +186,7 @@ export default function ContentHolder() {
                 <ChevronLeftIcon />
             </IconButton>
             </div>
-            <DisplayUserWelcome />
+            {userEmail && <DisplayUserWelcome />}
             <Divider />
             <List>{saveLoadItems}</List>
             <Divider />

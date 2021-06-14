@@ -1,6 +1,6 @@
 // Redux state store (wrapped in easy-peasy)
 
-import { action } from 'easy-peasy';
+import { action, computed, thunk } from 'easy-peasy';
 import { toast } from 'react-toastify';
 
 
@@ -15,16 +15,42 @@ const notifyLogout = () => toast.warn('Logged Out Successfully', {
     progress: undefined,
     });
 
+function FetchEmail() {
+    return fetch('users/current_user_email_json/', {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`
+        }})
+        // Make sure to not wrap this first then statement in {}
+        // otherwise it returns a promise instead of the json
+        // and then you can't access the email attribute 
+        .then(response => 
+            response.json()
+        )
+        .then((json) => {
+            return json["email"];
+        });
+}
+
 
 export default {
     
     // ---- States ---- //
     loggedIn: localStorage.getItem('token') ? true : false,
     
-    userEmail: localStorage.getItem('token'),
+    userEmail: null,
 
 
     // ---- Actions ---- //
+
+    // Setting initial user email
+    setInitialStateEmail: action((state, payload) => {
+        state.userEmail = payload;
+      }),
+
+    fetchInitialStateEmail: thunk(async (actions) => {
+        const data = await FetchEmail()
+        actions.setInitialStateEmail(data);      
+      }),
 
     // Logging in 
     loggedInTrue: action((state, payload) => {

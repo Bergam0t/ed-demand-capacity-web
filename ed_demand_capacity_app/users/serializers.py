@@ -12,6 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'is_staff')
 
+class UserSerializerEmailOnly(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('email', )
 
 class UserSerializerWithToken(serializers.ModelSerializer):
 

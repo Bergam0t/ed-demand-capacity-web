@@ -9,7 +9,7 @@ from rest_framework import permissions, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserSerializer, UserSerializerWithToken
+from .serializers import *
 import logging
 from django.http import JsonResponse
 
@@ -31,15 +31,25 @@ def current_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def current_user_email_json(request):
+    """
+    Determine the current user by their token, and return their data
+    """
+    log.info(request.user)
+    serializer = UserSerializerEmailOnly(request.user)
+    # return JsonResponse(serializer.data)
+    return Response(serializer.data)
 
-class GetCurrentUser(APIView):
-    def get(self, request):
-        log.info(self.request.user)
-        serializer = UserSerializer(data=self.request.user)
-        if serializer.is_valid():
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class GetCurrentUser(APIView):
+#     def get(self, request):
+#         log.info(self.request.user)
+#         serializer = UserSerializer(data=self.request.user)
+#         if serializer.is_valid():
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserList(APIView):
     """
