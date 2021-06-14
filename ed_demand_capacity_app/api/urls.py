@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
 from rest_framework_jwt.views import obtain_jwt_token
 
@@ -29,4 +29,12 @@ urlpatterns = [
 
      path('token-auth/', obtain_jwt_token),
 
+     # path('get-user', 
+     #      UserDetailsFromToken.as_view(), 
+     #      name="user_details_from_token"),
+
+]
+
+urlpatterns += [
+    path('api-auth/', include('rest_framework.urls')),
 ]

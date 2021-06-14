@@ -1,3 +1,5 @@
+// Redux state store (wrapped in easy-peasy)
+
 import { action } from 'easy-peasy';
 import { toast } from 'react-toastify';
 
@@ -18,12 +20,16 @@ export default {
     
     // ---- States ---- //
     loggedIn: localStorage.getItem('token') ? true : false,
+    
+    userEmail: localStorage.getItem('token'),
+
 
     // ---- Actions ---- //
 
     // Logging in 
-    loggedInTrue: action((state) => {
+    loggedInTrue: action((state, payload) => {
         state.loggedIn = true;
+        state.userEmail = payload["email"];
     }),
 
     // Logging Out

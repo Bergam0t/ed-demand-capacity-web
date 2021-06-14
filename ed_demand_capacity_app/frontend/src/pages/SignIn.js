@@ -97,7 +97,7 @@ function SignIn(props) {
 
     console.log({data})
     
-    fetch('/api/token-auth/', {
+    fetch('/users/token/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -105,21 +105,21 @@ function SignIn(props) {
       body: JSON.stringify(data)
       }
     )
-      .then((response) => {
-        if(!response.ok) {
-          console.log(response.json());
-          setLoginFailMessage("Error logging in. Please check your username and password and try again.")
-        } else { 
-          console.log(response.json());
-          localStorage.setItem('token', response.json.token);
-          toggleLogIn({email});
-          setLoginFailMessage("");
-          history.goBack();
-          notify();
-      }
-    });
 
+      .then(response => 
+          response.json()
+      )
+          .then(json => {
+              console.log(json);
+              localStorage.setItem('token', json.access);
+              toggleLogIn({email});
+              setLoginFailMessage("");
+              history.goBack();
+              notify();
+      })
+      
     }
+
 
     return (
       <Container component="main" maxWidth="xs">

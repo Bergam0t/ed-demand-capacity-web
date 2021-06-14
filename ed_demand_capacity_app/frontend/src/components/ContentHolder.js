@@ -31,6 +31,7 @@ import DashboardContent from "./DashboardContent";
 import { makeStyles } from '@material-ui/core/styles';
 import { useStoreState } from 'easy-peasy';
 import { useStoreActions } from 'easy-peasy';
+import DisplayUserWelcome from './DisplayUserWelcome';
 
 // Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
 
@@ -178,6 +179,7 @@ export default function ContentHolder() {
                 <ChevronLeftIcon />
             </IconButton>
             </div>
+            <DisplayUserWelcome />
             <Divider />
             <List>{saveLoadItems}</List>
             <Divider />

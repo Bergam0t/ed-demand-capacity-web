@@ -12,17 +12,26 @@ from rest_pandas import PandasSimpleView
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+from rest_framework.authtoken.models import Token
 
+# Ensure all log messages of INFO level and above get shown
 logging.basicConfig(level = logging.INFO)
+# Create the logger
 log = logging.getLogger(__name__)
 
 
-# Create your views here.
+# ---- VIEWS ---- #
+
 class OrganisationView(generics.CreateAPIView):
     queryset = Organisation.objects.all()
     serializer_class = OrganisationSerializer
 
 class HistoricDataView(APIView):
+    '''
+    Upload historic data in csv format
+
+    Get method returns filenames, uploader details and time
+    '''
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
@@ -142,3 +151,8 @@ class PlotlyTimeSeriesMostRecent(APIView):
                       y=plotting_df_ms.columns)
 
         return Response(fig.to_json(), status=status.HTTP_200_OK)
+
+# class UserDetailsFromToken(APIView):
+#     def get(self, request, *args, **kwargs):
+#         user = Token.objects.get(key='token string').user
+#         return Response(
