@@ -54,6 +54,7 @@ function SignIn(props) {
   // Local state for login page only
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginFailMessage, setLoginFailMessage] = useState("");
 
   // const { addToast } = useToasts();
 
@@ -66,6 +67,8 @@ function SignIn(props) {
     draggable: true,
     progress: undefined,
     });
+
+    
 
   // const handle_change = e => {
   //   const name = e.target.name;
@@ -88,25 +91,34 @@ function SignIn(props) {
   const toggleLogIn = useStoreActions((actions) => actions.loggedInTrue);
 
   const handleLogin = (e, data) => {
+    // "tells the user agent that if the event does not get explicitly handled, 
+    // its default action should not be taken as it normally would be"
     e.preventDefault();
+
     console.log({data})
+    
     fetch('/api/token-auth/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      },
+        },
       body: JSON.stringify(data)
-    })
-      .then(res => 
-        res.json()
-      )
-      .then(json => {
-        console.log(json);
-        localStorage.setItem('token', json.token);
-        toggleLogIn();
-        history.goBack();
-        notify();
-      });
+      }
+    )
+      .then((response) => {
+        if(!response.ok) {
+          console.log(response.json());
+          setLoginFailMessage("Error logging in. Please check your username and password and try again.")
+        } else { 
+          console.log(response.json());
+          localStorage.setItem('token', response.json.token);
+          toggleLogIn({email});
+          setLoginFailMessage("");
+          history.goBack();
+          notify();
+      }
+    });
+
     }
 
     return (
@@ -174,6 +186,7 @@ function SignIn(props) {
             </Grid> */}
           </form>
         </div>
+        {loginFailMessage}
       </Container>
     );
 }
