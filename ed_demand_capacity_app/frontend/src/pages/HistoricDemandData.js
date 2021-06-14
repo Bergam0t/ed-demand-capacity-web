@@ -6,9 +6,13 @@ import {
     Button,
     CardContent
   } from '@material-ui/core';
-  import React, { Component } from "react";
-  import Card from '@material-ui/core/Card';
-  import axios from 'axios';
+import React, { Component } from "react";
+import Card from '@material-ui/core/Card';
+import axios from 'axios';
+
+// See https://stackoverflow.com/questions/57305141/react-django-rest-framework-session-is-not-persisting-working
+axios.defaults.withCredentials = true;
+
 //   import { makeStyles } from '@material-ui/core/styles';
 
 //   const useStyles = makeStyles({
@@ -69,15 +73,13 @@ class HistoricDemandData extends Component {
                          this.state.uploaded_data, 
                          this.state.uploaded_data.name,
                          );
-        let url = 'http://localhost:8000/api/historic-data';
+        // REMEMBER - YOU WILL NEED TO CHANGE THIS WHEN 
+        // YOU PUT THIS ON A PROPER DOMAIN!?
+        let url = 'http://127.0.0.1:8000/api/historic-data';
         let conditional_request_headers = this.getHeaders();
         console.log(conditional_request_headers)
         axios.post(url, form_data, {
             headers: conditional_request_headers
-        //   headers: {
-        //     'content-type': 'multipart/form-data',
-        //     'authorization': `JWT ${localStorage.getItem('token')}`
-        //   }
         })
             .then(res => {
               console.log(res.data);
