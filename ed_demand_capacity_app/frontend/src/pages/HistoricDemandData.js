@@ -73,9 +73,7 @@ class HistoricDemandData extends Component {
                          this.state.uploaded_data, 
                          this.state.uploaded_data.name,
                          );
-        // REMEMBER - YOU WILL NEED TO CHANGE THIS WHEN 
-        // YOU PUT THIS ON A PROPER DOMAIN!?
-        let url = 'http://127.0.0.1:8000/api/historic-data';
+        let url = '/api/historic-data';
         let conditional_request_headers = this.getHeaders();
         console.log(conditional_request_headers)
         axios.post(url, form_data, {
