@@ -57,7 +57,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# This setting is crucial for allowing the login flow to work
+# If you remove this, you won't redirect after clicking 'login' and the 
+# login isn't successful
 CORS_ORIGIN_ALLOW_ALL = True
+
+# See https://stackoverflow.com/questions/57305141/react-django-rest-framework-session-is-not-persisting-working
+# CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'ed_demand_capacity_app.urls'
 
@@ -161,3 +167,5 @@ REST_FRAMEWORK = {
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.my_jwt_response_handler'
 }
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
