@@ -1,2 +1,17 @@
 
 ed_demand_capacity_app/uploads/historic_data/*.csv
+
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+
+# NPM #
+node_modules
+build
+npm-debug.log
+.env
+.DS_Store
