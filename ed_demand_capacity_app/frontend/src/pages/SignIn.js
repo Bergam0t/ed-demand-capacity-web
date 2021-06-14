@@ -89,10 +89,8 @@ function SignIn(props) {
 
   const handleLogin = (e, data) => {
     e.preventDefault();
-    // console.log({email})
-    // console.log({password})
     console.log({data})
-    fetch('http://localhost:8000/api/token-auth/', {
+    fetch('/api/token-auth/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
