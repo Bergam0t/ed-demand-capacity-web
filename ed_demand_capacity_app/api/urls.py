@@ -1,5 +1,7 @@
 from django.urls import path, include
 from .views import *
+from .views_forecasting import *
+
 
 
 urlpatterns = [
@@ -25,6 +27,11 @@ urlpatterns = [
     path('most-recently-uploaded-historic-data-plotly-ms', 
          PlotlyTimeSeriesMostRecent.as_view(), 
          name='most_recent_hist_plotly_ms'),
+
+     path('most-recently-uploaded-data-forecast', 
+         ProphetForecastOneWeekMajors.as_view(), 
+         name='most_recent_forecast'),
+
 
      # path('get-user', 
      #      UserDetailsFromToken.as_view(), 
