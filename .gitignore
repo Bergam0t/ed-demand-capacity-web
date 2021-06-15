@@ -17,4 +17,4 @@ npm-debug.log
 .DS_Store
 
 # Environments#
-envs/*
+envs/
