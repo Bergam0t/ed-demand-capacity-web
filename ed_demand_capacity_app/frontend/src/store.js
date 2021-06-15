@@ -18,7 +18,7 @@ const notifyLogout = () => toast.warn('Logged Out Successfully', {
 function FetchEmail() {
     return fetch('users/current_user_email/', {
         headers: {
-          Authorization: `JWT ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }})
         // Make sure to not wrap this first then statement in {}
         // otherwise it returns a promise instead of the json
@@ -35,7 +35,7 @@ function FetchEmail() {
 export default {
     
     // ---- States ---- //
-    loggedIn: localStorage.getItem('token') ? true : false,
+    loggedIn: localStorage.getItem('access_token') ? true : false,
     
     userEmail: null,
 
@@ -47,6 +47,10 @@ export default {
     setInitialStateEmail: action((state, payload) => {
         state.userEmail = payload;
       }),
+
+    setStateEmailUserNotLoggedIn: action((state) => {
+        state.userEmail = 'Anonymous User'
+    }),
 
     fetchInitialStateEmail: thunk(async (actions) => {
         const data = await FetchEmail()
@@ -61,10 +65,11 @@ export default {
 
     // Logging Out
     logoutAction: action((state) => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         state.loggedIn = false;
         notifyLogout();
-        console.log(localStorage.getItem('token'))
+        // console.log(localStorage.getItem('access_token'))
     })
 
 };

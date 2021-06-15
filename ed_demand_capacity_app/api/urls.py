@@ -1,6 +1,7 @@
 from django.urls import path, include
 from .views import *
-from rest_framework_jwt.views import obtain_jwt_token
+from .views_forecasting import *
+
 
 
 urlpatterns = [
@@ -27,7 +28,10 @@ urlpatterns = [
          PlotlyTimeSeriesMostRecent.as_view(), 
          name='most_recent_hist_plotly_ms'),
 
-     path('token-auth/', obtain_jwt_token),
+     path('most-recently-uploaded-data-forecast', 
+         ProphetForecastOneWeekMajors.as_view(), 
+         name='most_recent_forecast'),
+
 
      # path('get-user', 
      #      UserDetailsFromToken.as_view(), 
