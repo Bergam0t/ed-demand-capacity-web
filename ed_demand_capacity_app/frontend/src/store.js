@@ -18,7 +18,7 @@ const notifyLogout = () => toast.warn('Logged Out Successfully', {
 function FetchEmail() {
     return fetch('users/current_user_email/', {
         headers: {
-          Authorization: `JWT ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }})
         // Make sure to not wrap this first then statement in {}
         // otherwise it returns a promise instead of the json
