@@ -9,7 +9,7 @@ import {
 import React, { Component } from "react";
 import Card from '@material-ui/core/Card';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
 // See https://stackoverflow.com/questions/57305141/react-django-rest-framework-session-is-not-persisting-working
 axios.defaults.withCredentials = true;
 
@@ -26,6 +26,17 @@ import { useStoreState } from 'easy-peasy';
 // const loggedIn = useStoreState(state => state.loggedIn)
 
 
+const notify = () => toast.success('File uploaded successfully', {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    });
+
+    
 
 class HistoricDemandData extends Component {
     constructor(props) {
@@ -39,7 +50,6 @@ class HistoricDemandData extends Component {
         loggedIn: localStorage.getItem('token') ? true : false
       };
 
-    
    
     getHeaders() {
     if (this.state.loggedIn) {
@@ -67,7 +77,7 @@ class HistoricDemandData extends Component {
     
       handleSubmit = (e) => {
         e.preventDefault();
-        console.log(this.state);
+        // console.log(this.state);
         let form_data = new FormData();
         form_data.append('uploaded_data', 
                          this.state.uploaded_data, 
@@ -75,17 +85,20 @@ class HistoricDemandData extends Component {
                          );
         let url = '/api/historic-data';
         let conditional_request_headers = this.getHeaders();
-        console.log(conditional_request_headers)
+        // console.log(conditional_request_headers)
         axios.post(url, form_data, {
             headers: conditional_request_headers
         })
             .then(res => {
-              console.log(res.data);
-              if(res.ok) {
+              console.log(res);
+              if(res.status == 201) {
+                console.log("File upload successful")
+                notify();    
                 this.setState({
                     uploaded_data: null,
                     successful_submission: "File uploaded successfully!"
-                  })    
+                  })
+                
             }
             })
             .catch(err => console.log(err))
