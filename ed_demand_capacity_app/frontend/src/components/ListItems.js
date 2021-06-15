@@ -102,7 +102,7 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary="Core-Adhoc Balance" />
     </ListItem>
-    <ListItem button>
+    <ListItem button to="/required-vs-available-capacity" component = { Link }>
       <ListItemIcon>
         <EventNoteIcon />
       </ListItemIcon>
