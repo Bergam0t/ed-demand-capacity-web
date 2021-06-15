@@ -4,12 +4,12 @@ import Typography from "@material-ui/core/Typography";
 
 export default function DisplayUserWelcome() {
     const loggedIn = useStoreState((state) => state.loggedIn);
-    const email = useStoreState((state) => state.userEmail);
+    const userEmail = useStoreState((state) => state.userEmail);
 
     if (loggedIn) {
         return (
             <Typography variant="body1"> 
-            Welcome {email}!
+            Welcome {userEmail}!
             </Typography>
         )
     } else {

@@ -116,7 +116,8 @@ function SignIn(props) {
       })
           .then(json => {
               console.log(json);
-              localStorage.setItem('token', json.access);
+              localStorage.setItem('access_token', json.access);
+              localStorage.setItem('refresh_token', json.refresh);
               toggleLogIn({email});
               setLoginFailMessage("");
               history.goBack();

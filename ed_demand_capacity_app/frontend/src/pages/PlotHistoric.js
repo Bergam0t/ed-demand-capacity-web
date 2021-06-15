@@ -33,7 +33,7 @@ export default class PlotHistoric extends Component {
     if (loggedIn) {
       return fetch('/api/most-recently-uploaded-historic-data-plotly-ms', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }
       }) } else {
         return fetch('/api/most-recently-uploaded-historic-data-plotly-ms')
