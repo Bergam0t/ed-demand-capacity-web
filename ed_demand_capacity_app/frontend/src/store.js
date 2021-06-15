@@ -48,6 +48,10 @@ export default {
         state.userEmail = payload;
       }),
 
+    setStateEmailUserNotLoggedIn: action((state) => {
+        state.userEmail = 'Anonymous User'
+    }),
+
     fetchInitialStateEmail: thunk(async (actions) => {
         const data = await FetchEmail()
         actions.setInitialStateEmail(data);      
