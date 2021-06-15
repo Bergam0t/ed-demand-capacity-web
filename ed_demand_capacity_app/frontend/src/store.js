@@ -16,9 +16,9 @@ const notifyLogout = () => toast.warn('Logged Out Successfully', {
     });
 
 function FetchEmail() {
-    return fetch('users/current_user_email_json/', {
+    return fetch('users/current_user_email/', {
         headers: {
-          Authorization: `JWT ${localStorage.getItem('token')}`
+          Authorization: Bearer `JWT ${localStorage.getItem('token')}`
         }})
         // Make sure to not wrap this first then statement in {}
         // otherwise it returns a promise instead of the json
@@ -43,6 +43,7 @@ export default {
     // ---- Actions ---- //
 
     // Setting initial user email
+    // See https://github.com/ctrlplusb/easy-peasy/issues/393
     setInitialStateEmail: action((state, payload) => {
         state.userEmail = payload;
       }),

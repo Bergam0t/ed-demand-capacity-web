@@ -3,8 +3,6 @@
 from django.urls import path
 from .views import *
 
-
-
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -20,7 +18,7 @@ urlpatterns = [
 
 urlpatterns += [
     path('current_user/', current_user),
-    path('current_user_email_json/', current_user_email_json),
+    path('current_user_email/', current_user_email),
     path('users/', UserList.as_view()),
     path('list-all-users/', ViewUserList.as_view())
 ]

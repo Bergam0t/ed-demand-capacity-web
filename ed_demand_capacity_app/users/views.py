@@ -32,7 +32,7 @@ def current_user(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def current_user_email_json(request):
+def current_user_email(request):
     """
     Determine the current user by their token, and return their data
     """
