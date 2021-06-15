@@ -128,7 +128,9 @@ class MostRecentAsPandas(PandasSimpleView):
 
 class PlotlyTimeSeriesMostRecent(APIView):
     def get(self, request, *args, **kwargs):
-        queryset = HistoricData.objects
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
         # with open(historic_data.uploaded_data) as f:
         #     ncols = len(f.readline().split(','))
