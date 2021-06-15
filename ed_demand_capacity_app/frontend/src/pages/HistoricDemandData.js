@@ -6,9 +6,13 @@ import {
     Button,
     CardContent
   } from '@material-ui/core';
-  import React, { Component } from "react";
-  import Card from '@material-ui/core/Card';
-  import axios from 'axios';
+import React, { Component } from "react";
+import Card from '@material-ui/core/Card';
+import axios from 'axios';
+
+// See https://stackoverflow.com/questions/57305141/react-django-rest-framework-session-is-not-persisting-working
+axios.defaults.withCredentials = true;
+
 //   import { makeStyles } from '@material-ui/core/styles';
 
 //   const useStyles = makeStyles({
@@ -17,13 +21,44 @@ import {
 //       },
 //     });
 
+import { useStoreState } from 'easy-peasy';
+
+// const loggedIn = useStoreState(state => state.loggedIn)
+
+
+
 class HistoricDemandData extends Component {
+    constructor(props) {
+        super(props);
+    this.getHeaders = this.getHeaders.bind(this);
+    }
 
     state = {
         uploaded_data: null,
         successful_submission: null,
+        loggedIn: localStorage.getItem('token') ? true : false
       };
+
     
+   
+    getHeaders() {
+    if (this.state.loggedIn) {
+        return  {
+            'content-type': 'multipart/form-data',
+            'authorization': `JWT ${localStorage.getItem('token')}`
+          }
+    } else {
+        return  {
+            'content-type': 'multipart/form-data'
+          }
+    }};
+
+    //   checkLoggedIn() {
+    //     if (!loggedIn) {
+    //         this.props.history.push('/login')
+    //     }
+    // }
+
       handleFileChange = (e) => {
         this.setState({
           uploaded_data: e.target.files[0]
@@ -38,11 +73,11 @@ class HistoricDemandData extends Component {
                          this.state.uploaded_data, 
                          this.state.uploaded_data.name,
                          );
-        let url = 'http://localhost:8000/api/historic-data';
+        let url = '/api/historic-data';
+        let conditional_request_headers = this.getHeaders();
+        console.log(conditional_request_headers)
         axios.post(url, form_data, {
-          headers: {
-            'content-type': 'multipart/form-data'
-          }
+            headers: conditional_request_headers
         })
             .then(res => {
               console.log(res.data);
@@ -60,7 +95,9 @@ class HistoricDemandData extends Component {
     //const classes = useStyles();
 
     render() {
+
     return (
+        
         <div>
             <Grid container spacing={1}>
             

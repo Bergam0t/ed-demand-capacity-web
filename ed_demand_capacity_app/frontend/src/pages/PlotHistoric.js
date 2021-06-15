@@ -2,62 +2,16 @@
 
 import React, { Component, useState, useEffect } from "react";
 // import Plot from 'react-plotly.js';
-import axios from 'axios';
 
 import createPlotlyComponent from 'react-plotly.js/factory'
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-
-
-// export default function PlotHistoric(props) {
-
-//     let [responseData, setResponseData] = useState(''); 
-
-//     useEffect(() => {
-//         axios({
-//             "method": "GET",
-//             "url": "http://localhost:8000/api/most-recently-uploaded-historic-data-plotly-ms",
-//           })
-//           .then((response) => {
-//             setResponseData(response.data)
-//             console.log(response.data)
-//           })
-//           .catch((error) => {
-//             console.log(error)
-//           })
-//     });
-
-//         return (
-//         <Plot
-//             data={responseData["data"]}
-//             layout={ {width: 920, height: 640, title: 'A Fancy Plot'} }
-//         />
-//         );
-
-//     }
-
-// function getPlotData() {
-//   fetch('/api/most-recently-uploaded-historic-data-plotly-ms')
-//   // axios({
-//   //               "method": "GET",
-//   //               "url": "http://localhost:8000/api/most-recently-uploaded-historic-data-plotly-ms",
-//   //             })
-//       .then((response) => response.json())
-//       .then((mydata) => {
-//           this.setState({
-//               data: mydata.data,
-//           })
-//           console.log(mydata.data);
-//       });
-// }
+import {useStoreState} from 'easy-peasy';
 
 const Plot = createPlotlyComponent(Plotly);
 
 export default class PlotHistoric extends Component {
   constructor(props) {
     super(props);
-
-    // this.handleJsonChange = this.handleJsonChange.bind(this);    
 
     const defaultPlotJSON = {
         data: [],
@@ -73,8 +27,23 @@ export default class PlotHistoric extends Component {
     };
   }
 
+  fetchData() {
+    const loggedIn = localStorage.getItem('token') ? true : false
+
+    if (loggedIn) {
+      return fetch('/api/most-recently-uploaded-historic-data-plotly-ms', {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`
+        }
+      }) } else {
+        return fetch('/api/most-recently-uploaded-historic-data-plotly-ms')
+      }
+  };
+
   componentDidMount () { 
-    fetch('/api/most-recently-uploaded-historic-data-plotly-ms')
+
+        this.fetchData()
+
         .then((response) => {
             return response.json();
             
@@ -93,44 +62,6 @@ export default class PlotHistoric extends Component {
   });
 }
 
-  // handleJsonChange = newJSON => {
-  //     this.setState({json: newJSON});
-  // }
-
-  // handleNewPlot = option => {
-  //     let url = '';
-  //     if ('value' in option) {
-  //         url = option.value;
-  //     }
-  //     else if ('target' in option) {
-  //         url = option.target.value;
-  //         if (url.includes('http')) {
-  //             if (!url.includes('.json')) {
-  //                 url = url + '.json'
-  //             }
-  //         }
-  //     }
-
-  //     if(url) {
-  //         fetch(url)
-  //         .then((response) => response.json())
-  //         .then((newJSON) => {
-  //             if ('layout' in newJSON) {    
-  //                 if ('height' in newJSON.layout) {
-  //                     newJSON.layout.height = null;
-  //                 }
-  //                 if ('width' in newJSON.layout) {
-  //                     newJSON.layout.width = null;
-  //                 }
-  //             }
-  //             this.setState({
-  //                 json: newJSON,
-  //                 plotUrl: url
-  //             });
-  //         });
-  //     }
-  // }
-
   render() {
     if (!this.state.loaded) {
       return (
@@ -141,7 +72,6 @@ export default class PlotHistoric extends Component {
       <Plot
           data={this.state.json.data}
           layout={this.state.json.layout}
-          config={{displayModeBar: false}}
       />
       {console.log(this.state.json)}
   </div>    );
