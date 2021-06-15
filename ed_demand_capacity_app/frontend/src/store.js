@@ -61,10 +61,11 @@ export default {
 
     // Logging Out
     logoutAction: action((state) => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         state.loggedIn = false;
         notifyLogout();
-        console.log(localStorage.getItem('token'))
+        // console.log(localStorage.getItem('access_token'))
     })
 
 };
