@@ -4,7 +4,7 @@ import PlotlyPlot from "../components/PlotlyPlot"
 export default class PlotForecast extends Component {
     render() {
         return (
-        <PlotlyPlot api_url="/api/most-recently-uploaded-historic-data-plotly-ms" />
+        <PlotlyPlot api_url="/api/most-recently-uploaded-data-forecast" />
         )
     }
 };
