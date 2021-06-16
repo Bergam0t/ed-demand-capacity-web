@@ -32,6 +32,9 @@ urlpatterns = [
          ProphetForecastOneWeekMajors.as_view(), 
          name='most_recent_forecast'),
 
+     path('most-recently-uploaded-ag-grid-json', 
+         MostRecentAsAgGridJson.as_view(), 
+         name='most_recent_ag_grid_json'),
 
      # path('get-user', 
      #      UserDetailsFromToken.as_view(), 

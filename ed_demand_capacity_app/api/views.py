@@ -13,6 +13,7 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 from rest_framework.authtoken.models import Token
+from django.http import JsonResponse
 
 # Ensure all log messages of INFO level and above get shown
 logging.basicConfig(level = logging.INFO)
@@ -122,7 +123,8 @@ class DisplayMostRecentlyUploadedOwnRawData(APIView):
 
 class MostRecentAsPandas(PandasSimpleView):
     def get_data(self, request, *args, **kwargs):
-        queryset = HistoricData.objects
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
         historic_data = queryset.last()
         return pd.read_csv(historic_data.uploaded_data)
 
