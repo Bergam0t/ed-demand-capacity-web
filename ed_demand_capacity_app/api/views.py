@@ -71,6 +71,16 @@ class HistoricDataView(APIView):
             return Response(historic_data_serializer.errors, 
                             status=status.HTTP_400_BAD_REQUEST)
 
+class SessionHasHistoricData(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        # log.info(request.session.session_key)
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+
+        if len(queryset) >= 1:
+            return Response({'result': True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'result': False}, status=status.HTTP_200_OK)
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):

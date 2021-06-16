@@ -36,6 +36,10 @@ urlpatterns = [
          MostRecentAsAgGridJson.as_view(), 
          name='most_recent_ag_grid_json'),
 
+     path('session-has-historic-data', 
+         SessionHasHistoricData.as_view(), 
+         name='session_has_historic_data'),
+
      # path('get-user', 
      #      UserDetailsFromToken.as_view(), 
      #      name="user_details_from_token"),
