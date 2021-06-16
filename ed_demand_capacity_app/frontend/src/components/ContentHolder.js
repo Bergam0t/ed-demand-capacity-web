@@ -143,9 +143,11 @@ export default function ContentHolder() {
     
     const userEmail = useStoreState(state => state.userEmail)
     const fetchInitialStateEmail = useStoreActions(actions => actions.fetchInitialStateEmail);
-    
+    const fetchInitialStateSessionHistoric = useStoreActions(actions => actions.fetchInitialStateSessionHistoric);
+
     useEffect(() => {
       fetchInitialStateEmail(); 
+      fetchInitialStateSessionHistoric();
     }, [])
 
     return (
