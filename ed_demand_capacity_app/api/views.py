@@ -128,6 +128,20 @@ class MostRecentAsPandas(PandasSimpleView):
         historic_data = queryset.last()
         return pd.read_csv(historic_data.uploaded_data)
 
+class MostRecentAsAgGridJson(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data, find the most recent
+        historic_data = queryset.last()
+        # with open(historic_data.uploaded_data) as f:
+        #     ncols = len(f.readline().split(','))
+        data = pd.read_csv(historic_data.uploaded_data, 
+        # usecols=range(2, ncols)
+        )[['date', 'stream', 'nhs_number', 'arrival_time']].head(100)
+
+        return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
+
 class PlotlyTimeSeriesMostRecent(APIView):
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
