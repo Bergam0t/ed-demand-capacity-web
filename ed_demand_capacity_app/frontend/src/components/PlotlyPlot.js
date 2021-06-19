@@ -33,7 +33,7 @@ export default class PlotlyPlot extends Component {
     }
 
     fetchData() {
-      const loggedIn = localStorage.getItem('token') ? true : false
+      const loggedIn = localStorage.getItem('access_token') ? true : false
   
       if (loggedIn) {
         return fetch(this.props.api_url, {
