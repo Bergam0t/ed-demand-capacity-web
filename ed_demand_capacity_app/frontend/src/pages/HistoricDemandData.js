@@ -180,7 +180,8 @@ class HistoricDemandData extends Component {
             notify();    
             this.setState({
                 uploaded_data: null,
-                successful_submission: "File uploaded successfully!"
+                successful_submission: "File uploaded successfully!",
+                session_has_historic_data: true
                 })   
             }
         })
