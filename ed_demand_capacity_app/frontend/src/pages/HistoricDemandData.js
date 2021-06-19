@@ -225,7 +225,10 @@ class HistoricDemandData extends Component {
                                     </p>
                                     <div className={classes.root}> 
                                     <Button variant="contained" color="secondary"> Yes, Delete </Button>
-                                    <Button variant="contained" color="primary"> No, Go Back </Button>
+                                    <Button 
+                                        variant="contained" 
+                                        color="primary" 
+                                        onClick={this.handleClose}> No, Go Back </Button>
                                     </div>
                                 </div>
                             </Modal>
