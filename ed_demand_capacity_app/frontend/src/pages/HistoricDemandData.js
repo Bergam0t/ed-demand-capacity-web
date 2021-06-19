@@ -32,15 +32,22 @@ const notify = () => toast.success('File uploaded successfully', {
     progress: undefined,
 });
 
+const notifyDelete = () => toast.success('Existing historic data deleted', {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+});
+
+// UPDATE TO IMPORT THIS FROM ELSEWHERE?
 const font =  "'Istok Web', sans-serif;";
 
+// Styling for modal
 const useStyles = theme => ({
     paper: {
-        // position: 'absolute',
-        // top: '50%',
-        // left: '50%',
-        // transform: 'translate(-50%, -50%)',
-        // width: 400,
         backgroundColor: theme.palette.background.paper,
         border: '2px solid #000',
         boxShadow: theme.shadows[5],
@@ -90,6 +97,7 @@ class HistoricDemandData extends Component {
         });
     };
 
+    // ADD 'if response == 200' check to this
     handleDeleteAndClose() {
         fetch('/api/delete-session-historic-data', {method: 'POST'});
 
@@ -98,33 +106,9 @@ class HistoricDemandData extends Component {
             session_has_historic_data: false
         });
 
+        notifyDelete(); 
+
     };
-
-
-    // // When page loads, check whether there is already any data associated with the session
-    // // If there is, display this and give the user the option to get rid of it
-    // // If there isn't, allow users to upload the data instead
-    // componentDidMount () { 
-    // console.log(this.props.api_url)
-    // this.fetchData()
-
-    // .then((response) => {
-    //     return response.json();
-        
-    // })
-    
-    // .then((data) => {
-    //     // It's necessary to use the next line as for some reason
-    //     // the server is returning a json-like object rather than
-    //     // a valid json
-    //     var fixedJson = $.parseJSON(data);
-    //     this.setState({
-    //         json: fixedJson,
-    //         loaded: true
-    //     });
-    //     // console.log(data)
-    //     });
-    // }
 
     // This can't use the redux store because this is a functional component
     fetchHistoricBool() {
@@ -291,7 +275,7 @@ class HistoricDemandData extends Component {
                                 ) : (
                                     <Typography variant="h6">No file selected</Typography>
                                 )
-    }
+                            }
                             <Button color="primary" 
                                     variant="contained" 
                                     component="label" 
