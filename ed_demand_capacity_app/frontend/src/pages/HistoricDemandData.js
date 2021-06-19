@@ -122,7 +122,7 @@ class HistoricDemandData extends Component {
     if (this.state.loggedIn) {
         return  {
             'content-type': 'multipart/form-data',
-            'authorization': `JWT ${localStorage.getItem('token')}`
+            'authorization': `JWT ${localStorage.getItem('access_token')}`
           }
     } else {
         return  {
