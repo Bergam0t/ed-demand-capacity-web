@@ -51,7 +51,6 @@ export default class PlotlyPlot extends Component {
   
           .then((response) => {
               return response.json();
-              
           })
           
           .then((data) => {
@@ -64,8 +63,8 @@ export default class PlotlyPlot extends Component {
                 loaded: true
               });
             // console.log(data)
-    });
-  }
+      });
+    }
   
     render() {
       if (!this.state.loaded) {
@@ -73,14 +72,15 @@ export default class PlotlyPlot extends Component {
           <CircularProgress />
         );
       } else {
-        return (           <div>
-        <Plot
-            data={this.state.json.data}
-            layout={this.state.json.layout}
-        />
-        {console.log(this.state.json)}
-    </div>    );
-        
+        return (           
+          <div>
+          <Plot
+              data={this.state.json.data}
+              layout={this.state.json.layout}
+          />
+          {console.log(this.state.json)}
+          </div>    
+        );
       }
     }
   }
