@@ -20,7 +20,6 @@ logging.basicConfig(level = logging.INFO)
 # Create the logger
 log = logging.getLogger(__name__)
 
-
 # ---- VIEWS ---- #
 
 class OrganisationView(generics.CreateAPIView):
@@ -81,6 +80,14 @@ class SessionHasHistoricData(APIView):
             return Response({'result': True}, status=status.HTTP_200_OK)
         else:
             return Response({'result': False}, status=status.HTTP_200_OK)
+
+class DeleteSessionHistoricData(APIView):
+    def post(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        HistoricData.objects.filter(uploader_session=uploader).delete()
+
+        return Response({'result': 'Session data deleted'}, status=status.HTTP_200_OK)
+
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):

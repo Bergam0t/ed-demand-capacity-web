@@ -40,6 +40,12 @@ urlpatterns = [
          SessionHasHistoricData.as_view(), 
          name='session_has_historic_data'),
 
+     path('delete-session-historic-data', 
+         DeleteSessionHistoricData.as_view(),  
+         name='selete_session_historic_data'),
+
+     
+
      # path('get-user', 
      #      UserDetailsFromToken.as_view(), 
      #      name="user_details_from_token"),

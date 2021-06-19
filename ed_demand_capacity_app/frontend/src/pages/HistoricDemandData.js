@@ -65,6 +65,7 @@ class HistoricDemandData extends Component {
             this.fetchHistoricBool = this.fetchHistoricBool.bind(this);
             this.handleOpen = this.handleOpen.bind(this);
             this.handleClose = this.handleClose.bind(this);
+            this.handleDeleteAndClose = this.handleDeleteAndClose.bind(this);
     }
     // Should this move inside the constructor and change to this.state?
     // See CreateRoomPage.js in tutorial app
@@ -87,6 +88,16 @@ class HistoricDemandData extends Component {
         this.setState({
             deleteConfirmationModalOpen: false
         });
+    };
+
+    handleDeleteAndClose() {
+        fetch('/api/delete-session-historic-data', {method: 'POST'});
+
+        this.setState({
+            deleteConfirmationModalOpen: false,
+            session_has_historic_data: false
+        });
+
     };
 
 
@@ -224,7 +235,10 @@ class HistoricDemandData extends Component {
                                     There is no way to get it back if you do!
                                     </p>
                                     <div className={classes.root}> 
-                                    <Button variant="contained" color="secondary"> Yes, Delete </Button>
+                                    <Button 
+                                        variant="contained" 
+                                        color="secondary"
+                                        onClick={this.handleDeleteAndClose}> Yes, Delete </Button>
                                     <Button 
                                         variant="contained" 
                                         color="primary" 
