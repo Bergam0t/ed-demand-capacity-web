@@ -30,31 +30,42 @@ const notify = () => toast.success('File uploaded successfully', {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
-    });
+});
+
+const font =  "'Istok Web', sans-serif;";
 
 const useStyles = theme => ({
     paper: {
-        position: 'absolute',
-        width: 400,
+        // position: 'absolute',
+        // top: '50%',
+        // left: '50%',
+        // transform: 'translate(-50%, -50%)',
+        // width: 400,
         backgroundColor: theme.palette.background.paper,
         border: '2px solid #000',
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
+        fontFamily: font,
+        alignItems: 'baseline'
     },
-    });
+
+    root: {
+        '& > *': {
+          margin: theme.spacing(1),
+        },
+      },
+});
 
 // const sessionHasHistoricData = useStoreState(state => state.sessionHasHistoricData)
 
 class HistoricDemandData extends Component {
     constructor(props) {
-
         super(props);
-    this.getHeaders = this.getHeaders.bind(this);
-    this.fetchHistoricBool = this.fetchHistoricBool.bind(this);
-    this.handleOpen = this.handleOpen.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-    
-}
+            this.getHeaders = this.getHeaders.bind(this);
+            this.fetchHistoricBool = this.fetchHistoricBool.bind(this);
+            this.handleOpen = this.handleOpen.bind(this);
+            this.handleClose = this.handleClose.bind(this);
+    }
     // Should this move inside the constructor and change to this.state?
     // See CreateRoomPage.js in tutorial app
     state = {
@@ -201,6 +212,7 @@ class HistoricDemandData extends Component {
                             > Delete this data
                             </Button>
                             <Modal
+                                // style={{ alignItems: "center", justifyContent: "center" }}
                                 open={this.state.deleteConfirmationModalOpen}
                                 onClose={this.handleClose}
                                 aria-labelledby="simple-modal-title"
@@ -211,6 +223,10 @@ class HistoricDemandData extends Component {
                                     <p id="simple-modal-description">
                                     There is no way to get it back if you do!
                                     </p>
+                                    <div className={classes.root}> 
+                                    <Button variant="contained" color="secondary"> Yes, Delete </Button>
+                                    <Button variant="contained" color="primary"> No, Go Back </Button>
+                                    </div>
                                 </div>
                             </Modal>
                                                             
@@ -306,4 +322,4 @@ class HistoricDemandData extends Component {
     }
 }
 
-export default withStyles(useStyles)(HistoricDemandData);
+export default withStyles(useStyles, { withTheme: true })(HistoricDemandData);
