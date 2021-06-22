@@ -7,6 +7,7 @@ import React, { Component, useState, useEffect } from "react";
 import createPlotlyComponent from 'react-plotly.js/factory'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {useStoreState} from 'easy-peasy';
+import Typography from '@material-ui/core/Typography';
 
 const Plot = createPlotlyComponent(Plotly);
 
@@ -84,10 +85,15 @@ export default class PlotlyPlot extends Component {
           return (           
             <div>
               {(this.state.json || []).map((plotJson) => {
-                return <Plot
-                data={$.parseJSON(plotJson.fig_json).data}
-                layout={$.parseJSON(plotJson.fig_json).layout}
-            />
+                return(
+                  <div>
+                    <Typography variant="h5"> {plotJson.title} </Typography>
+                    <Plot
+                    data={$.parseJSON(plotJson.fig_json).data}
+                    layout={$.parseJSON(plotJson.fig_json).layout}
+                    />
+                  </div>
+                  )
               }
               )}
             
