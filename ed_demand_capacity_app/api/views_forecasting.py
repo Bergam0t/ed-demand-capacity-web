@@ -87,7 +87,7 @@ class ProphetForecastOneWeekMajors(APIView):
             fig = fig.update_layout(xaxis_range=[stream_only.ds.max().to_pydatetime(), 
                                                  fcst.ds.max()])
 
-            plot_list.append({'stream': stream, 'fig_json': fig.to_json()})
+            plot_list.append({'title': stream, 'fig_json': fig.to_json()})
             log.info('Plot created for stream' + str(stream))
 
         return Response(plot_list, status=status.HTTP_200_OK)
