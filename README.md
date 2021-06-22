@@ -2,6 +2,7 @@
  
 In one VS code terminal, run
 ```
+conda activate ./envs
 {PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app> python .\manage.py runserver
 ```
 
