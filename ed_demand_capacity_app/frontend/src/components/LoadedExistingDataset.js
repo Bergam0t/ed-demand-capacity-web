@@ -12,10 +12,12 @@ export default class DisplayExistingData extends Component {
         super(props);
 
         this.fetchData = this.fetchData.bind(this);
+        this.fetchColumnList();
 
         this.state = {
             json: null,
-            loaded: false
+            loaded: false,
+            allDataframeColumnsList: null,
         };
 
     }
@@ -34,6 +36,36 @@ export default class DisplayExistingData extends Component {
     };
 
 
+
+    getHeadersColSelectRequest() {
+        const loggedIn = localStorage.getItem('access_token') ? true : false
+        
+        if (loggedIn) {
+            return  {
+                'content-type': 'application/json',
+                'authorization': `JWT ${localStorage.getItem('access_token')}`
+              }
+        } else {
+            return  {
+                'content-type': 'application/json'
+              }
+        }};
+
+    fetchColumnList() {
+        return fetch('api/get-historic-data-columns')
+            // Make sure to not wrap this first then statement in {}
+            // otherwise it returns a promise instead of the json
+            // and then you can't access the email attribute 
+            .then(response => 
+                response.json()
+            )
+            .then((json) => {
+                return json["columns"];
+            });
+    }
+    
+
+    // Runs when component is loaded
     componentDidMount () { 
         this.fetchData()
        .then((result) => {return result.json();})
@@ -43,7 +75,19 @@ export default class DisplayExistingData extends Component {
                   loaded: true
                 })
             }
-        );
+        )
+        .then(() => {
+            this.fetchColumnList()            
+            .then((data) => {
+                // It's necessary to use the next line as for some reason
+                // the server is returning a json-like object rather than
+                // a valid json
+                  this.setState({
+                    allDataframeColumnsList: data.map(data => ({label:data, value:data})),
+                    // existing_data_check_complete: true,
+                  });
+            });
+        });
     };
 
 
@@ -58,10 +102,9 @@ export default class DisplayExistingData extends Component {
                     <AgGridReact
                         rowData={this.state.json}
                     >
-                        <AgGridColumn field='date' />
-                        <AgGridColumn field='stream' />
-                        <AgGridColumn field='nhs_number' />
-                        <AgGridColumn field='arrival_time' />
+                        {(this.state.allDataframeColumnsList || []).map((colName) => {
+         return <AgGridColumn field={colName.value} />
+      })}
                     </AgGridReact>
                 </div>
             );
