@@ -18,3 +18,13 @@ class UploadedHistoricDataSerializer(serializers.ModelSerializer):
 class ColumnSelectSerializer(serializers.Serializer):
     datetime_column = serializers.CharField()
     stream_column = serializers.CharField()
+
+class ShiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shift
+        fields = '__all__'
+
+class ShiftBreakSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShiftBreak
+        fields = '__all__'

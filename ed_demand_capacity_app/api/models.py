@@ -46,3 +46,25 @@ class HistoricData(models.Model):
                                       default='Not logged in')
     upload_time = models.DateTimeField(auto_now_add=True, 
                                        blank=True)
+
+
+class Shift(models.Model):
+    '''
+    Model for storing a shift
+
+    To allow a shift to have as many breaks as required, the ShiftBreak table
+    links to this one, using the automatically generated shift primary key 
+    as the foreign key
+    '''
+    user_session = models.CharField(max_length=50, 
+                                    default='Not recorded')
+    shift_type = models.CharField(max_length=150)
+    shift_start_time = models.TimeField()
+    shift_end_time = models.TimeField()
+
+
+
+class ShiftBreak(models.Model):
+    shift = models.ForeignKey(Shift)
+    break_start = models.TimeField()
+    break_end = models.TimeField()
