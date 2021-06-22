@@ -88,6 +88,18 @@ class DeleteSessionHistoricData(APIView):
 
         return Response({'result': 'Session data deleted'}, status=status.HTTP_200_OK)
 
+class GetSessionHistoricDataColumnNames(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        # log.info(request.session.session_key)
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+
+        # If owner has >1 uploaded data, find the most recent
+        historic_data = queryset.last()
+
+        df = pd.read_csv(historic_data.uploaded_data)
+
+        return Response({'columns': df.columns}, status=status.HTTP_200_OK)
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):

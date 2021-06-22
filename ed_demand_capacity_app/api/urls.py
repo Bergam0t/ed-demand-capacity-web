@@ -42,7 +42,11 @@ urlpatterns = [
 
      path('delete-session-historic-data', 
          DeleteSessionHistoricData.as_view(),  
-         name='selete_session_historic_data'),
+         name='delete_session_historic_data'),
+
+    path('get-historic-data-columns', 
+        GetSessionHistoricDataColumnNames.as_view(),  
+        name='get_historic_data_columns'),
 
      
 

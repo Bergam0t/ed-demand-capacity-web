@@ -89,6 +89,8 @@ class HistoricDemandData extends Component {
             this.handleDeleteAndClose = this.handleDeleteAndClose.bind(this);
             this.handleChangeStreamCol = this.handleChangeStreamCol.bind(this);
             this.handleChangeDateTimeCol = this.handleChangeDateTimeCol.bind(this);
+            this.fetchColumnList = this.fetchColumnList.bind(this);
+            this.renderListColumns = this.renderListColumns.bind(this);
     }
     // Should this move inside the constructor and change to this.state?
     // See CreateRoomPage.js in tutorial app
@@ -144,6 +146,20 @@ class HistoricDemandData extends Component {
                 return json["result"];
             });
     }
+
+    fetchColumnList() {
+        return fetch('api/get-historic-data-columns')
+            // Make sure to not wrap this first then statement in {}
+            // otherwise it returns a promise instead of the json
+            // and then you can't access the email attribute 
+            .then(response => 
+                response.json()
+            )
+            .then((json) => {
+                return json["columns"];
+            });
+    }
+    
 
     getHeaders() {
     if (this.state.loggedIn) {
@@ -205,11 +221,34 @@ class HistoricDemandData extends Component {
           // the server is returning a json-like object rather than
           // a valid json
             this.setState({
-              existing_data_check_complete: true,
               session_has_historic_data: data,
             });
           // console.log(data)
-        });
+        })
+
+        // If there is data, get the column names from the data
+        .then(
+
+        () => {if (this.state.session_has_historic_data) {
+            this.fetchColumnList()
+            .then((data) => {
+                // It's necessary to use the next line as for some reason
+                // the server is returning a json-like object rather than
+                // a valid json
+                  this.setState({
+                    allDataframeColumnsList: data.map(data => ({label:data, value:data})),
+                    // existing_data_check_complete: true,
+                  });
+                // console.log(data)
+              });
+        }
+    })
+        .then(() => 
+        this.setState({
+            // allDataframeColumnsList: data.map(data => ({label:data, value:data})),
+            existing_data_check_complete: true,
+          
+    }));
     }
 
     handleChangeDateTimeCol = e =>{
@@ -219,6 +258,14 @@ class HistoricDemandData extends Component {
     handleChangeStreamCol = e =>{
         this.setState({streamColumn: e.target.value});
         }
+
+    renderListColumns() {
+        if (this.state.allDataframeColumnsList) {
+            return this.state.allDataframeColumnsList.map(data => ({label:data, value:data}));
+        } else {
+            return [{label:"No column labels retrieved", value:"No column labels retrieved"}];
+        }
+    }
 
     render() {
     
@@ -253,15 +300,18 @@ class HistoricDemandData extends Component {
                         <Select
                             labelId="select-date-time-column-label"
                             id="select-date-time-column"
-                            value={{value: this.state.dateTimeColumn, label: this.state.dateTimeColumn}}
+                            value=''
                             onChange={this.handleChangeDateTimeCol}
+                            // options={this.renderListColumns}
+                            // options={this.state.allDataframeColumnsList}
                         >
-                            <MenuItem value={10}>Ten</MenuItem>
-                            <MenuItem value={20}>Twenty</MenuItem>
-                            <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
+                        {(this.state.allDataframeColumnsList || []).map((colName) => {
+         return <MenuItem value={colName.value}>{colName.label}</MenuItem>
+      })}
+      </Select>
+
                     </FormControl>
-                    <FormControl className={classes.formControl}>
+                    {/* <FormControl className={classes.formControl}>
                         <InputLabel id="select-stream-column-label">Stream Column</InputLabel>
                         <Select
                             labelId="select-stream-column-label"
@@ -270,11 +320,12 @@ class HistoricDemandData extends Component {
                             onChange={this.handleChangeStreamCol}
                         >
                             {/* // *TO DO*: Replace with for loop of columns */}
-                            <MenuItem value={10}>Ten</MenuItem>
+                            {/* <MenuItem value={10}>Ten</MenuItem>
                             <MenuItem value={20}>Twenty</MenuItem>
                             <MenuItem value={30}>Thirty</MenuItem>
                         </Select>
-                    </FormControl>
+                    </FormControl> */} 
+                    <Typography variant="h6"> Preview of your uploaded data </Typography>
                     <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
                 </div>
             )
