@@ -240,8 +240,17 @@ class HistoricDemandData extends Component {
                 }
             })
             .then(() => {
-                this.fetchColumnList(); 
-            })
+                this.fetchColumnList()            
+                .then((data) => {
+                    // It's necessary to use the next line as for some reason
+                    // the server is returning a json-like object rather than
+                    // a valid json
+                      this.setState({
+                        allDataframeColumnsList: data.map(data => ({label:data, value:data})),
+                        // existing_data_check_complete: true,
+                      });
+            });
+        })
             .catch(err => console.log(err))
     };
 
