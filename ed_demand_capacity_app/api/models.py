@@ -63,6 +63,6 @@ class Shift(models.Model):
     shift_end_time = models.TimeField()
 
 class ShiftBreak(models.Model):
-    shift = models.ForeignKey(Shift)
+    shift = models.ForeignKey(Shift, models.CASCADE),
     break_start = models.TimeField()
     break_end = models.TimeField()
