@@ -244,7 +244,8 @@ class PlotlyTimeSeriesMostRecent(APIView):
                       x='corrected_date_time', 
                       y=plotting_df_ms.columns,
                       labels={'corrected_date_time': 'Date',
-                              'value': 'Number of visits per month'})
+                              'value': 'Number of visits per month',
+                              'variable': 'Stream'})
 
         return Response(fig.to_json(), status=status.HTTP_200_OK)
 
