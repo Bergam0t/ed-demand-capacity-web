@@ -98,8 +98,8 @@ class FilterByColsAndOverwriteData(APIView):
         # find the most recent
         historic_data = queryset.last()
         
-        log.info(type(historic_data.uploaded_data))
-        log.info(historic_data.uploaded_data)
+        # log.info(type(historic_data.uploaded_data))
+        # log.info(historic_data.uploaded_data)
         log.info(historic_data.uploaded_data.name)
 
         df = pd.read_csv(historic_data.uploaded_data)
@@ -113,17 +113,27 @@ class FilterByColsAndOverwriteData(APIView):
                           columns_from_request['stream_column']
                           ]]
         
-        historic_data.uploaded_data.save(historic_data.uploaded_data.name, ContentFile(filtered_df.to_csv()))
-        
+        filtered_df = filtered_df.rename(
+            {columns_from_request['datetime_column']: 'datetime',
+             columns_from_request['stream_column']: 'stream'}, 
+             axis=1
+        )
 
-        return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
+        # Update existing model
+        # First argument is the filepath
+        # Second argument is the file itself
+        historic_data.uploaded_data.save(
+            historic_data.uploaded_data.name.replace('historic_data/', '', 1), 
+            ContentFile(filtered_df.to_csv())
+            )
+        
+        return Response({'Message': 'Successfully updated selected columns'}, status=status.HTTP_200_OK)
 
 class GetSessionHistoricDataColumnNames(APIView):
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
         # log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
-
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
 
@@ -197,7 +207,7 @@ class MostRecentAsAgGridJson(APIView):
         #     ncols = len(f.readline().split(','))
         data = pd.read_csv(historic_data.uploaded_data, 
         # usecols=range(2, ncols)
-        )[['date', 'stream', 'nhs_number', 'arrival_time']].head(100)
+        )
 
         return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
 
