@@ -13,7 +13,7 @@ streams = ['Resus', 'Majors', 'Minors']
 stream_weights = [169, 1609, 2517]
 
 output_filepath = ''
-output_filename = 'test_data.csv'
+output_filename = 'test_data_datetime.csv'
 
 # Create a stream chooser
 # create new provider class
@@ -61,9 +61,9 @@ test_data_df = pd.concat(test_data).reset_index()
 test_data_df['hour'] = test_data_df['arrival_time'].apply(lambda x: pd.to_datetime(x).hour)
 # Correct the arrival time
 test_data_df['corrected_date_time'] = (
-     pd.to_datetime(test_data_df.date 
+     pd.to_datetime(test_data_df.date.astype('str')
                     + ':' 
-                    + test_data_df['arrival_time'].dt.time.astype('str'), 
+                    + test_data_df['arrival_time'].astype('str'), 
                     format='%Y-%m-%d:%H:%M:%S')
 )
 
