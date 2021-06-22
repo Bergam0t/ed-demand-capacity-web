@@ -13,12 +13,13 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 from rest_framework.authtoken.models import Token
+from django.http import JsonResponse
+from django.core.files.base import ContentFile
 
 # Ensure all log messages of INFO level and above get shown
 logging.basicConfig(level = logging.INFO)
 # Create the logger
 log = logging.getLogger(__name__)
-
 
 # ---- VIEWS ---- #
 
@@ -70,6 +71,75 @@ class HistoricDataView(APIView):
             return Response(historic_data_serializer.errors, 
                             status=status.HTTP_400_BAD_REQUEST)
 
+class SessionHasHistoricData(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        # log.info(request.session.session_key)
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+
+        if len(queryset) >= 1:
+            return Response({'result': True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'result': False}, status=status.HTTP_200_OK)
+
+class DeleteSessionHistoricData(APIView):
+    def post(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        HistoricData.objects.filter(uploader_session=uploader).delete()
+
+        return Response({'result': 'Session data deleted'}, status=status.HTTP_200_OK)
+
+class FilterByColsAndOverwriteData(APIView):
+    def post(self, request, *args, **kwargs):
+
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
+        # find the most recent
+        historic_data = queryset.last()
+        
+        # log.info(type(historic_data.uploaded_data))
+        # log.info(historic_data.uploaded_data)
+        log.info(historic_data.uploaded_data.name)
+
+        df = pd.read_csv(historic_data.uploaded_data)
+        
+        # log.info(self.request.data)
+        columns_from_request = ColumnSelectSerializer(self.request.data).data
+        # log.info(columns_from_request)
+        
+
+        filtered_df = df[[columns_from_request['datetime_column'], 
+                          columns_from_request['stream_column']
+                          ]]
+        
+        filtered_df = filtered_df.rename(
+            {columns_from_request['datetime_column']: 'datetime',
+             columns_from_request['stream_column']: 'stream'}, 
+             axis=1
+        )
+
+        # Update existing model
+        # First argument is the filepath
+        # Second argument is the file itself
+        historic_data.uploaded_data.save(
+            historic_data.uploaded_data.name.replace('historic_data/', '', 1), 
+            ContentFile(filtered_df.to_csv())
+            )
+        
+        return Response({'Message': 'Successfully updated selected columns'}, status=status.HTTP_200_OK)
+
+class GetSessionHistoricDataColumnNames(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        # log.info(request.session.session_key)
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data, find the most recent
+        historic_data = queryset.last()
+
+        df = pd.read_csv(historic_data.uploaded_data)
+
+        return Response({'columns': df.columns}, status=status.HTTP_200_OK)
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):
@@ -122,9 +192,24 @@ class DisplayMostRecentlyUploadedOwnRawData(APIView):
 
 class MostRecentAsPandas(PandasSimpleView):
     def get_data(self, request, *args, **kwargs):
-        queryset = HistoricData.objects
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
         historic_data = queryset.last()
         return pd.read_csv(historic_data.uploaded_data)
+
+class MostRecentAsAgGridJson(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data, find the most recent
+        historic_data = queryset.last()
+        # with open(historic_data.uploaded_data) as f:
+        #     ncols = len(f.readline().split(','))
+        data = pd.read_csv(historic_data.uploaded_data, 
+        # usecols=range(2, ncols)
+        )
+
+        return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
 
 class PlotlyTimeSeriesMostRecent(APIView):
     def get(self, request, *args, **kwargs):
@@ -136,21 +221,31 @@ class PlotlyTimeSeriesMostRecent(APIView):
         #     ncols = len(f.readline().split(','))
 
         imported = pd.read_csv(historic_data.uploaded_data)
-        imported['arrival_time'] = pd.to_datetime(imported['arrival_time'])
+        
+        # *TODO* Improve handling of dates
+        # Try catch?
+        # Add some notifications explaining what has been assumed?
         imported['corrected_date_time'] = (
-            pd.to_datetime(imported.date 
-                           + ':' 
-                           + imported['arrival_time'].dt.time.astype('str'), 
-                           format='%Y-%m-%d:%H:%M:%S')
+            pd.to_datetime(imported['datetime'], 
+                        #   format='%Y-%m-%d %H:%M:%S')
+            )
         )
+
+        imported['dummy_row'] = 1
+        
         pivot_dt = imported.pivot_table(index='corrected_date_time', 
                                         columns='stream', 
-                                        values='nhs_number', 
+                                        values='dummy_row', 
                                         aggfunc='count').fillna(0)
+        
         plotting_df_ms = pivot_dt.resample('MS').sum()[1:-1]
+        
         fig = px.line(data_frame=plotting_df_ms.reset_index(), 
                       x='corrected_date_time', 
-                      y=plotting_df_ms.columns)
+                      y=plotting_df_ms.columns,
+                      labels={'corrected_date_time': 'Date',
+                              'value': 'Number of visits per month',
+                              'variable': 'Stream'})
 
         return Response(fig.to_json(), status=status.HTTP_200_OK)
 

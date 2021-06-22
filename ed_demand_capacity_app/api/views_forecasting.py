@@ -38,28 +38,56 @@ class ProphetForecastOneWeekMajors(APIView):
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
-        # with open(historic_data.uploaded_data) as f:
-        #     ncols = len(f.readline().split(','))
 
-        imported = pd.read_csv(historic_data.uploaded_data)
-        imported['arrival_time'] = pd.to_datetime(imported['arrival_time'])
-        grouped = imported.groupby(['date', 'hour', 'stream']).count()[['nhs_number']].reset_index()
-        grouped['date_time'] = pd.to_datetime(grouped.date + ':' + grouped.hour.astype('str'), format='%Y-%m-%d:%H')
-        grouped = grouped[['date_time', 'stream', 'nhs_number']]
+        # Convert the uploaded csv to a pandas dataframe
+        historic_df = pd.read_csv(historic_data.uploaded_data)
+        historic_df['datetime'] = pd.to_datetime(historic_df['datetime'])
+        historic_df['date'] = historic_df['datetime'].dt.date
+        historic_df['hour'] = historic_df['datetime'].dt.hour
+        historic_df['dummy'] = 1
+        
+        grouped = historic_df.groupby(['date', 'hour', 'stream']).count()[['dummy']].reset_index()
+        
+        
+        grouped['date_time_hour_start'] = (
+            pd.to_datetime(grouped.date.astype('str') 
+                           + ':' 
+                           + grouped.hour.astype('str'), 
+                           format='%Y-%m-%d:%H')
+        )
+        grouped = grouped[['date_time_hour_start', 'stream', 'dummy']]
 
-        # At the moment the name is hardcoded - this needs to change to iterate through given streams
-        majors = grouped[grouped['stream'] == 'Majors']
-        # Get into correct format for Prophet
-        majors = majors.drop('stream', axis=1).rename({'date_time': 'ds', 'nhs_number': 'y'}, axis=1)
-        # 1 week forecast
-        model = Prophet(interval_width=0.95)
-        model.add_country_holidays(country_name='England')
-        model.fit(majors)
-        future = model.make_future_dataframe(periods=24*7, freq='H', include_history=False)
-        fcst = model.predict(future)
+        plot_list = []
 
-        fig  = plot_plotly(model, fcst)
+        # Begin iterating through streams
+        for stream in grouped.stream.unique():
+            # At the moment the name is hardcoded - this needs to change to iterate through given streams
+            stream_only = grouped[grouped['stream'] == stream]
+            # Get into correct format for Prophet
+            stream_only = (
+                stream_only.drop('stream', axis=1)
+                .rename({'date_time_hour_start': 'ds', 
+                         'dummy': 'y'}, axis=1)
+                         )
 
-        fig = fig.update_layout(xaxis_range=[majors.ds.max().to_pydatetime(), fcst.ds.max()])
+            # log.info(stream_only.head(2))
+            
+            # 1 week forecast
+            model = Prophet(interval_width=0.95)
+            model.add_country_holidays(country_name='England')
+            model.fit(stream_only)
+            future = model.make_future_dataframe(periods=24*7, freq='H', include_history=False)
+            fcst = model.predict(future)
 
-        return Response(fig.to_json(), status=status.HTTP_200_OK)
+            fig  = plot_plotly(model, fcst)
+
+            # Update the x-axis range so we only display the future (i.e. the prediction),
+            # not the historic data, otherwise the period we are interested in is so small 
+            # as to not be visible
+            fig = fig.update_layout(xaxis_range=[stream_only.ds.max().to_pydatetime(), 
+                                                 fcst.ds.max()])
+
+            plot_list.append({'title': stream, 'fig_json': fig.to_json()})
+            log.info('Plot created for stream' + str(stream))
+
+        return Response(plot_list, status=status.HTTP_200_OK)

@@ -31,6 +31,20 @@ function FetchEmail() {
         });
 }
 
+function FetchHistoricBool() {
+    return fetch('api/session-has-historic-data')
+        // Make sure to not wrap this first then statement in {}
+        // otherwise it returns a promise instead of the json
+        // and then you can't access the email attribute 
+        .then(response => 
+            response.json()
+        )
+        .then((json) => {
+            console.log(json)
+            return json["result"];
+        });
+}
+
 
 export default {
     
@@ -38,6 +52,8 @@ export default {
     loggedIn: localStorage.getItem('access_token') ? true : false,
     
     userEmail: null,
+
+    sessionHasHistoricData: null,
 
 
     // ---- Actions ---- //
@@ -56,6 +72,17 @@ export default {
         const data = await FetchEmail()
         actions.setInitialStateEmail(data);      
       }),
+
+
+    // Check whether session has historic data
+    setInitialStateSessionHasHistoric: action((state, payload) => {
+        state.sessionHasHistoricData = payload;
+      }),
+
+    fetchInitialStateSessionHistoric: thunk(async (actions) => {
+        const data = await FetchHistoricBool()
+    actions.setInitialStateSessionHasHistoric(data);      
+    }),
 
     // Logging in 
     loggedInTrue: action((state, payload) => {

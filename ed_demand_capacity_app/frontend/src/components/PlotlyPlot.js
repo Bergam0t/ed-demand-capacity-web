@@ -7,6 +7,7 @@ import React, { Component, useState, useEffect } from "react";
 import createPlotlyComponent from 'react-plotly.js/factory'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {useStoreState} from 'easy-peasy';
+import Typography from '@material-ui/core/Typography';
 
 const Plot = createPlotlyComponent(Plotly);
 
@@ -33,7 +34,7 @@ export default class PlotlyPlot extends Component {
     }
 
     fetchData() {
-      const loggedIn = localStorage.getItem('token') ? true : false
+      const loggedIn = localStorage.getItem('access_token') ? true : false
   
       if (loggedIn) {
         return fetch(this.props.api_url, {
@@ -48,24 +49,31 @@ export default class PlotlyPlot extends Component {
     componentDidMount () { 
           console.log(this.props.api_url)
           this.fetchData()
+          
   
           .then((response) => {
               return response.json();
-              
           })
           
           .then((data) => {
             // It's necessary to use the next line as for some reason
             // the server is returning a json-like object rather than
             // a valid json
+            if (data instanceof Array) {
+              this.setState({
+                json: data,
+                loaded: true
+              });
+            } else {
             var fixedJson = $.parseJSON(data);
               this.setState({
                 json: fixedJson,
                 loaded: true
               });
-            // console.log(data)
-    });
-  }
+            }
+            console.log(data)
+      });
+    }
   
     render() {
       if (!this.state.loaded) {
@@ -73,14 +81,36 @@ export default class PlotlyPlot extends Component {
           <CircularProgress />
         );
       } else {
-        return (           <div>
-        <Plot
-            data={this.state.json.data}
-            layout={this.state.json.layout}
-        />
-        {console.log(this.state.json)}
-    </div>    );
-        
+        if (this.state.json instanceof Array) {
+          return (           
+            <div>
+              {(this.state.json || []).map((plotJson) => {
+                return(
+                  <div>
+                    <Typography variant="h5"> {plotJson.title} </Typography>
+                    <Plot
+                    data={$.parseJSON(plotJson.fig_json).data}
+                    layout={$.parseJSON(plotJson.fig_json).layout}
+                    />
+                  </div>
+                  )
+              }
+              )}
+            
+            {/* {console.log(this.state.json)} */}
+            </div>   
+          )
+        } else {
+          return (           
+            <div>
+            <Plot
+                data={this.state.json.data}
+                layout={this.state.json.layout}
+            />
+            {console.log(this.state.json)}
+            </div>    
+          );
+        }
       }
     }
   }
