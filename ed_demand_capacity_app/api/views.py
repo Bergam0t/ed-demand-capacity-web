@@ -14,6 +14,7 @@ import plotly.express as px
 from datetime import datetime
 from rest_framework.authtoken.models import Token
 from django.http import JsonResponse
+from django.core.files.base import ContentFile
 
 # Ensure all log messages of INFO level and above get shown
 logging.basicConfig(level = logging.INFO)
@@ -87,6 +88,35 @@ class DeleteSessionHistoricData(APIView):
         HistoricData.objects.filter(uploader_session=uploader).delete()
 
         return Response({'result': 'Session data deleted'}, status=status.HTTP_200_OK)
+
+class FilterByColsAndOverwriteData(APIView):
+    def post(self, request, *args, **kwargs):
+
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
+        # find the most recent
+        historic_data = queryset.last()
+        
+        log.info(type(historic_data.uploaded_data))
+        log.info(historic_data.uploaded_data)
+        log.info(historic_data.uploaded_data.name)
+
+        df = pd.read_csv(historic_data.uploaded_data)
+        
+        # log.info(self.request.data)
+        columns_from_request = ColumnSelectSerializer(self.request.data).data
+        # log.info(columns_from_request)
+        
+
+        filtered_df = df[[columns_from_request['datetime_column'], 
+                          columns_from_request['stream_column']
+                          ]]
+        
+        historic_data.uploaded_data.save(historic_data.uploaded_data.name, ContentFile(filtered_df.to_csv()))
+        
+
+        return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
 
 class GetSessionHistoricDataColumnNames(APIView):
     def get(self, request, *args, **kwargs):

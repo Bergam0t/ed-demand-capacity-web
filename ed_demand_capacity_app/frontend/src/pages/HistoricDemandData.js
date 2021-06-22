@@ -83,6 +83,7 @@ class HistoricDemandData extends Component {
     constructor(props) {
         super(props);
             this.getHeaders = this.getHeaders.bind(this);
+            this.getHeadersColSelectRequest = this.getHeadersColSelectRequest.bind(this);
             this.fetchHistoricBool = this.fetchHistoricBool.bind(this);
             this.handleOpen = this.handleOpen.bind(this);
             this.handleClose = this.handleClose.bind(this);
@@ -91,6 +92,7 @@ class HistoricDemandData extends Component {
             this.handleChangeDateTimeCol = this.handleChangeDateTimeCol.bind(this);
             this.fetchColumnList = this.fetchColumnList.bind(this);
             this.renderListColumns = this.renderListColumns.bind(this);
+            this.handleSubmitSelectedColumns = this.handleSubmitSelectedColumns.bind(this);
     }
     // Should this move inside the constructor and change to this.state?
     // See CreateRoomPage.js in tutorial app
@@ -173,6 +175,20 @@ class HistoricDemandData extends Component {
           }
     }};
 
+
+    getHeadersColSelectRequest() {
+        if (this.state.loggedIn) {
+            return  {
+                'content-type': 'application/json',
+                'authorization': `JWT ${localStorage.getItem('access_token')}`
+              }
+        } else {
+            return  {
+                'content-type': 'application/json'
+              }
+        }};
+    
+
     // Handle file upload
     // From *TO DO*: Find link
     handleFileChange = (e) => {
@@ -205,12 +221,47 @@ class HistoricDemandData extends Component {
                 this.setState({
                     uploaded_data: null,
                     successful_submission: "File uploaded successfully!",
-                    session_has_historic_data: true
+                    session_has_historic_data: true,
+                    colsSelected: false
                     })   
                 }
             })
             .catch(err => console.log(err))
     };
+
+    handleSubmitSelectedColumns = (e) => {
+        e.preventDefault();
+
+        // let form_data = new FormData();
+        // form_data.append('datetime_column', 
+        //                     this.state.dateTimeColumn
+        //                     );
+        // form_data.append('stream_column', 
+        //                     this.state.streamColumn
+        //                     );
+        // console.log(form_data);
+        let jsonData = {'datetime_column': this.state.dateTimeColumn,
+                        'stream_column':this.state.streamColumn}
+        let url = '/api/filter-by-cols-and-overwrite-data';
+        let conditional_request_headers = this.getHeadersColSelectRequest();
+        console.log(jsonData)
+        console.log(conditional_request_headers)
+        // axios.post(url, form_data, {
+        axios.post(url, jsonData, {    
+            headers: conditional_request_headers
+        })
+            .then(res => {
+                console.log(res);
+                if(res.status == 201) {
+                console.log("File updated successfully")
+                notify();    
+                this.setState({
+                    colsSelected: true
+                    })   
+                }
+            })
+            .catch(err => console.log(err))
+    }
 
     //const classes = useStyles();
 
@@ -297,9 +348,10 @@ class HistoricDemandData extends Component {
         // https://stackoverflow.com/questions/64298136/react-material-ui-select-not-working-properly
 
         
-        if (this.state.session_has_historic_data && this.state.colsSelected) {
+        if (this.state.session_has_historic_data && !this.state.colsSelected) {
             return (
                 <div>
+                    
                     <Typography variant="h6"> Select the columns from your dataset that contain admission date/time and stream.</Typography>
                     <FormControl className={classes.formControl}>
                         <InputLabel id="select-date-time-column-label">Admission Datetime</InputLabel>
@@ -329,6 +381,20 @@ class HistoricDemandData extends Component {
       })}
       </Select>
                     </FormControl> 
+
+                    {/* <form onSubmit={this.handleSubmitSelectedColumns}> */}
+                            <Button color="secondary" variant="contained" component="label" onClick={this.handleSubmitSelectedColumns}> 
+                                Confirm column selection
+                                {/* <input
+                                    type="file"
+                                    accept=".csv"
+                                    hidden
+                                    onChange={this.handleFileChange}
+                                /> */}
+                            </Button>
+
+                    {/* </form> */}
+
                     <Typography variant="h6"> Preview of your uploaded data </Typography>
                     <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
                 </div>
@@ -341,7 +407,7 @@ class HistoricDemandData extends Component {
         // data are relevant (which defaults to true on page load and only gets set
         // to false during data upload), display that historic data and give them the 
         // option to remove it from the server.
-        else if (this.state.session_has_historic_data && !this.state.colsSelected) {
+        else if (this.state.session_has_historic_data && this.state.colsSelected) {
             return (
                 <div>
                     <Grid container spacing={3} align="center">
