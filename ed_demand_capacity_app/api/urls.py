@@ -1,6 +1,7 @@
 from django.urls import path, include
 from .views import *
 from .views_forecasting import *
+from .views_shifts_rotas import *
 
 
 urlpatterns = []
@@ -75,6 +76,42 @@ urlpatterns += [
 ]
 
 
+
+# --- Shifts --- #
+
+# Following https://www.youtube.com/watch?v=TmsD8QExZ84
+
+urlpatterns += [
+    path('all-shift-types-anonymous', 
+         ViewAllShiftTypesAnonymous.as_view(), 
+         name='view_all_shift_types_anonymous'),
+
+    path('own-shift-types', 
+         ViewOwnShiftTypes.as_view(), 
+         name='view_own_shift_types'),
+    
+    path('individual-shift-type-own/<str:pk>', 
+         ViewIndividualShiftOwn.as_view(), 
+         name='view_individual_shift_type_own'),
+    
+    path('individual-shift-type-any-anonymous/<str:pk>', 
+         ViewIndividualShiftAnyAnonymous.as_view(), 
+         name='view_individual_shift_type_any_anonymous'),
+
+    path('create-shift-type', 
+         CreateShiftType.as_view(), 
+         name='create_shift_type'),
+
+    path('update-shift-type/<str:pk>', 
+         UpdateShiftType.as_view(), 
+         name='update_shift_type'),
+
+    path('delete-shift-type/<str:pk>', 
+         DeleteShiftType.as_view(), 
+         name='delete_shift_type'),
+]
+
+
 # --- Authentication --- #
 
 # *TODO* Check whether I actually used this in the end!
@@ -90,3 +127,4 @@ urlpatterns+= [
     path('organisation', 
          OrganisationView.as_view()),
          ]
+         
