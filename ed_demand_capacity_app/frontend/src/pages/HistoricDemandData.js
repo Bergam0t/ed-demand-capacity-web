@@ -216,15 +216,21 @@ class HistoricDemandData extends Component {
             .then(res => {
                 console.log(res);
                 if(res.status == 201) {
-                console.log("File upload successful")
-                notify();    
-                this.setState({
-                    uploaded_data: null,
-                    successful_submission: "File uploaded successfully!",
-                    session_has_historic_data: true,
-                    colsSelected: false
-                    })   
+                    console.log("File upload successful")
+                    notify();
+                       
+                    this.setState({
+                        uploaded_data: null,
+                        successful_submission: "File uploaded successfully!",
+                        session_has_historic_data: true,
+                        colsSelected: false
+                        })   
+
+                    
                 }
+            })
+            .then(() => {
+                this.fetchColumnList(); 
             })
             .catch(err => console.log(err))
     };
