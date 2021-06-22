@@ -14,6 +14,12 @@ import { toast } from 'react-toastify';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DisplayExistingData from "../components/LoadedExistingDataset"
 import { withStyles } from '@material-ui/core/styles';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 
 
 
@@ -73,6 +79,8 @@ class HistoricDemandData extends Component {
             this.handleOpen = this.handleOpen.bind(this);
             this.handleClose = this.handleClose.bind(this);
             this.handleDeleteAndClose = this.handleDeleteAndClose.bind(this);
+            this.handleChangeStreamCol = this.handleChangeStreamCol.bind(this);
+            this.handleChangeDateTimeCol = this.handleChangeDateTimeCol.bind(this);
     }
     // Should this move inside the constructor and change to this.state?
     // See CreateRoomPage.js in tutorial app
@@ -82,7 +90,12 @@ class HistoricDemandData extends Component {
         uploaded_data: null,
         successful_submission: null,
         loggedIn: localStorage.getItem('token') ? true : false,
-        deleteConfirmationModalOpen: false
+        deleteConfirmationModalOpen: false,
+        colsSelected: true,
+        allDataframeColumnsList: null,
+        dateTimeColumn: "Not Selected",
+        streamColumn: "Not Selected",
+
       };
 
     handleOpen() {
@@ -136,40 +149,43 @@ class HistoricDemandData extends Component {
           }
     }};
 
-
+    // Handle file upload
+    // From *TO DO*: Find link
     handleFileChange = (e) => {
-    this.setState({
-        uploaded_data: e.target.files[0]
-        })
+        this.setState({
+            uploaded_data: e.target.files[0]
+            })
     };
 
+    // Handle submission of uploaded file
+    // From *TO DO*: Find link 
     handleSubmit = (e) => {
-    e.preventDefault();
-    // console.log(this.state);
-    let form_data = new FormData();
-    form_data.append('uploaded_data', 
-                        this.state.uploaded_data, 
-                        this.state.uploaded_data.name,
-                        );
-    let url = '/api/historic-data';
-    let conditional_request_headers = this.getHeaders();
-    // console.log(conditional_request_headers)
-    axios.post(url, form_data, {
-        headers: conditional_request_headers
-    })
-        .then(res => {
-            console.log(res);
-            if(res.status == 201) {
-            console.log("File upload successful")
-            notify();    
-            this.setState({
-                uploaded_data: null,
-                successful_submission: "File uploaded successfully!",
-                session_has_historic_data: true
-                })   
-            }
+        e.preventDefault();
+        // console.log(this.state);
+        let form_data = new FormData();
+        form_data.append('uploaded_data', 
+                            this.state.uploaded_data, 
+                            this.state.uploaded_data.name,
+                            );
+        let url = '/api/historic-data';
+        let conditional_request_headers = this.getHeaders();
+        // console.log(conditional_request_headers)
+        axios.post(url, form_data, {
+            headers: conditional_request_headers
         })
-        .catch(err => console.log(err))
+            .then(res => {
+                console.log(res);
+                if(res.status == 201) {
+                console.log("File upload successful")
+                notify();    
+                this.setState({
+                    uploaded_data: null,
+                    successful_submission: "File uploaded successfully!",
+                    session_has_historic_data: true
+                    })   
+                }
+            })
+            .catch(err => console.log(err))
     };
 
     //const classes = useStyles();
@@ -188,15 +204,80 @@ class HistoricDemandData extends Component {
         });
     }
 
+    handleChangeDateTimeCol = e =>{
+        this.setState({dateTimeColumn: e.target.value});
+        }
+
+    handleChangeStreamCol = e =>{
+        this.setState({streamColumn: e.target.value});
+        }
+
     render() {
-        const { classes } = this.props;
+    
+    // For styling
+    const { classes } = this.props;
+
+    // If API call to retrieve existing data has not yet happened, 
+    // return a circular loading bar
     if (!this.state.existing_data_check_complete) {
         return (
             <CircularProgress />
           );
-    } else {
 
-        if (this.state.session_has_historic_data) {
+
+
+    } else {
+        
+        // *TO DO*: reorder these three views so they match the logical order you would
+        // progress through them, just because it will make it easier for the next person
+        // to understand the code
+
+
+        // If the user has uploaded data but has not yet specified the relevant columns
+        // from the data, then 
+        // This view will only be seen straight after successfully uploading data 
+        if (this.state.session_has_historic_data && this.state.colsSelected) {
+            return (
+                <div>
+                    <FormControl className={classes.formControl}>
+                        <InputLabel id="select-date-time-column-label">Admission Datetime</InputLabel>
+                        <Select
+                            labelId="select-date-time-column-label"
+                            id="select-date-time-column"
+                            value={{value: this.state.dateTimeColumn, label: this.state.dateTimeColumn}}
+                            onChange={this.handleChangeDateTimeCol}
+                        >
+                            <MenuItem value={10}>Ten</MenuItem>
+                            <MenuItem value={20}>Twenty</MenuItem>
+                            <MenuItem value={30}>Thirty</MenuItem>
+                        </Select>
+                    </FormControl>
+                    {/* <FormControl className={classes.formControl}>
+                        <InputLabel id="select-stream-column-label">S</InputLabel>
+                        <Select
+                            labelId="select-stream-column-label"
+                            id="select-stream-column"
+                            value={{value: this.state.streamColumn, label: this.state.streamColumn}}
+                            onChange={this.handleChangeStreamCol}
+                        >
+                            // *TO DO*: Replace with for loop of columns
+                            <MenuItem value={10}>Ten</MenuItem>
+                            <MenuItem value={20}>Twenty</MenuItem>
+                            <MenuItem value={30}>Thirty</MenuItem>
+                        </Select>
+                    </FormControl> */}
+                    <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
+                </div>
+            )
+        }
+
+
+
+        // If the user has historic data and they have selected which columns in the 
+        // data are relevant (which defaults to true on page load and only gets set
+        // to false during data upload), display that historic data and give them the 
+        // option to remove it from the server.
+        else if (this.state.session_has_historic_data && !this.state.colsSelected) {
             return (
                 <div>
                     <Grid container spacing={3} align="center">
@@ -205,7 +286,7 @@ class HistoricDemandData extends Component {
                             <Button 
                                 variant="contained" 
                                 onClick={this.handleOpen}
-                            > Delete this data
+                            > Delete this data and upload new data
                             </Button>
                             <Modal
                                 // style={{ alignItems: "center", justifyContent: "center" }}
@@ -218,6 +299,8 @@ class HistoricDemandData extends Component {
                                     <h2 id="simple-modal-title">Are you sure you want to delete this historic data?</h2>
                                     <p id="simple-modal-description">
                                     There is no way to get it back if you do!
+
+                                    You will be given the option to upload new data on the next screen.
                                     </p>
                                     <div className={classes.root}> 
                                     <Button 
@@ -241,6 +324,11 @@ class HistoricDemandData extends Component {
         } else {
 
         return (
+
+            // If the API call shows that there is no data associated with this user's session,
+            // show the file upload page
+            // This will also be shown if users have data and choose to delete this data - after
+            // the delete completes successfully, this view will show
             
             <div>
                 <Grid container spacing={1}>
@@ -324,4 +412,6 @@ class HistoricDemandData extends Component {
     }
 }
 
+// withStyles(useStyles, { withTheme: true }) required for formatting of the 
+// MUI modal dialogue when writing class components
 export default withStyles(useStyles, { withTheme: true })(HistoricDemandData);
