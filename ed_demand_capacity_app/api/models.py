@@ -58,11 +58,9 @@ class Shift(models.Model):
     '''
     user_session = models.CharField(max_length=50, 
                                     default='Not recorded')
-    shift_type = models.CharField(max_length=150)
+    shift_type_name = models.CharField(max_length=150)
     shift_start_time = models.TimeField()
     shift_end_time = models.TimeField()
-
-
 
 class ShiftBreak(models.Model):
     shift = models.ForeignKey(Shift)
