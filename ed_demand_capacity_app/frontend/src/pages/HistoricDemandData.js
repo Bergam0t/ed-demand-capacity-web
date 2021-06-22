@@ -48,6 +48,16 @@ const notifyDelete = () => toast.success('Existing historic data deleted', {
     progress: undefined,
 });
 
+const notifyColsSelected = () => toast.success('Successfully selected relevant columns', {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+});
+
 // UPDATE TO IMPORT THIS FROM ELSEWHERE?
 const font =  "'Istok Web', sans-serif;";
 
@@ -258,9 +268,9 @@ class HistoricDemandData extends Component {
         })
             .then(res => {
                 console.log(res);
-                if(res.status == 201) {
+                if(res.status == 200) {
                 console.log("File updated successfully")
-                notify();    
+                notifyColsSelected();    
                 this.setState({
                     colsSelected: true
                     })   
@@ -287,6 +297,7 @@ class HistoricDemandData extends Component {
         .then(
 
         () => {if (this.state.session_has_historic_data) {
+            // *TODO* Is this fetch needed? Check.
             this.fetchColumnList()
             .then((data) => {
                 // It's necessary to use the next line as for some reason
