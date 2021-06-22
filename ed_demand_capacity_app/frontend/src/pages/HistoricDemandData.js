@@ -67,6 +67,14 @@ const useStyles = theme => ({
           margin: theme.spacing(1),
         },
       },
+
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 180,
+    },
+    selectEmpty: {
+        marginTop: theme.spacing(2),
+    },
 });
 
 // const sessionHasHistoricData = useStoreState(state => state.sessionHasHistoricData)
@@ -239,6 +247,7 @@ class HistoricDemandData extends Component {
         if (this.state.session_has_historic_data && this.state.colsSelected) {
             return (
                 <div>
+                    <Typography variant="h6"> Select the columns from your dataset that contain admission date/time and stream.</Typography>
                     <FormControl className={classes.formControl}>
                         <InputLabel id="select-date-time-column-label">Admission Datetime</InputLabel>
                         <Select
@@ -252,20 +261,20 @@ class HistoricDemandData extends Component {
                             <MenuItem value={30}>Thirty</MenuItem>
                         </Select>
                     </FormControl>
-                    {/* <FormControl className={classes.formControl}>
-                        <InputLabel id="select-stream-column-label">S</InputLabel>
+                    <FormControl className={classes.formControl}>
+                        <InputLabel id="select-stream-column-label">Stream Column</InputLabel>
                         <Select
                             labelId="select-stream-column-label"
                             id="select-stream-column"
                             value={{value: this.state.streamColumn, label: this.state.streamColumn}}
                             onChange={this.handleChangeStreamCol}
                         >
-                            // *TO DO*: Replace with for loop of columns
+                            {/* // *TO DO*: Replace with for loop of columns */}
                             <MenuItem value={10}>Ten</MenuItem>
                             <MenuItem value={20}>Twenty</MenuItem>
                             <MenuItem value={30}>Thirty</MenuItem>
                         </Select>
-                    </FormControl> */}
+                    </FormControl>
                     <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
                 </div>
             )
