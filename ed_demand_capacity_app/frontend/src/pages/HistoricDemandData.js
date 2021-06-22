@@ -103,8 +103,8 @@ class HistoricDemandData extends Component {
         deleteConfirmationModalOpen: false,
         colsSelected: true,
         allDataframeColumnsList: null,
-        dateTimeColumn: "Not Selected",
-        streamColumn: "Not Selected",
+        dateTimeColumn: '',
+        streamColumn: '',
 
       };
 
@@ -291,6 +291,12 @@ class HistoricDemandData extends Component {
         // If the user has uploaded data but has not yet specified the relevant columns
         // from the data, then 
         // This view will only be seen straight after successfully uploading data 
+
+
+        // For rendering select
+        // https://stackoverflow.com/questions/64298136/react-material-ui-select-not-working-properly
+
+        
         if (this.state.session_has_historic_data && this.state.colsSelected) {
             return (
                 <div>
@@ -300,31 +306,29 @@ class HistoricDemandData extends Component {
                         <Select
                             labelId="select-date-time-column-label"
                             id="select-date-time-column"
-                            value=''
+                            value={this.state.dateTimeColumn}
                             onChange={this.handleChangeDateTimeCol}
-                            // options={this.renderListColumns}
-                            // options={this.state.allDataframeColumnsList}
                         >
                         {(this.state.allDataframeColumnsList || []).map((colName) => {
-         return <MenuItem value={colName.value}>{colName.label}</MenuItem>
+         return <MenuItem key={colName.value} value={colName.value}>{colName.label}</MenuItem>
       })}
       </Select>
 
                     </FormControl>
-                    {/* <FormControl className={classes.formControl}>
+                    <FormControl className={classes.formControl}>
                         <InputLabel id="select-stream-column-label">Stream Column</InputLabel>
                         <Select
                             labelId="select-stream-column-label"
                             id="select-stream-column"
-                            value={{value: this.state.streamColumn, label: this.state.streamColumn}}
+                            value={this.state.streamColumn}
                             onChange={this.handleChangeStreamCol}
                         >
-                            {/* // *TO DO*: Replace with for loop of columns */}
-                            {/* <MenuItem value={10}>Ten</MenuItem>
-                            <MenuItem value={20}>Twenty</MenuItem>
-                            <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
-                    </FormControl> */} 
+                        
+                        {(this.state.allDataframeColumnsList || []).map((colName) => {
+         return <MenuItem key={colName.value} value={colName.value}>{colName.label}</MenuItem>
+      })}
+      </Select>
+                    </FormControl> 
                     <Typography variant="h6"> Preview of your uploaded data </Typography>
                     <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
                 </div>
