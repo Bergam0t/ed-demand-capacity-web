@@ -492,6 +492,7 @@ class HistoricDemandData extends Component {
                 <Grid container item xs={6}>
                     <Card paddingBottom={4}>
                         <CardContent>
+                        <Typography variant='h3'> Option 1 </Typography>
                         <Typography variant='h4'>
                             Is your data in record format?
                         </Typography>
@@ -539,6 +540,7 @@ class HistoricDemandData extends Component {
                 <Grid container item xs={6}>
                     <Card paddingBottom={4}>
                         <CardContent>
+                        <Typography variant='h3'> Option 2 </Typography>
                         <Typography variant='h4'>
                             Is your data being imported from the Excel model?
                         </Typography>
@@ -550,6 +552,39 @@ class HistoricDemandData extends Component {
                         </Typography>
                         <Button color="primary" variant="contained" component="label" disabled={true}>
                             Upload Excel Model
+                            <input
+                                type="file"
+                                accept=".xls,.xlsx"
+                                hidden
+                            />
+                        </Button>
+                        </CardContent>   
+                    </Card>
+                </Grid>
+
+                <Grid container item xs={6}>
+                    <Card paddingBottom={4}>
+                        <CardContent>
+                        <Typography variant='h3'> Option 3 </Typography>
+                        <Typography variant='h4'>
+                            Do you want to enter your data into a template?
+                        </Typography>
+                        <Typography variant='h6'>
+                            <br/>
+                            You can download a template below and fill it in using Excel or another spreadsheet software.
+                            <br/><br/>
+                        </Typography>
+                        <Button color="primary" variant="contained" component="label" disabled={true}>
+                            Download Template
+                            <input
+                                type="file"
+                                accept=".xls,.xlsx"
+                                hidden
+                            />
+                        </Button>
+                        <br/><br/>
+                        <Button color="primary" variant="contained" component="label" disabled={true}>
+                            Upload Completed Template
                             <input
                                 type="file"
                                 accept=".xls,.xlsx"
