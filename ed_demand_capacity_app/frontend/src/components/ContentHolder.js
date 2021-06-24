@@ -8,7 +8,7 @@ import {
     Link, 
     Redirect 
 } from "react-router-dom";
-
+import CancelIcon from '@material-ui/icons/Cancel';
 import Typography from '@material-ui/core/Typography';
 import Toolbar from '@material-ui/core/Toolbar';
 import clsx from 'clsx';
@@ -32,6 +32,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useStoreState } from 'easy-peasy';
 import { useStoreActions } from 'easy-peasy';
 import DisplayUserWelcome from './DisplayUserWelcome';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
+import Glossary from './Glossary'
+import Modal from '@material-ui/core/Modal';
+
 
 // Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
 
@@ -112,14 +116,36 @@ const useStyles = makeStyles((theme) => ({
     fixedHeight: {
       height: 240,
     },
+    modal: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      // position: 'fixed',
+      width: '60%',
+      height: '50%',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(40%, 50%)',
+      overflow:'scroll',
+      display:'block'
+    },
+
+    
   }));
 
-  const drawerWidth = 280;
+const drawerWidth = 280;
+
 
 
 export default function ContentHolder() {
 
+    // Control of styling
+    const classes = useStyles();
+
+    // --- Menu state control --- //
+
     const [open, setOpen] = React.useState(true);
+    
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -128,9 +154,22 @@ export default function ContentHolder() {
     };
     // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
-    const loggedIn = useStoreState(state => state.loggedIn)
+    // --- Glossary state control --- //
 
-    const classes = useStyles();
+    const [openGlossary, setOpenGlossary] = React.useState(false);
+
+    const handleOpenGlossary = () => {
+      setOpenGlossary(true);
+      
+    };
+
+    const handleCloseGlossary = () => {
+      setOpenGlossary(false);
+    };
+
+    // --- Login and logout --- //
+
+    const loggedIn = useStoreState(state => state.loggedIn)
 
     const toggleLogOut = useStoreActions((actions) => actions.logoutAction);
 
@@ -145,34 +184,61 @@ export default function ContentHolder() {
     const fetchInitialStateEmail = useStoreActions(actions => actions.fetchInitialStateEmail);
     const fetchInitialStateSessionHistoric = useStoreActions(actions => actions.fetchInitialStateSessionHistoric);
 
+    // On loading, run the followwing
+
     useEffect(() => {
       fetchInitialStateEmail(); 
       fetchInitialStateSessionHistoric();
     }, [])
+
+    // App logic
 
     return (
         <div className={classes.root}>
         
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
             <Toolbar className={classes.toolbar}>
-            <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
-            >
-                <MenuIcon />
-            </IconButton>
-            <Typography component="h1" variant="h5" color="inherit" noWrap className={classes.title}>
-                NHS Demand and Capacity - Emergency Department Model
-            </Typography>
-            <IconButton color="inherit">
-                {/* <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-                </Badge> */}
-                <LoginLogoutButton />
-            </IconButton>
+              <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
+              >
+                  <MenuIcon />
+              </IconButton>
+              <Typography component="h1" variant="h5" color="inherit" noWrap className={classes.title}>
+                  NHS Demand and Capacity - Emergency Department Model
+              </Typography>
+              <Button onClick={handleOpenGlossary}>
+                <MenuBookIcon color="inherit" />  Glossary  
+              </Button>
+              <Modal
+                open={openGlossary}
+                onClose={handleCloseGlossary}
+                className={classes.modal}
+               >
+                      <div>
+                        <Grid container spacing={3}>
+                          <Grid item xs={6} justify="left">
+                            <Typography variant="h4"> 
+                              Glossary 
+                            </Typography>
+                            </Grid>
+                            <Grid item xs={6} justify="right">
+                            <IconButton onClick={handleCloseGlossary}>
+                              <CancelIcon />
+                            </IconButton>
+                          </Grid>
+                          <Glossary />
+                  </Grid>
+                  </ div>
+              </Modal>
+              
+              <IconButton color="inherit">
+                  <LoginLogoutButton />
+              </IconButton>
+
             </Toolbar>
         </AppBar>
         
