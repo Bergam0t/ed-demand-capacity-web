@@ -106,6 +106,8 @@ const useStyles = makeStyles((theme) => ({
     container: {
       paddingTop: theme.spacing(4),
       paddingBottom: theme.spacing(4),
+      paddingLeft: theme.spacing(4),
+      paddingRight: theme.spacing(4),
     },
     paper: {
       padding: theme.spacing(2),
@@ -219,19 +221,19 @@ export default function ContentHolder() {
                 className={classes.modal}
                >
                       <div>
-                        <Grid container spacing={3}>
-                          <Grid item xs={6} justify="left">
+                        <Grid container justify="space-between">
+                          <Grid item>
                             <Typography variant="h4"> 
                               Glossary 
                             </Typography>
-                            </Grid>
-                            <Grid item xs={6} justify="right">
-                            <IconButton onClick={handleCloseGlossary}>
+                          </Grid>
+                          <Grid item>
+                            <IconButton onClick={handleCloseGlossary} >
                               <CancelIcon />
                             </IconButton>
                           </Grid>
                           <Glossary />
-                  </Grid>
+                        </Grid>
                   </ div>
               </Modal>
               
