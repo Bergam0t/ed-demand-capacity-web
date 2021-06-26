@@ -105,8 +105,35 @@ export default function ShiftPage() {
         setCreateShiftTypeModalOpen(false);
     })
 
-    const [selectedTimeStart, handleTimeStartChange] = useState(new Date());
-    const [selectedTimeEnd, handleTimeEndChange] = useState(new Date());
+    const DefaultTime = new Date("January 1 2021 12:00");
+
+    const [selectedTimeStart, handleTimeStartChange] = useState(DefaultTime);
+    const [selectedTimeEnd, handleTimeEndChange] = useState(DefaultTime);
+
+    // Number of breaks
+    const [numberOfBreaks, handleNumberBreaksChange] = useState(3);
+
+    // Break 1
+    const [break1TimeStart, handleBreak1StartChange] = useState(null);
+    const [break1TimeEnd, handleBreak1EndChange] = useState(null);
+
+    // Break 2
+    const [break2TimeStart, handleBreak2StartChange] = useState(null);
+    const [break2TimeEnd, handleBreak2EndChange] = useState(null);
+
+    // Break 3
+    const [break3TimeStart, handleBreak3StartChange] = useState(null);
+    const [break3TimeEnd, handleBreak3EndChange] = useState(null);
+
+    // Handle Submit
+    // TODO: Set all form values back to defaults
+    // handleSubmit = (e) => {
+    
+    
+    // }
+
+
+
 
     return (
         <div>
@@ -148,6 +175,7 @@ export default function ShiftPage() {
                 
                     <Grid item xs={12}>
                     <TextField
+                        required
                         fullWidth
                         margin="dense"
                         id="shift-type-name"
@@ -167,36 +195,140 @@ export default function ShiftPage() {
                 
                     <Grid item xs={6}>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <TimePicker label="Shift Start Time" value={selectedTimeStart} onChange={handleTimeStartChange} />
+                            <TimePicker 
+                                required
+                                label="Shift Start Time" 
+                                value={selectedTimeStart} 
+                                onChange={handleTimeStartChange} 
+                            />
                         </MuiPickersUtilsProvider>
                     </Grid>
                     <Grid item xs={6}>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <TimePicker label="Shift End Time" value={selectedTimeEnd} onChange={handleTimeEndChange} />
+                            <TimePicker 
+                                required
+                                label="Shift End Time" 
+                                value={selectedTimeEnd} 
+                                onChange={handleTimeEndChange} 
+                            />
                         </MuiPickersUtilsProvider>
                         <br /><br /><br />
                     </Grid>
-
-                
-                <Grid item xs={12}>
-                    <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
-                        <Button variant="contained" color="secondary" onClick={handleCloseCreateShiftTypeDialog}>
-                            Discard
-                        </Button>
-
-                        <Button variant="contained" color="primary">
-                            Confirm
-                        </Button>
-                    </ButtonGroup>
-                    
                 </Grid>
-            </Grid>
+                
+                    
+                {numberOfBreaks >= 1 ? 
+                <div>
+                        <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                        <Grid item xs={12}>
+                            <DialogContentText>
+                                Breaktimes
+                            </DialogContentText>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    label="Break 1 Start Time" 
+                                    value={break1TimeStart} 
+                                    onChange={handleBreak1StartChange} 
+                                />
+                            </MuiPickersUtilsProvider>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    label="Break 1 End Time" 
+                                    value={break1TimeEnd} 
+                                    onChange={handleBreak1EndChange} 
+                                />
+                            </MuiPickersUtilsProvider>
+                            <br />
+                        </Grid>
+                    </Grid>
+                </div>
+                :
+                false}
+
+                {numberOfBreaks >= 2 ? 
+                <div>
+                        <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                        <Grid item xs={6}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    label="Break 2 Start Time" 
+                                    value={break2TimeStart} 
+                                    onChange={handleBreak2StartChange} 
+                                />
+                            </MuiPickersUtilsProvider>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    label="Break 2 End Time" 
+                                    value={break2TimeEnd} 
+                                    onChange={handleBreak2EndChange} 
+                                />
+                            </MuiPickersUtilsProvider>
+                            <br />
+                        </Grid>
+                    </Grid>
+                </div>
+                :
+                false}
+
+                {numberOfBreaks == 3 ? 
+                <div>
+                        <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                        <Grid item xs={6}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    label="Break 3 Start Time" 
+                                    value={break3TimeStart} 
+                                    onChange={handleBreak3StartChange} 
+                                />
+                            </MuiPickersUtilsProvider>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    label="Break 3 End Time" 
+                                    value={break3TimeEnd} 
+                                    onChange={handleBreak3EndChange} 
+                                />
+                            </MuiPickersUtilsProvider>
+                            <br /><br /><br />
+                        </Grid>
+                    </Grid>
+                </div>
+                :
+                false}
+
+
+                <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                    <Grid item xs={12}>
+                        <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
+                            <Button 
+                                variant="contained" 
+                                color="secondary" 
+                                onClick={handleCloseCreateShiftTypeDialog}
+                            >
+                                Discard
+                            </Button>
+
+                            <Button 
+                                variant="contained" 
+                                color="primary"
+                            >
+                                Confirm
+                            </Button>
+                        </ButtonGroup>
+                        
+                    </Grid>
+                </Grid>
             </Box>  
 
 
-                </Dialog>
-
-
+        </Dialog>
 
         </div>
 
