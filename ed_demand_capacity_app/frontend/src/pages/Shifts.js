@@ -109,12 +109,7 @@ export default function ShiftPage() {
     const DefaultTime = new Date("January 1 2021 12:00");
 
     const [selectedTimeStart, handleTimeStartChange] = useState(DefaultTime);
-    const [selectedTimeEnd, handleTimeEndChange] = useState(DefaultTime);
-
-    // Number of breaks
-    // const [numberOfBreaks, handleNumberBreaksChange] = useState(3);
-
-    const numberOfBreaksInitial = {numberOfBreaks: 0};
+    const [selectedTimeEnd, handleTimeEndChange] = useState(DefaultTime);  
 
     // Break 1
     const [break1TimeStart, handleBreak1StartChange] = useState(null);
@@ -135,7 +130,12 @@ export default function ShiftPage() {
     
     // }
 
+    // Control number of breaks
+    // Needs to use a reducer rather than a simple state, hence why this is all a bit complex
     // From https://reactjs.org/docs/hooks-reference.html
+
+    const numberOfBreaksInitial = {numberOfBreaks: 0};
+
     function reducer(state, action) {
         switch (action.type) {
           case 'increment':
@@ -148,6 +148,8 @@ export default function ShiftPage() {
       }
       
     const [stateBreaks, dispatch] = useReducer(reducer, numberOfBreaksInitial);
+
+    // Rendering of page
 
     return (
         <div>
@@ -245,20 +247,38 @@ export default function ShiftPage() {
                     </Grid>
                     <Grid item xs={6}>
                         <ButtonGroup>
+                            {stateBreaks.numberOfBreaks == 0 ?
+                            <Button
+                            variant="contained"
+                            disabled> 
+                                -
+                            </Button>
+                            :
                             <Button 
                                 variant="contained" 
                                 color="primary"
                                 onClick={() => dispatch({type: 'decrement'})} > 
                             - 
                             </Button>
-                                <Typography variant="h6" align="center"> {stateBreaks.numberOfBreaks} </Typography>
-                            <Button 
-                                variant="contained" 
-                                color="primary"
-                                onClick={() => dispatch({type: 'increment'})}    
-                            > 
+                            }
+                            
+                            <Typography variant="h6" align="center"> {stateBreaks.numberOfBreaks} </Typography>
+                            
+                            {stateBreaks.numberOfBreaks == 3 ?
+                                <Button
+                                variant="contained"
+                                disabled> 
+                                    +
+                                </Button>
+                                :
+                                <Button 
+                                    variant="contained" 
+                                    color="primary"
+                                    onClick={() => dispatch({type: 'increment'})}    
+                                > 
                                 + 
                                 </Button>
+                                }
                         </ButtonGroup>
                     </Grid>
 
