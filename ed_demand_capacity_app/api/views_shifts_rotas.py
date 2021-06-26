@@ -34,7 +34,7 @@ class ViewAllShiftTypesAnonymous(APIView):
 class ViewOwnShiftTypes(APIView):
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
-        queryset = Shift.objects.filter(uploader_session=uploader)
+        queryset = Shift.objects.filter(user_session=uploader)
         serializer = ShiftSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -44,7 +44,7 @@ class ViewIndividualShiftOwn(APIView):
         # as don't want users to be able to find other user's shift types
         # (or at least not the full details)
         uploader = request.session.session_key
-        queryset = Shift.objects.filter(uploader_session=uploader)
+        queryset = Shift.objects.filter(user_session=uploader)
         single_shift = queryset.objects.get(id=pk)
         serializer = ShiftSerializer(single_shift, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -74,7 +74,7 @@ class UpdateShiftType(APIView):
         # as don't want users to be able to update other user's shift types
 
         uploader = request.session.session_key
-        queryset = Shift.objects.filter(uploader_session=uploader)
+        queryset = Shift.objects.filter(user_session=uploader)
         single_shift = queryset.objects.get(id=pk)
 
         # TODO: Separate these into two different error messages
@@ -99,7 +99,7 @@ class DeleteShiftType(APIView):
         # as don't want users to be able to find other user's shift types
         # (or at least not the full details)
         uploader = request.session.session_key
-        queryset = Shift.objects.filter(uploader_session=uploader)
+        queryset = Shift.objects.filter(user_session=uploader)
         single_shift = queryset.objects.get(id=pk)
 
         # TODO: Separate these into two different error messages
