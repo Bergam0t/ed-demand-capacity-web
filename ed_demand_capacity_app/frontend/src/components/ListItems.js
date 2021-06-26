@@ -1,8 +1,12 @@
 import React from 'react';
+
+// List imports
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
+
+// Icon imports
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import NotesIcon from '@material-ui/icons/Notes';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -16,22 +20,21 @@ import EventNoteIcon from '@material-ui/icons/EventNote';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WarningIcon from '@material-ui/icons/Warning';
 import TimelineIcon from '@material-ui/icons/Timeline';
+import DateRangeIcon from '@material-ui/icons/DateRange';
+
+// Routing imports
 import { 
-    BrowserRouter as Router, 
-    Switch, 
-    Route, 
     Link, 
-    Redirect 
 } from "react-router-dom";
 
 export const helpListItems = (
     <div>
-        <ListItem button to="/getting-started" component = { Link }>
-      <ListItemIcon>
-        <EmojiObjectsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Getting Started" />
-    </ListItem>
+      <ListItem button to="/getting-started" component = { Link }>
+        <ListItemIcon>
+          <EmojiObjectsIcon />
+        </ListItemIcon>
+        <ListItemText primary="Getting Started" />
+      </ListItem>
     </div>
 );
 
@@ -66,11 +69,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Historic Demand Data" />
     </ListItem>
-    <ListItem button>
+    <ListItem button to="/shift-types" component = { Link }>
       <ListItemIcon>
         <ScheduleIcon />
       </ListItemIcon>
-      <ListItemText primary="Shift Information" />
+      <ListItemText primary="Shift Types" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <DateRangeIcon />
+      </ListItemIcon>
+      <ListItemText primary="Rotas" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
