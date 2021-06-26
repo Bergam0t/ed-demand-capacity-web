@@ -26,6 +26,7 @@ import { helpListItems, saveLoadItems, mainListItems, secondaryListItems } from 
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
+import Card from '@material-ui/core/Card';
 import Button from "@material-ui/core/Button";
 import DashboardContent from "./DashboardContent";
 import { makeStyles } from '@material-ui/core/styles';
@@ -128,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
       top: '50%',
       left: '50%',
       transform: 'translate(40%, 50%)',
-      overflow:'scroll',
+      // overflow:'scroll',
       display:'block'
     },
 
@@ -230,7 +231,7 @@ export default function ContentHolder() {
                 className={classes.modal}
                >
                       <div>
-                        <Grid container justify="space-between">
+                        <Grid container justify="space-between" style={{paddingTop: 10, paddingLeft: 10, paddingRight: 10, paddingBottom:10}}>
                           <Grid item>
                             <Typography variant="h4"> 
                               Glossary 
@@ -241,8 +242,11 @@ export default function ContentHolder() {
                               <CancelIcon />
                             </IconButton>
                           </Grid>
-                          <Glossary />
-                        </Grid>
+                          </Grid>
+                          <Card bordered="false" style={{overflow: 'auto', height: '50vh'}}>
+                            <Glossary />
+                          </Card>
+                        
                   </ div>
               </Modal>
               
