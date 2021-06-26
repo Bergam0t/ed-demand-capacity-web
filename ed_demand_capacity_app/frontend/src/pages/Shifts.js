@@ -1,4 +1,4 @@
-import React, { Component, useState,  } from "react";
+import React, { Component, useState, useReducer } from "react";
 import {
     Box,
     Container,
@@ -8,6 +8,7 @@ import {
     CardContent,
     Modal,
     ButtonGroup,
+    Divider
   } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import { useStoreActions } from 'easy-peasy';
@@ -111,7 +112,9 @@ export default function ShiftPage() {
     const [selectedTimeEnd, handleTimeEndChange] = useState(DefaultTime);
 
     // Number of breaks
-    const [numberOfBreaks, handleNumberBreaksChange] = useState(3);
+    // const [numberOfBreaks, handleNumberBreaksChange] = useState(3);
+
+    const numberOfBreaksInitial = {numberOfBreaks: 0};
 
     // Break 1
     const [break1TimeStart, handleBreak1StartChange] = useState(null);
@@ -132,8 +135,19 @@ export default function ShiftPage() {
     
     // }
 
-
-
+    // From https://reactjs.org/docs/hooks-reference.html
+    function reducer(state, action) {
+        switch (action.type) {
+          case 'increment':
+            return {numberOfBreaks: state.numberOfBreaks + 1};
+          case 'decrement':
+            return {numberOfBreaks: state.numberOfBreaks - 1};
+          default:
+            throw new Error();
+        }
+      }
+      
+    const [stateBreaks, dispatch] = useReducer(reducer, numberOfBreaksInitial);
 
     return (
         <div>
@@ -214,17 +228,46 @@ export default function ShiftPage() {
                         </MuiPickersUtilsProvider>
                         <br /><br /><br />
                     </Grid>
-                </Grid>
-                
                     
-                {numberOfBreaks >= 1 ? 
+                    <Grid item xs={12}>
+                        <Divider />
+                        <br />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                                <Typography variant="h5">
+                                    Breaktimes
+                                </Typography>
+                            </Grid>
+
+                    <Grid item xs={6}>
+                        <DialogContentText> Select Number of Breaks <br></br> (Maximum of 3) </DialogContentText>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <ButtonGroup>
+                            <Button 
+                                variant="contained" 
+                                color="primary"
+                                onClick={() => dispatch({type: 'decrement'})} > 
+                            - 
+                            </Button>
+                                <Typography variant="h6" align="center"> {stateBreaks.numberOfBreaks} </Typography>
+                            <Button 
+                                variant="contained" 
+                                color="primary"
+                                onClick={() => dispatch({type: 'increment'})}    
+                            > 
+                                + 
+                                </Button>
+                        </ButtonGroup>
+                    </Grid>
+
+                </Grid>
+
+
+                {stateBreaks.numberOfBreaks >= 1 ? 
                 <div>
                         <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
-                        <Grid item xs={12}>
-                            <DialogContentText>
-                                Breaktimes
-                            </DialogContentText>
-                        </Grid>
                         <Grid item xs={6}>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <TimePicker 
@@ -249,7 +292,7 @@ export default function ShiftPage() {
                 :
                 false}
 
-                {numberOfBreaks >= 2 ? 
+                {stateBreaks.numberOfBreaks >= 2 ? 
                 <div>
                         <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
                         <Grid item xs={6}>
@@ -276,7 +319,7 @@ export default function ShiftPage() {
                 :
                 false}
 
-                {numberOfBreaks == 3 ? 
+                {stateBreaks.numberOfBreaks == 3 ? 
                 <div>
                         <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
                         <Grid item xs={6}>
