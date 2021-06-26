@@ -132,6 +132,14 @@ const useStyles = makeStyles((theme) => ({
       display:'block'
     },
 
+    menuBookIcon: {
+      color: '#ffffff'
+    },
+
+    muiButtonLabelWhite: {
+      color: '#ffffff'
+    },
+
     
   }));
 
@@ -212,8 +220,9 @@ export default function ContentHolder() {
               <Typography component="h1" variant="h5" color="inherit" noWrap className={classes.title}>
                   NHS Demand and Capacity - Emergency Department Model
               </Typography>
-              <Button onClick={handleOpenGlossary}>
-                <MenuBookIcon color="inherit" />  Glossary  
+              <Button onClick={handleOpenGlossary} 
+              className={classes.muiButtonLabelWhite}>
+                <MenuBookIcon className={classes.menuBookIcon}/>  Glossary  
               </Button>
               <Modal
                 open={openGlossary}
