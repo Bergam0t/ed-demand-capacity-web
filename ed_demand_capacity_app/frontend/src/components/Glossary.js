@@ -41,7 +41,7 @@ const useStyles = makeStyles({
                 `The number of attendances per hour, multiplied by the clinical decision minutes required`),
 
     createData('Shift Configuration', 
-               `The shift patterns thaat are used within the department - for example, 
+               `The shift patterns that are used within the department - for example, 
                an early shift being 7am to 1pm.`),
 
     createData('Role Configuration', 
