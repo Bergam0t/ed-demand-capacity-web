@@ -263,17 +263,18 @@ class NotesView(APIView):
 
     def post(self, request, *args, **kwargs):
         
-        serializer_class = NotesSerializer
-        serializer = self.serializer_class(data=request.data)
+        serializer = NotesSerializer(data=request.data)
         
         if serializer.is_valid():
-            notes = serializer.data.set('notes')
+            notes = serializer.data.get('notes')
+            log.info("Notes: " + notes)
             
             # Get any existing notes
             user_session_key = request.session.session_key
             queryset = Notes.objects.filter(user_session=user_session_key)
 
             if queryset.exists():
+                log.info("Existing notes updated")
                 user_notes_object = queryset.last()
                 user_notes_object.notes = notes
                 user_notes_object.save(update_fields=['notes'])
@@ -282,8 +283,11 @@ class NotesView(APIView):
             
             # If no existing notes, create new notes object
             else:
+                
                 user_notes_object = Notes(user_session = user_session_key,
                                           notes=notes)
+                user_notes_object.save()
+                log.info("New notes created")
                 return Response({"Message": "Notes created successfully"}, 
                                 status=status.HTTP_200_OK)
 
