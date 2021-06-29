@@ -14,8 +14,17 @@ import {
     Divider
   } from '@material-ui/core';
 
-  import { useStoreState } from 'easy-peasy';
-  import { toast } from 'react-toastify';
+import { useStoreActions, useStoreState } from 'easy-peasy';
+import { toast } from 'react-toastify';
+
+import { 
+    BrowserRouter as Router, 
+    Switch, 
+    Route, 
+    Link, 
+    Redirect,
+    Prompt
+} from "react-router-dom";
 
 export default function Notes() {
 
@@ -23,6 +32,11 @@ export default function Notes() {
     const [notesEditable, setNotesEditable] = React.useState(false);
 
     const loggedIn = useStoreState(state => state.loggedIn)
+
+    const setUnsavedChangesFlag = useStoreActions((actions) => actions.setUnsavedChangesFlag);
+    const clearUnsavedChangesFlag = useStoreActions((actions) => actions.clearUnsavedChangesFlag);
+    
+    const unsavedChangesFlag = useStoreState(state => state.unsavedChangesFlag)
 
     function fetchNotes() {
         return fetch('api/notes')
@@ -50,6 +64,19 @@ export default function Notes() {
               }
         }};
 
+    function handleChange(e) {
+        setNotes(e.target.value);
+        setUnsavedChangesFlag();
+    }
+
+    function handleDiscard() {
+        fetchNotes()
+        .then(clearUnsavedChangesFlag())
+        .then(setNotesEditable(false))
+        
+    }
+    
+    
     function handleSubmit() {
         let headers = getHeaders()
 
@@ -67,6 +94,7 @@ export default function Notes() {
                 console.log("Notes updated successfully")
                 setNotesEditable(false);
                 notify();
+                clearUnsavedChangesFlag();
             } else {
                 console.log("Error updating notes")
             }
@@ -85,6 +113,8 @@ export default function Notes() {
         draggable: true,
         progress: undefined,
     });
+
+
 
     // Get notes from server
     useEffect(() => {
@@ -115,15 +145,24 @@ export default function Notes() {
                 fullWidth
                 variant="filled"
                 style={{ width: "100%" }}
-                onChange={(e) => setNotes(e.target.value)}
+                // onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => handleChange(e)}
             />
             <br /><br />
+            <ButtonGroup>
             <Button 
                 variant="contained" 
                 color="primary"
                 onClick={() => handleSubmit()}> 
                 Submit 
             </Button>
+            <Button 
+                variant="contained" 
+                color="secondary"
+                onClick={() => handleDiscard()}> 
+                Discard Changes
+            </Button>
+            </ButtonGroup>
         </Grid>   
         
         :
@@ -151,8 +190,16 @@ export default function Notes() {
         </Grid>    
         }
         
+        <Prompt
+        when={unsavedChangesFlag}
+        message=
+        {`You have unsaved changes on this page. Are you sure you want to leave before saving?`}
         
+        />
 
         </Grid>
+
+
+
     )
 }
