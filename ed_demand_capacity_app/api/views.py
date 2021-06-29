@@ -249,6 +249,45 @@ class PlotlyTimeSeriesMostRecent(APIView):
 
         return Response(fig.to_json(), status=status.HTTP_200_OK)
 
+
+class NotesView(APIView):
+    def get(self, request, *args, **kwargs):
+        user_session_key = request.session.session_key
+        queryset = Notes.objects.filter(user_session=user_session_key)
+        user_notes = queryset.last()
+
+        return Response(
+            NotesSerializer(user_notes, 
+                                           many=False).data, 
+                        status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        
+        serializer_class = NotesSerializer
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid():
+            notes = serializer.data.set('notes')
+            
+            # Get any existing notes
+            user_session_key = request.session.session_key
+            queryset = Notes.objects.filter(user_session=user_session_key)
+
+            if queryset.exists():
+                user_notes_object = queryset.last()
+                user_notes_object.notes = notes
+                user_notes_object.save(update_fields=['notes'])
+                return Response({"Message": "Notes updated successfully"}, 
+                                status=status.HTTP_200_OK)
+            
+            # If no existing notes, create new notes object
+            else:
+                user_notes_object = Notes(user_session = user_session_key,
+                                          notes=notes)
+                return Response({"Message": "Notes created successfully"}, 
+                                status=status.HTTP_200_OK)
+
+
 # class UserDetailsFromToken(APIView):
 #     def get(self, request, *args, **kwargs):
 #         user = Token.objects.get(key='token string').user

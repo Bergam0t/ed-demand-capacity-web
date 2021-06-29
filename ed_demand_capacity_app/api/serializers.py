@@ -33,3 +33,9 @@ class ShiftSerializerAnonymised(serializers.ModelSerializer):
     class Meta:
         model = Shift
         fields = ('shift_start_time', 'shift_end_time')
+
+class NotesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notes
+        fields = ('notes', )
+        

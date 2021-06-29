@@ -66,3 +66,15 @@ class ShiftBreak(models.Model):
     shift = models.ForeignKey(Shift, models.CASCADE),
     break_start = models.TimeField()
     break_end = models.TimeField()
+
+class Notes(models.Model):
+    '''
+    Model for storing a shift
+
+    To allow a shift to have as many breaks as required, the ShiftBreak table
+    links to this one, using the automatically generated shift primary key 
+    as the foreign key
+    '''
+    user_session = models.CharField(max_length=50, 
+                                    default='Not recorded')
+    notes = models.TextField()

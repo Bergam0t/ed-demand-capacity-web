@@ -121,6 +121,13 @@ urlpatterns += [
          ),
 ]
 
+
+# --- Notes --- #
+urlpatterns+= [
+    path('notes', 
+         NotesView.as_view()),
+         ]
+
 # --- Misc --- #
 
 urlpatterns+= [
