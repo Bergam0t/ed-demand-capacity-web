@@ -19,3 +19,4 @@ npm-debug.log
 # Environments#
 envs/
 ed_demand_capacity_app/sample_data/SO test data.csv
+ed_demand_capacity_app/db.sqlite3
