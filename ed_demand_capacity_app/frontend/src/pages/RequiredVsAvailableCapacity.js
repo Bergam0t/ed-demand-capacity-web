@@ -8,7 +8,7 @@ export default class PlotForecast extends Component {
     render() {
         return (
         <div>
-        <Typography variant="h4"> Predicted Demand: Admissions Per Hour for Next 7 Days</Typography>
+        <Typography variant="h4"> Predicted Demand: Arrivals Per Hour for Next 7 Days</Typography>
         <PlotlyPlot api_url="/api/most-recently-uploaded-data-forecast" />
         {/* // <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' /> */}
         </div>
