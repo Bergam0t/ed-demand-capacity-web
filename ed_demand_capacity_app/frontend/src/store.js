@@ -1,5 +1,6 @@
 // Redux state store (wrapped in easy-peasy)
 
+import { stringToArray } from 'ag-grid-community';
 import { action, computed, thunk } from 'easy-peasy';
 import { toast } from 'react-toastify';
 
@@ -46,6 +47,11 @@ function FetchHistoricBool() {
 }
 
 
+function FetchShiftTypes() {
+    return fetch('api/'
+    )
+}
+
 export default {
     
     // ---- States ---- //
@@ -55,6 +61,9 @@ export default {
 
     sessionHasHistoricData: null,
 
+    shiftTypes: null,
+
+    unsavedChangesFlag: false,
 
     // ---- Actions ---- //
 
@@ -97,6 +106,19 @@ export default {
         state.loggedIn = false;
         notifyLogout();
         // console.log(localStorage.getItem('access_token'))
-    })
+    }),
+
+    // Getting existing shift types
+
+
+
+    // Unsaved changes
+    setUnsavedChangesFlag: action((state) => {
+        state.unsavedChangesFlag = true;
+    }),
+
+    clearUnsavedChangesFlag: action((state) => {
+        state.unsavedChangesFlag = false;
+    }),
 
 };
