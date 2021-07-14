@@ -18,6 +18,7 @@ from django.core.files.base import ContentFile
 import tempfile
 import os
 import io
+import time
 
 
 # Ensure all log messages of INFO level and above get shown
@@ -79,8 +80,10 @@ class HistoricDataView(APIView):
 
             # First get the filepath and apply some corrections so it goes to the correct folder
             # and updates the filetype suffix
+            csv_filepath = historic_data_instance.uploaded_data.name
+            
             filepath =  (
-                historic_data_instance.uploaded_data.name
+                csv_filepath
                 .replace('historic_data/', '', 1)
                 .replace('csv', 'ftr')
             )
@@ -111,6 +114,10 @@ class HistoricDataView(APIView):
             historic_data_instance.save()
 
             # Tidy up by deleting the originally-uploaded csv
+            log.info(f'csv filepath: {csv_filepath}')
+            if os.path.isfile(f'uploads/{csv_filepath}'):
+                os.remove(f'uploads/{csv_filepath}')
+                log.info('csv file deleted')
 
             return Response(historic_data_serializer.data, 
                             status=status.HTTP_201_CREATED)
@@ -120,9 +127,12 @@ class HistoricDataView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 class SessionHasHistoricData(APIView):
+    '''
+    Checks whether there is historic data associated with a user's session
+    and returns a boolean response
+    '''
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
-        # log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
 
         if len(queryset) >= 1:
@@ -131,11 +141,38 @@ class SessionHasHistoricData(APIView):
             return Response({'result': False}, status=status.HTTP_200_OK)
 
 class DeleteSessionHistoricData(APIView):
+    '''
+    On POST, deletes historic data associated with the user's session
+    from both the database and the file system
+    '''
     def post(self, request, *args, **kwargs):
         uploader = request.session.session_key
-        HistoricData.objects.filter(uploader_session=uploader).delete()
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
+        # find the most recent
+        historic_data = queryset.last()
+        # Get the filepath
+        filepath = historic_data.uploaded_data.name
 
-        return Response({'result': 'Session data deleted'}, status=status.HTTP_200_OK)
+        # Delete from the database
+        HistoricData.objects.filter(uploader_session=uploader).delete()
+        log.info('database entry deleted')
+
+        # Delete the file
+        log.info(f'Filepath: {filepath}')
+        if os.path.isfile(f'uploads/{filepath}'):
+            for i in range(3):
+                try: 
+                    os.remove(f'uploads/{filepath}')
+                    log.info(f'uploads/{filepath} deleted')
+                except PermissionError:
+                    log.info(f'Permission error: retrying in 1s')
+                    time.sleep(1)
+                else:
+                    log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
+
+        return Response({'result': 'Session data deleted'}, 
+                        status=status.HTTP_200_OK)
 
 class FilterByColsAndOverwriteData(APIView):
     def post(self, request, *args, **kwargs):
@@ -167,6 +204,10 @@ class FilterByColsAndOverwriteData(APIView):
              axis=1
         )
 
+        filtered_df['datetime'] = pd.to_datetime(filtered_df['datetime'])
+
+        filtered_df['dummy_row'] = 1
+
         # Update existing model
         # First get the filepath and apply some corrections so it goes to the correct folder
         # and updates the filetype suffix
@@ -193,9 +234,13 @@ class FilterByColsAndOverwriteData(APIView):
             ContentFile(buf.read())
             )
         
-        return Response({'Message': 'Successfully updated selected columns'}, status=status.HTTP_200_OK)
+        return Response({'Message': 'Successfully updated selected columns'}, 
+                        status=status.HTTP_200_OK)
 
 class GetSessionHistoricDataColumnNames(APIView):
+    '''
+    Return column names found in uploaded historic data as a list
+    '''
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
         # log.info(request.session.session_key)
@@ -203,42 +248,44 @@ class GetSessionHistoricDataColumnNames(APIView):
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
 
-        # try:
-        #     df = pd.read_csv(historic_data.uploaded_data).drop("Unnamed: 0", axis=1)
-        # except:
         df = pd.read_feather(historic_data.uploaded_data)
+
+        # Get rid of a column which gets accidentally generated
         if "Unnamed: 0" in df:
             df = df.drop("Unnamed: 0", axis=1)
 
-        return Response({'columns': df.columns}, status=status.HTTP_200_OK)
+        return Response({'columns': df.columns}, 
+                        status=status.HTTP_200_OK)
 
 class GetSessionStreams(APIView):
+    '''
+    Return ED streams found in uploaded historic data as a list
+    '''
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
-        # log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
+        
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
 
         df = pd.read_feather(historic_data.uploaded_data)
 
-        return Response({'streams': df.stream.unique()}, status=status.HTTP_200_OK)
+        return Response({'streams': df.stream.unique()}, 
+                        status=status.HTTP_200_OK)
 
 class DisplayMostRecentlyUploadedRawData(APIView):
+    '''
+    Testing class for showing last uploaded data regardless
+    of who uploaded it
+    '''
     def get(self, request, *args, **kwargs):
-        # uploader = request.session.session_key
-        # For some reason session id doesn't appear to be persisting properly
-        # So for now just take the last object regardless of uploader
-        # queryset = HistoricData.objects.filter(uploader=uploader)
         queryset = HistoricData.objects
-        log.info(f"Session Key without self: {request.session.session_key}")
-        log.info(f"Session Key with self: {self.request.session.session_key}")
         historic_data = queryset.last()
-        # serializer = UploadedHistoricDataSerializer(historic_data, 
-        #                                             many=False)
-        
-        return Response(UploadedHistoricDataSerializer(historic_data, 
-                                                    many=False).data, status=status.HTTP_200_OK)
+
+        return Response(
+            UploadedHistoricDataSerializer(historic_data, many=False).data, 
+            status=status.HTTP_200_OK
+            )
 
 class DisplayMostRecentlyUploadedOwnRawData(APIView):
     def get(self, request, *args, **kwargs):
@@ -256,29 +303,12 @@ class DisplayMostRecentlyUploadedOwnRawData(APIView):
         return Response(UploadedHistoricDataSerializer(historic_data, 
                                                     many=False).data, status=status.HTTP_200_OK)
 
-# class MostRecentAsPandas(APIView):
-#     def get(self, request, *args, **kwargs):
-#         uploader = self.request.session.session_key
-#         # For some reason session id doesn't appear to be persisting properly
-#         # So for now just take the last object regardless of uploader
-#         # queryset = HistoricData.objects.filter(uploader=uploader)
-#         queryset = HistoricData.objects
-#         historic_data = queryset.last()
-        
-#         # Convert csv to pandas dataframe
-#         df = pd.read_csv(historic_data['uploaded_data'])
-
-#         log.info(df.head(1))
-
-#         return Response(UploadedHistoricDataSerializer(historic_data, 
-#                                                     many=False).data, status=status.HTTP_200_OK)
-
 class MostRecentAsPandas(PandasSimpleView):
     def get_data(self, request, *args, **kwargs):
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         historic_data = queryset.last()
-        return pd.read_picle(historic_data.uploaded_data)
+        return pd.read_feather(historic_data.uploaded_data)
 
 class MostRecentAsAgGridJson(APIView):
     def get(self, request, *args, **kwargs):
@@ -310,29 +340,21 @@ class PlotlyTimeSeriesMostRecent(APIView):
         #     ncols = len(f.readline().split(','))
 
         imported = pd.read_feather(historic_data.uploaded_data)
+        log.info("Data read")       
         
-        # *TODO* Improve handling of dates
-        # Try catch?
-        # Add some notifications explaining what has been assumed?
-        imported['corrected_date_time'] = (
-            pd.to_datetime(imported['datetime'], 
-                        #   format='%Y-%m-%d %H:%M:%S')
-            )
-        )
-
-        imported['dummy_row'] = 1
-        
-        pivot_dt = imported.pivot_table(index='corrected_date_time', 
+        pivot_dt = imported.pivot_table(index='datetime', 
                                         columns='stream', 
                                         values='dummy_row', 
                                         aggfunc='count').fillna(0)
+        log.info("Data pivoted")
         
         plotting_df_ms = pivot_dt.resample('MS').sum()[1:-1]
+        log.info("Resampling complete")
         
         fig = px.line(data_frame=plotting_df_ms.reset_index(), 
-                      x='corrected_date_time', 
+                      x='datetime', 
                       y=plotting_df_ms.columns,
-                      labels={'corrected_date_time': 'Date',
+                      labels={'datetime': 'Date',
                               'value': 'Number of visits per month',
                               'variable': 'Stream'})
 
@@ -372,7 +394,6 @@ class NotesView(APIView):
             
             # If no existing notes, create new notes object
             else:
-                
                 user_notes_object = Notes(user_session = user_session_key,
                                           notes=notes)
                 user_notes_object.save()
