@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'users.apps.UsersConfig',
     'frontend.apps.FrontendConfig',
-    'corsheaders'
+    'corsheaders',
+    'background_task'
 ]
 
 MIDDLEWARE = [
