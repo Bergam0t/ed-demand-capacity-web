@@ -15,9 +15,15 @@ from datetime import datetime
 from rest_framework.authtoken.models import Token
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
+import tempfile
+import os
+import io
+
 
 # Ensure all log messages of INFO level and above get shown
-logging.basicConfig(level = logging.INFO)
+logging.basicConfig(level = logging.INFO,
+ format='%(asctime)s %(levelname)-8s %(message)s',
+ datefmt='%Y-%m-%d %H:%M:%S')
 # Create the logger
 log = logging.getLogger(__name__)
 
@@ -50,19 +56,61 @@ class HistoricDataView(APIView):
         
         log.info(request.data)
 
+
         historic_data_serializer = UploadedHistoricDataSerializer(data=request.data)
        
         if historic_data_serializer.is_valid():
+            # First, save the response as is so that we have a model object that exists
             historic_data_instance = historic_data_serializer.save()
+            
             # Update with the session key
             # I had to do it here as it throws a wobbly if you try 
             # to modify the request data, even if you copy it first
             log.info(self.request.session.session_key)
             historic_data_instance.uploader_session = self.request.session.session_key
+            
+            # Next, grab the uploaded csv and convert it to a pandas dataframe
+            df = pd.read_csv(historic_data_instance.uploaded_data)
+
+            # Update csv to feather file
+            # Using feather from here on in as it allows datatypes to persist
+            # across file loads, meaning we won't have to repeatedly parse dates,
+            # which is a very time-consuming operation 
+
+            # First get the filepath and apply some corrections so it goes to the correct folder
+            # and updates the filetype suffix
+            filepath =  (
+                historic_data_instance.uploaded_data.name
+                .replace('historic_data/', '', 1)
+                .replace('csv', 'ftr')
+            )
+
+            # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
+            # which is good because it's what the later file update step needs
+            # However, everything like .to_pickle, .to_feather and .to_hdf does not
+            # provide this option, so you need to workaround this by writing the dataframe
+            # to a buffer, returning to the beginning of the buffer, and then passing
+            # this buffer to the file save. 
+            buf = io.BytesIO()
+            df.to_feather(buf)
+            buf.seek(0)
+
+            # Note that we have to use buf.read(), not just buf, 
+            # else we receive errors relating to this not being a 
+            # bytes-like object 
+            historic_data_instance.uploaded_data.save(
+                filepath,
+                ContentFile(buf.read())
+                )
+
             # if request.user.is_authenticated():
             #     historic_data_instance.uploader_email = 
             # historic_data_instance.save(update_fields=['uploader_session'])
+
+            # Save the updated historic data instance
             historic_data_instance.save()
+
+            # Tidy up by deleting the originally-uploaded csv
 
             return Response(historic_data_serializer.data, 
                             status=status.HTTP_201_CREATED)
@@ -102,7 +150,7 @@ class FilterByColsAndOverwriteData(APIView):
         # log.info(historic_data.uploaded_data)
         log.info(historic_data.uploaded_data.name)
 
-        df = pd.read_csv(historic_data.uploaded_data)
+        df = pd.read_feather(historic_data.uploaded_data)
         
         # log.info(self.request.data)
         columns_from_request = ColumnSelectSerializer(self.request.data).data
@@ -120,11 +168,29 @@ class FilterByColsAndOverwriteData(APIView):
         )
 
         # Update existing model
-        # First argument is the filepath
-        # Second argument is the file itself
+        # First get the filepath and apply some corrections so it goes to the correct folder
+        # and updates the filetype suffix
+        filepath =  (
+            historic_data.uploaded_data.name
+            .replace('historic_data/', '', 1)
+        )
+
+        # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
+        # which is good because it's what the later file update step needs
+        # However, everything like .to_pickle, .to_feather and .to_hdf does not
+        # provide this option, so you need to workaround this by writing the dataframe
+        # to a buffer, returning to the beginning of the buffer, and then passing
+        # this buffer to the file save. 
+        buf = io.BytesIO()
+        filtered_df.to_feather(buf)
+        buf.seek(0)
+
+        # Note that we have to use buf.read(), not just buf, 
+        # else we receive errors relating to this not being a 
+        # bytes-like object 
         historic_data.uploaded_data.save(
-            historic_data.uploaded_data.name.replace('historic_data/', '', 1), 
-            ContentFile(filtered_df.to_csv())
+            filepath,
+            ContentFile(buf.read())
             )
         
         return Response({'Message': 'Successfully updated selected columns'}, status=status.HTTP_200_OK)
@@ -140,7 +206,7 @@ class GetSessionHistoricDataColumnNames(APIView):
         # try:
         #     df = pd.read_csv(historic_data.uploaded_data).drop("Unnamed: 0", axis=1)
         # except:
-        df = pd.read_csv(historic_data.uploaded_data)
+        df = pd.read_feather(historic_data.uploaded_data)
         if "Unnamed: 0" in df:
             df = df.drop("Unnamed: 0", axis=1)
 
@@ -154,7 +220,7 @@ class GetSessionStreams(APIView):
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
 
-        df = pd.read_csv(historic_data.uploaded_data)
+        df = pd.read_feather(historic_data.uploaded_data)
 
         return Response({'streams': df.stream.unique()}, status=status.HTTP_200_OK)
 
@@ -212,7 +278,7 @@ class MostRecentAsPandas(PandasSimpleView):
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         historic_data = queryset.last()
-        return pd.read_csv(historic_data.uploaded_data)
+        return pd.read_picle(historic_data.uploaded_data)
 
 class MostRecentAsAgGridJson(APIView):
     def get(self, request, *args, **kwargs):
@@ -227,7 +293,7 @@ class MostRecentAsAgGridJson(APIView):
         #     # usecols=range(2, ncols)
         #     ).drop("Unnamed: 0", axis=1)
         # except:
-        data = pd.read_csv(historic_data.uploaded_data)
+        data = pd.read_feather(historic_data.uploaded_data)
         log.info(data.columns)
         if "Unnamed: 0" in data.columns:
             data = data.drop("Unnamed: 0", axis=1)
@@ -243,7 +309,7 @@ class PlotlyTimeSeriesMostRecent(APIView):
         # with open(historic_data.uploaded_data) as f:
         #     ncols = len(f.readline().split(','))
 
-        imported = pd.read_csv(historic_data.uploaded_data)
+        imported = pd.read_feather(historic_data.uploaded_data)
         
         # *TODO* Improve handling of dates
         # Try catch?
