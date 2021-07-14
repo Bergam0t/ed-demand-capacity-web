@@ -137,9 +137,24 @@ class GetSessionHistoricDataColumnNames(APIView):
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
 
+        # try:
+        #     df = pd.read_csv(historic_data.uploaded_data).drop("Unnamed: 0", axis=1)
+        # except:
         df = pd.read_csv(historic_data.uploaded_data)
 
         return Response({'columns': df.columns}, status=status.HTTP_200_OK)
+
+class GetSessionStreams(APIView):
+    def get(self, request, *args, **kwargs):
+        uploader = request.session.session_key
+        # log.info(request.session.session_key)
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data, find the most recent
+        historic_data = queryset.last()
+
+        df = pd.read_csv(historic_data.uploaded_data)
+
+        return Response({'streams': df.stream.unique()}, status=status.HTTP_200_OK)
 
 class DisplayMostRecentlyUploadedRawData(APIView):
     def get(self, request, *args, **kwargs):
@@ -205,9 +220,12 @@ class MostRecentAsAgGridJson(APIView):
         historic_data = queryset.last()
         # with open(historic_data.uploaded_data) as f:
         #     ncols = len(f.readline().split(','))
-        data = pd.read_csv(historic_data.uploaded_data, 
-        # usecols=range(2, ncols)
-        )
+        # try:
+        #     data = pd.read_csv(historic_data.uploaded_data, 
+        #     # usecols=range(2, ncols)
+        #     ).drop("Unnamed: 0", axis=1)
+        # except:
+        data = pd.read_csv(historic_data.uploaded_data)
 
         return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
 

@@ -28,6 +28,10 @@ urlpatterns += [
         GetSessionHistoricDataColumnNames.as_view(),  
         name='get_historic_data_columns'),
 
+     path('get-historic-data-streams', 
+        GetSessionStreams.as_view(),  
+        name='get_historic_data_streams'),
+
     path('filter-by-cols-and-overwrite-data', 
         FilterByColsAndOverwriteData.as_view(),  
         name='filter_by_cols_and_overwrite_data'),
