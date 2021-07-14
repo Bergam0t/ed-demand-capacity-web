@@ -117,6 +117,7 @@ class HistoricDemandData extends Component {
         allDataframeColumnsList: null,
         dateTimeColumn: '',
         streamColumn: '',
+        waitingForDataProcessing: false,
 
       };
 
@@ -271,6 +272,9 @@ class HistoricDemandData extends Component {
         let conditional_request_headers = this.getHeadersColSelectRequest();
         console.log(jsonData)
         console.log(conditional_request_headers)
+        this.setState({
+            waitingForDataProcessing: true
+            })  
         // axios.post(url, form_data, {
         axios.post(url, jsonData, {    
             headers: conditional_request_headers
@@ -281,7 +285,8 @@ class HistoricDemandData extends Component {
                 console.log("File updated successfully")
                 notifyColsSelected();    
                 this.setState({
-                    colsSelected: true
+                    colsSelected: true,
+                    waitingForDataProcessing: false
                     })   
                 }
             })
@@ -355,8 +360,21 @@ class HistoricDemandData extends Component {
         return (
             <CircularProgress />
           );
+        }
 
-
+    else if (this.state.waitingForDataProcessing) {
+        return (
+            <div>
+            <CircularProgress />
+            <br />
+            <Typography variant="h6">
+                Performing initial data processing. 
+                This will take around 30 seconds.
+                Please wait...
+            </Typography>
+            </div>
+        );
+    
 
     } else {
         
