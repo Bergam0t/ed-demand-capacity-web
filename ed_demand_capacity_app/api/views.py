@@ -141,6 +141,8 @@ class GetSessionHistoricDataColumnNames(APIView):
         #     df = pd.read_csv(historic_data.uploaded_data).drop("Unnamed: 0", axis=1)
         # except:
         df = pd.read_csv(historic_data.uploaded_data)
+        if "Unnamed: 0" in df:
+            df = df.drop("Unnamed: 0", axis=1)
 
         return Response({'columns': df.columns}, status=status.HTTP_200_OK)
 
@@ -226,6 +228,9 @@ class MostRecentAsAgGridJson(APIView):
         #     ).drop("Unnamed: 0", axis=1)
         # except:
         data = pd.read_csv(historic_data.uploaded_data)
+        log.info(data.columns)
+        if "Unnamed: 0" in data.columns:
+            data = data.drop("Unnamed: 0", axis=1)
 
         return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
 
