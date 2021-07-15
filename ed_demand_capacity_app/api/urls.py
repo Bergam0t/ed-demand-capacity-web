@@ -59,8 +59,12 @@ urlpatterns += [
          name='most_recent_hist_plotly_ms'),
 
      path('most-recently-uploaded-data-forecast', 
+         ProphetForecastIndividualPlot.as_view(), 
+         name='most_recent_forecast_individual'),
+
+     path('most-recently-uploaded-data-forecast-all-streams', 
          ProphetForecastPlot.as_view(), 
-         name='most_recent_forecast'),
+         name='most_recent_forecast_all_streams'),
 
      path('most-recently-uploaded-ag-grid-json', 
          MostRecentAsAgGridJson.as_view(), 

@@ -78,6 +78,36 @@ class ProphetForecastPlot(APIView):
         return Response([plot_list[0]], status=status.HTTP_200_OK)
 
 
+class ProphetForecastIndividualPlot(APIView):
+    def get(self, request, *args, **kwargs):
+        user = request.session.session_key
+        stream = request.query_params['stream']
+
+        future_df_queryset = ProphetForecast.objects.filter(
+            user_session=user,
+            stream=stream).last()
+        
+        fcst = pd.read_feather(future_df_queryset.prophet_forecast_df_feather)
+
+        prophet_model = ProphetModel.objects.filter(
+            user_session=user,
+            stream=stream).last()
+
+        model = model_from_json(prophet_model.prophet_model_json)
+
+        fig  = plot_plotly(model, fcst)
+
+        # Update the x-axis range so we only display the future (i.e. the prediction),
+        # not the historic data, otherwise the period we are interested in is so small 
+        # as to not be visible
+        fig = fig.update_layout(xaxis_range=[fcst.ds.max() - timedelta(weeks=8), 
+                                                fcst.ds.max()])
+
+        plot_list = [{'title': stream, 'fig_json': fig.to_json()}]
+        log.info('Plot created for stream ' + str(stream))
+
+        return Response(plot_list, status=status.HTTP_200_OK)
+
 
 # class ProphetForecastOneWeekMajors(APIView):
 #     def get(self, request, *args, **kwargs):
