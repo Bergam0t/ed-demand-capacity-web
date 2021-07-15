@@ -59,7 +59,7 @@ urlpatterns += [
          name='most_recent_hist_plotly_ms'),
 
      path('most-recently-uploaded-data-forecast', 
-         ProphetForecastOneWeekMajors.as_view(), 
+         ProphetForecastPlot.as_view(), 
          name='most_recent_forecast'),
 
      path('most-recently-uploaded-ag-grid-json', 
@@ -73,12 +73,17 @@ urlpatterns += [
 
 # Forecasting plots
      
-urlpatterns += [
-     path('most-recently-uploaded-data-forecast', 
-         ProphetForecastOneWeekMajors.as_view(), 
-         name='most_recent_forecast'),
-]
+# urlpatterns += [
+#      path('most-recently-uploaded-data-forecast', 
+#          ProphetForecastOneWeekMajors.as_view(), 
+#          name='most_recent_forecast'),
+# ]
 
+# urlpatterns += [
+#      path('most-recently-uploaded-data-forecast', 
+#          ProphetForecastOneWeekMajors.as_view(), 
+#          name='most_recent_forecast'),
+# ]
 
 
 # --- Shifts --- #
