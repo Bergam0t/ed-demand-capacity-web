@@ -1,20 +1,28 @@
+# Django imports
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.core.files.base import ContentFile
+
+# DRF imports
 from rest_framework import generics
-from .serializers import *
-from .models import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_pandas import PandasSimpleView
+from .forecast_utils import *
+
+# Class imports
+from .serializers import *
+from .models import *
+
+# Python imports
 import logging
 import pandas as pd
-from rest_pandas import PandasSimpleView
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-from rest_framework.authtoken.models import Token
-from django.http import JsonResponse
-from django.core.files.base import ContentFile
 import tempfile
 import os
 import io
@@ -126,6 +134,78 @@ class HistoricDataView(APIView):
             return Response(historic_data_serializer.errors, 
                             status=status.HTTP_400_BAD_REQUEST)
 
+class FilterByColsAndOverwriteData(APIView):
+    def post(self, request, *args, **kwargs):
+
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+        # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
+        # find the most recent
+        historic_data = queryset.last()
+        
+        # log.info(type(historic_data.uploaded_data))
+        # log.info(historic_data.uploaded_data)
+        log.info(historic_data.uploaded_data.name)
+
+        df = pd.read_feather(historic_data.uploaded_data)
+        
+        # log.info(self.request.data)
+        columns_from_request = ColumnSelectSerializer(self.request.data).data
+        # log.info(columns_from_request)
+        
+
+        filtered_df = df[[columns_from_request['datetime_column'], 
+                          columns_from_request['stream_column']
+                          ]]
+        
+        filtered_df = filtered_df.rename(
+            {columns_from_request['datetime_column']: 'datetime',
+             columns_from_request['stream_column']: 'stream'}, 
+             axis=1
+        )
+
+        filtered_df['datetime'] = pd.to_datetime(filtered_df['datetime'])
+
+        filtered_df['dummy_row'] = 1
+
+        filtered_df['date'] = filtered_df['datetime'].dt.date
+        filtered_df['hour'] = filtered_df['datetime'].dt.hour
+
+        # Update existing model
+        # First get the filepath and apply some corrections so it goes to the correct folder
+        # and updates the filetype suffix
+        filepath =  (
+            historic_data.uploaded_data.name
+            .replace('historic_data/', '', 1)
+        )
+
+        # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
+        # which is good because it's what the later file update step needs
+        # However, everything like .to_pickle, .to_feather and .to_hdf does not
+        # provide this option, so you need to workaround this by writing the dataframe
+        # to a buffer, returning to the beginning of the buffer, and then passing
+        # this buffer to the file save. 
+        buf = io.BytesIO()
+        filtered_df.to_feather(buf)
+        buf.seek(0)
+
+        # Note that we have to use buf.read(), not just buf, 
+        # else we receive errors relating to this not being a 
+        # bytes-like object 
+        historic_data.uploaded_data.save(
+            filepath,
+            ContentFile(buf.read())
+            )
+        
+        log.info('Successfully updated selected columns')
+
+        # Set the prophet models to start generating in the background
+        generate_prophet_models(session_id = uploader)
+
+        
+        return Response({'Message': 'Successfully processed data'}, 
+                        status=status.HTTP_200_OK)
+
 class SessionHasHistoricData(APIView):
     '''
     Checks whether there is historic data associated with a user's session
@@ -174,68 +254,7 @@ class DeleteSessionHistoricData(APIView):
         return Response({'result': 'Session data deleted'}, 
                         status=status.HTTP_200_OK)
 
-class FilterByColsAndOverwriteData(APIView):
-    def post(self, request, *args, **kwargs):
 
-        uploader = request.session.session_key
-        queryset = HistoricData.objects.filter(uploader_session=uploader)
-        # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
-        # find the most recent
-        historic_data = queryset.last()
-        
-        # log.info(type(historic_data.uploaded_data))
-        # log.info(historic_data.uploaded_data)
-        log.info(historic_data.uploaded_data.name)
-
-        df = pd.read_feather(historic_data.uploaded_data)
-        
-        # log.info(self.request.data)
-        columns_from_request = ColumnSelectSerializer(self.request.data).data
-        # log.info(columns_from_request)
-        
-
-        filtered_df = df[[columns_from_request['datetime_column'], 
-                          columns_from_request['stream_column']
-                          ]]
-        
-        filtered_df = filtered_df.rename(
-            {columns_from_request['datetime_column']: 'datetime',
-             columns_from_request['stream_column']: 'stream'}, 
-             axis=1
-        )
-
-        filtered_df['datetime'] = pd.to_datetime(filtered_df['datetime'])
-
-        filtered_df['dummy_row'] = 1
-
-        # Update existing model
-        # First get the filepath and apply some corrections so it goes to the correct folder
-        # and updates the filetype suffix
-        filepath =  (
-            historic_data.uploaded_data.name
-            .replace('historic_data/', '', 1)
-        )
-
-        # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
-        # which is good because it's what the later file update step needs
-        # However, everything like .to_pickle, .to_feather and .to_hdf does not
-        # provide this option, so you need to workaround this by writing the dataframe
-        # to a buffer, returning to the beginning of the buffer, and then passing
-        # this buffer to the file save. 
-        buf = io.BytesIO()
-        filtered_df.to_feather(buf)
-        buf.seek(0)
-
-        # Note that we have to use buf.read(), not just buf, 
-        # else we receive errors relating to this not being a 
-        # bytes-like object 
-        historic_data.uploaded_data.save(
-            filepath,
-            ContentFile(buf.read())
-            )
-        
-        return Response({'Message': 'Successfully updated selected columns'}, 
-                        status=status.HTTP_200_OK)
 
 class GetSessionHistoricDataColumnNames(APIView):
     '''
