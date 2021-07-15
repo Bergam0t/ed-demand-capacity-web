@@ -369,7 +369,7 @@ class HistoricDemandData extends Component {
             <br />
             <Typography variant="h6">
                 Performing initial data processing. 
-                This will take around 30 seconds.
+                This will take up to five minutes.
                 Please wait...
             </Typography>
             </div>
