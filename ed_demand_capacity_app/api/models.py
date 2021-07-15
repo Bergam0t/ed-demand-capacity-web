@@ -62,10 +62,12 @@ class Shift(models.Model):
     shift_start_time = models.TimeField()
     shift_end_time = models.TimeField()
 
+
 class ShiftBreak(models.Model):
     shift = models.ForeignKey(Shift, models.CASCADE),
     break_start = models.TimeField()
     break_end = models.TimeField()
+
 
 class Notes(models.Model):
     '''
@@ -78,3 +80,29 @@ class Notes(models.Model):
     user_session = models.CharField(max_length=50, 
                                     default='Not recorded')
     notes = models.TextField()
+
+
+class ProphetModel(models.Model):
+    '''
+    Model for storing a json-serialized fitted Prophet model
+    '''
+
+    user_session =  models.CharField(max_length=50, 
+                                    default='Not recorded')
+
+    stream = models.CharField(max_length=150,
+                                    default='Not recorded')
+
+    prophet_model_json = models.JSONField()
+
+
+class ProphetForecast(models.Model):
+    
+    user_session =  models.CharField(max_length=50, 
+                                     default='Not recorded')
+
+    stream = models.CharField(max_length=150,
+                              default='Not recorded')
+
+    prophet_forecast_df_feather = models.FileField(upload_to='forecasts', blank=True)
+    

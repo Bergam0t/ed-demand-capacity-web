@@ -38,4 +38,13 @@ class NotesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notes
         fields = ('notes', )
-        
+
+class ProphetModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProphetModel
+        fields = '__all__'
+
+class ProphetForecastSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProphetForecast 
+        fields = '__all__'      
