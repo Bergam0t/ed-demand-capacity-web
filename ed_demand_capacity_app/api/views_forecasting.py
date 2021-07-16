@@ -96,8 +96,9 @@ class ProphetForecastIndividualPlot(APIView):
 
         model = model_from_json(prophet_model.prophet_model_json)
 
-        fig  = plot_plotly_history_optional(model, fcst, include_history=False)
-
+        # fig  = plot_plotly_history_optional(model, fcst, include_history=False)
+        fig  = plot_plotly_history_optional(model, fcst, include_history=True,
+        history_to_include=timedelta(days=365))
         # Update the x-axis range so we only display the future (i.e. the prediction),
         # not the historic data, otherwise the period we are interested in is so small 
         # as to not be visible

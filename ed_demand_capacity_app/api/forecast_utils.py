@@ -169,7 +169,8 @@ def generate_prophet_models(session_id):
 def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend=False, 
                 changepoints=False, changepoints_threshold=0.01, 
                 xlabel='ds', ylabel='y', figsize=(900, 600),
-                include_history=True, history_as_lines=False):
+                exclude_history=False, history_as_lines=False,
+                history_to_include='All'):
     """
     Plot the Prophet forecast with Plotly offline.
 
@@ -201,6 +202,11 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
     changepoints_threshold: Threshold on trend change magnitude for significance.
     xlabel: Optional label name on X-axis
     ylabel: Optional label name on Y-axis
+    exclude_history: optional boolean to omit history from the plot
+    history_as_lines: optional boolean to plot history as a line instead of as marker points
+    history_to_include: optional timedelta to specify the amount of history to include. Will
+        be ignored if exclude_history == True.
+
     Returns
     -------
     A Plotly Figure.
@@ -220,7 +226,13 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
     else:
         history_mode = 'markers'
 
-    if include_history:
+    if not exclude_history:
+        if history_to_include != 'All':
+            if type(history_to_include) == timedelta:
+                m.history = m.history[m.history['ds'] > m.history['ds'].max() - history_to_include]
+            else:
+                log.error("history_to_include was not passed a timedelta object. All history will be shown.")
+
     # Add actual
         data.append(go.Scatter(
             name='Actual',
@@ -229,6 +241,7 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
             marker=dict(color=actual_color, size=marker_size),
             mode=history_mode
         ))
+
     # Add lower bound
     if uncertainty and m.uncertainty_samples:
         data.append(go.Scatter(
