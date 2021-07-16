@@ -302,9 +302,6 @@ export default function ShiftPage() {
     function handleConfirmCreateShiftType(e) {
         let headers = getHeaders()
 
-        // setNotes(notesFieldRef.current)
-
-
         // Need to convert any null time values to string
         // They need to be null for the frontend so the time picker can work with the defaults
         // while still being easily identifiable as unset, but the POST request is expecting
@@ -329,6 +326,8 @@ export default function ShiftPage() {
         fetch('/api/create-shift-type', requestOptions).then((response) => {
             if (response.ok) {
                 console.log("Shift type created successfully")
+                setCreateShiftTypeModalOpen(false)
+                fetchShiftTypes()
 
             } else {
                 console.log("Error creating shift type")
