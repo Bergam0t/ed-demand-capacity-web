@@ -111,10 +111,10 @@ class DeleteShiftType(APIView):
         # (or at least not the full details)
         uploader = request.session.session_key
         queryset = Shift.objects.filter(user_session=uploader)
-        single_shift = queryset.objects.get(id=pk)
+        single_shift = queryset.get(id=pk)
 
         # TODO: Separate these into two different error messages
-        if len(single_shift < 1):
+        if single_shift is None:
             return Response({'Message': 'This shift does not exist or does not belong to your session'}, 
                             status=status.HTTP_400_BAD_REQUEST)
 

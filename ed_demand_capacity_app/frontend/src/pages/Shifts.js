@@ -41,6 +41,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import moment from 'moment'
 import { withStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { toast } from 'react-toastify';
+
 
 const useStyles = makeStyles((theme) => ({
     // modal: {
@@ -89,18 +91,7 @@ const useStyles = makeStyles((theme) => ({
     })
 );
 
-// const muiDialogTheme = createMuiTheme({
-//     overrides: {
-//           paper: {
-//             borderTopLeftRadius: '4px',
-//             borderTopRightRadius: '4px'
-//           }
-        
-//       }
-// })
-
 export default function ShiftPage() {
-
 
     const classes = useStyles();
 
@@ -135,7 +126,7 @@ export default function ShiftPage() {
             .then(() => setLoaded(true));
       };
 
-    const [shifttypes, setShiftTypes] = React.useState(null)
+    const [shiftTypes, setShiftTypes] = React.useState(null)
     const [loaded, setLoaded] = React.useState(false)
 
     function formatTime(time) {
@@ -170,7 +161,7 @@ export default function ShiftPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {shifttypes.map((shiftType) => (
+            {shiftTypes.map((shiftType) => (
               <TableRow key={shiftType.id}>
                 
                 <TableCell component="th" scope="row" className={classes.tableHeadCell}>
@@ -204,9 +195,9 @@ export default function ShiftPage() {
                 <TableCell align="left">
                     {formatTime(shiftType.break_3_end)}
                 </TableCell>
-
+                
                 <TableCell align="left">
-                    <IconButton> 
+                    <IconButton onClick={() => handleDeleteShiftType(shiftType.id)}> 
                         <DeleteIcon />
                     </ IconButton>
                 </TableCell>
@@ -228,7 +219,29 @@ export default function ShiftPage() {
     }
 }
 
+    // Add function to handle deletion of shift types on click
+    const handleDeleteShiftType = (shift_id) => {
+        fetch('/api/delete-shift-type/' + shift_id, 
+              {method: 'POST'})
+              .then(() => {
+                  const index = shiftTypes.findIndex(x => x.id === shift_id);
+                  console.log("Index: " + index)
+                  if (index !== undefined) setShiftTypes(shiftTypes.splice(index, 1))
+                  
+                })
+              .then(() => notifyDelete());
 
+    };
+
+    const notifyDelete = () => toast.success('Shift Type Deleted', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
 
     // Add states required for creation of shifts
     const [createShiftTypeModalOpen, setCreateShiftTypeModalOpen] = React.useState(false);
