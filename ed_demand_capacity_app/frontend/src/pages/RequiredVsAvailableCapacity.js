@@ -13,14 +13,16 @@ export default class PlotForecast extends Component {
             this.fetchStreamList = this.fetchStreamList.bind(this);
             this.renderStreamList = this.renderStreamList.bind(this);
             this.renderPlotly = this.renderPlotly.bind(this);
-            // this.handleChangeSelectedStream = this.handleChangeSelectedStream.bind(this);
-    }
+            this.handleChangeSelectedStream = this.handleChangeSelectedStream.bind(this);
+    
+            this.state = {
+                streamList: null,
+                streamSelected: '',
+                apiRequestURL: ''
+            }
+        }
 
-    state = {
-        streamList: null,
-        streamSelected: null,
-        apiRequestURL: null
-    }
+
     
     fetchStreamList() {
         return fetch('api/get-historic-data-streams')
@@ -39,7 +41,8 @@ export default class PlotForecast extends Component {
         this.setState({
             streamSelected: e.target.value,
             apiRequestURL: "/api/most-recently-uploaded-data-forecast?stream=" + e.target.value}
-            );
+            ).then(() => this.forceUpdate())
+        
         }
 
     renderStreamList() {
@@ -51,12 +54,15 @@ export default class PlotForecast extends Component {
     }
 
     renderPlotly() {
-        if (this.state.apiRequestURL) {
-            return (
-            <PlotlyPlot api_url={this.state.apiRequestURL} />
-            )} else {
+        if (this.state.apiRequestURL === '') {
                 return (
-                    <Typography variant="h5"> Select a stream to display the forecast</Typography>
+                    <Typography variant="h6"> Select a stream to display the forecast</Typography>
+                )
+            } else {
+                return (
+                    <div key={this.state.apiRequestURL}>
+                    <PlotlyPlot api_url={this.state.apiRequestURL} />
+                    </div>
                 )
             }
     }
@@ -82,7 +88,7 @@ export default class PlotForecast extends Component {
         return (
         <div>
         <Typography variant="h4"> Predicted Demand: Arrivals Per Hour for Next 8 Weeks</Typography>
-        
+        <br /> <br />  
         <Select
             labelId="select-stream-label"
             id="select-stream"
@@ -93,8 +99,12 @@ export default class PlotForecast extends Component {
          return <MenuItem key={streamName.value} value={streamName.value}>{streamName.label}</MenuItem>
       })}
       </Select>
-        
-        {this.renderPlotly()}
+      <br /> <br />  
+      
+      {this.renderPlotly()}
+      
+
+      
 
         </div>
         )
