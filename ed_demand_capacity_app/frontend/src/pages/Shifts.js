@@ -224,10 +224,7 @@ export default function ShiftPage() {
         fetch('/api/delete-shift-type/' + shift_id, 
               {method: 'POST'})
               .then(() => {
-                  const index = shiftTypes.findIndex(x => x.id === shift_id);
-                  console.log("Index: " + index)
-                  if (index !== undefined) setShiftTypes(shiftTypes.splice(index, 1))
-                  
+                fetchShiftTypes() 
                 })
               .then(() => notifyDelete());
 
