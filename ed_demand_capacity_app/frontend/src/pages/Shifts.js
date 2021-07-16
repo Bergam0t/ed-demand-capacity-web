@@ -1,4 +1,4 @@
-import React, { Component, useState, useReducer } from "react";
+import React, { Component, useState, useReducer, useEffect } from "react";
 import {
     Box,
     Container,
@@ -30,7 +30,14 @@ import {
 } from '@material-ui/pickers';
 import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
-
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 
@@ -84,20 +91,123 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ShiftPage() {
 
-    // Function for getting existing shift types associated with this session
-    // const getExistingShiftTypes = () => {
-        
-    //   };
 
-    // Functions to run on component load
-    // useEffect(() => {
 
-    //   }, [])
+
 
     const classes = useStyles();
 
     const loggedIn = useStoreState(state => state.loggedIn)
 
+    function getHeaders() {
+        if (loggedIn) {
+            return  {
+                'content-type': 'application/json',
+                'authorization': `JWT ${localStorage.getItem('access_token')}`
+              }
+        } else {
+            return  {
+                'content-type': 'application/json'
+              }
+        }};
+
+    // Add function for retrieving shift types from the server
+    // for this user session
+    const fetchShiftTypes = () => {
+        return fetch('api/own-shift-types')
+            // Make sure to not wrap this first then statement in {}
+            // otherwise it returns a promise instead of the json
+            // and then you can't access the email attribute 
+            .then(response => 
+                response.json()
+            )
+            .then((json) => {
+                setShiftTypes(json);
+                // console.log(json)
+            })
+            .then(() => setLoaded(true));
+      };
+
+    const [shifttypes, setShiftTypes] = React.useState(null)
+    const [loaded, setLoaded] = React.useState(false)
+
+    function displayExistingShiftTypes() {
+        if (loaded) {
+        return (<div>
+        <TableContainer component={Paper}>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Shift Type Name</TableCell>
+              <TableCell>Start Time</TableCell>
+              <TableCell>End Time</TableCell>
+              
+              <TableCell>Break 1 Start</TableCell>
+              <TableCell>Break 1 End</TableCell>
+              
+              <TableCell>Break 2 Start</TableCell>
+              <TableCell>Break 2 End</TableCell>
+              
+              <TableCell>Break 3 Start</TableCell>
+              <TableCell>Break 3 End</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {shifttypes.map((shiftType) => (
+              <TableRow key={shiftType.id}>
+                
+                <TableCell component="th" scope="row">
+                  {shiftType.shift_type_name}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {shiftType.shift_start_time}
+                </TableCell>
+                <TableCell align="left">
+                    {shiftType.shift_end_time}
+                </TableCell>
+               
+                <TableCell align="left">
+                    {shiftType.break_1_start}
+                </TableCell>
+                <TableCell align="left">
+                    {shiftType.break_1_end}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {shiftType.break_2_start}
+                </TableCell>
+                <TableCell align="left">
+                    {shiftType.break_2_end}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {shiftType.break_3_start}
+                </TableCell>
+                <TableCell align="left">
+                    {shiftType.break_3_end}
+                </TableCell>
+
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      </div>
+        )
+    } else {
+        return (
+            <div>
+            <CircularProgress />
+            </div>
+        )
+
+    }
+}
+
+
+
+    // Add states required for creation of shifts
     const [createShiftTypeModalOpen, setCreateShiftTypeModalOpen] = React.useState(false);
 
     const handleOpenCreateShiftTypeDialog = (() => {
@@ -152,17 +262,7 @@ export default function ShiftPage() {
     const [stateBreaks, dispatch] = useReducer(reducer, numberOfBreaksInitial);
 
 
-    function getHeaders() {
-        if (loggedIn) {
-            return  {
-                'content-type': 'application/json',
-                'authorization': `JWT ${localStorage.getItem('access_token')}`
-              }
-        } else {
-            return  {
-                'content-type': 'application/json'
-              }
-        }};
+
 
     // Handle Submit
     // TODO: Set all form values back to defaults
@@ -208,6 +308,11 @@ export default function ShiftPage() {
     
 
 
+    // Determine what will run on page load
+    // Get notes from server
+    useEffect(() => {
+        fetchShiftTypes()
+    }, []);
 
 
     // Rendering of page
@@ -455,6 +560,8 @@ export default function ShiftPage() {
 
 
         </Dialog>
+
+        {displayExistingShiftTypes()}
 
         </div>
 
