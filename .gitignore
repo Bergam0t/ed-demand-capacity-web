@@ -18,3 +18,5 @@ npm-debug.log
 
 # Environments#
 envs/
+*.ftr
+*.csv
