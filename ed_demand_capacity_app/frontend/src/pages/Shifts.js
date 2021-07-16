@@ -138,7 +138,12 @@ export default function ShiftPage() {
     const [shifttypes, setShiftTypes] = React.useState(null)
     const [loaded, setLoaded] = React.useState(false)
 
-
+    function formatTime(time) {
+        var dt = new Date(time)
+        return (
+            !dt.getTime() > 0 ? " " : moment(time).format('HH:MM')
+        )
+    }
 
     function displayExistingShiftTypes() {
         if (loaded) {
@@ -173,31 +178,31 @@ export default function ShiftPage() {
                 </TableCell>
                 
                 <TableCell align="left">
-                    {moment(shiftType.shift_start_time).format('HH:MM')}
+                    {formatTime(shiftType.shift_start_time)}
                 </TableCell>
                 <TableCell align="left">
-                    {moment(shiftType.shift_end_time).format('HH:MM')}
+                    {formatTime(shiftType.shift_end_time)}
                 </TableCell>
                
                 <TableCell align="left">
-                    {moment(shiftType.break_1_start).format('HH:MM')}
+                    {formatTime(shiftType.break_1_start)}
                 </TableCell>
                 <TableCell align="left">
-                    {moment(shiftType.break_1_end).format('HH:MM')}
-                </TableCell>
-                
-                <TableCell align="left">
-                    {moment(shiftType.break_2_start).format('HH:MM')}
-                </TableCell>
-                <TableCell align="left">
-                    {moment(shiftType.break_2_end).format('HH:MM')}
+                    {formatTime(shiftType.break_1_end)}
                 </TableCell>
                 
                 <TableCell align="left">
-                    {moment(shiftType.break_3_start).format('HH:MM')}
+                    {formatTime(shiftType.break_2_start)}
                 </TableCell>
                 <TableCell align="left">
-                    {moment(shiftType.break_3_end).format('HH:MM')}
+                    {formatTime(shiftType.break_2_end)}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {formatTime(shiftType.break_3_start)}
+                </TableCell>
+                <TableCell align="left">
+                    {formatTime(shiftType.break_3_end)}
                 </TableCell>
 
                 <TableCell align="left">
