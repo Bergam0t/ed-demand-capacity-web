@@ -117,6 +117,7 @@ class HistoricDemandData extends Component {
         allDataframeColumnsList: null,
         dateTimeColumn: '',
         streamColumn: '',
+        waitingForDataProcessing: false,
 
       };
 
@@ -271,6 +272,9 @@ class HistoricDemandData extends Component {
         let conditional_request_headers = this.getHeadersColSelectRequest();
         console.log(jsonData)
         console.log(conditional_request_headers)
+        this.setState({
+            waitingForDataProcessing: true
+            })  
         // axios.post(url, form_data, {
         axios.post(url, jsonData, {    
             headers: conditional_request_headers
@@ -281,7 +285,8 @@ class HistoricDemandData extends Component {
                 console.log("File updated successfully")
                 notifyColsSelected();    
                 this.setState({
-                    colsSelected: true
+                    colsSelected: true,
+                    waitingForDataProcessing: false
                     })   
                 }
             })
@@ -355,8 +360,21 @@ class HistoricDemandData extends Component {
         return (
             <CircularProgress />
           );
+        }
 
-
+    else if (this.state.waitingForDataProcessing) {
+        return (
+            <div>
+            <CircularProgress />
+            <br />
+            <Typography variant="h6">
+                Performing initial data processing. 
+                This will take up to five minutes.
+                Please wait...
+            </Typography>
+            </div>
+        );
+    
 
     } else {
         
@@ -492,6 +510,7 @@ class HistoricDemandData extends Component {
                 <Grid container item xs={6}>
                     <Card paddingBottom={4}>
                         <CardContent>
+                        <Typography variant='h3'> Option 1 </Typography>
                         <Typography variant='h4'>
                             Is your data in record format?
                         </Typography>
@@ -539,6 +558,7 @@ class HistoricDemandData extends Component {
                 <Grid container item xs={6}>
                     <Card paddingBottom={4}>
                         <CardContent>
+                        <Typography variant='h3'> Option 2 </Typography>
                         <Typography variant='h4'>
                             Is your data being imported from the Excel model?
                         </Typography>
@@ -550,6 +570,39 @@ class HistoricDemandData extends Component {
                         </Typography>
                         <Button color="primary" variant="contained" component="label" disabled={true}>
                             Upload Excel Model
+                            <input
+                                type="file"
+                                accept=".xls,.xlsx"
+                                hidden
+                            />
+                        </Button>
+                        </CardContent>   
+                    </Card>
+                </Grid>
+
+                <Grid container item xs={6}>
+                    <Card paddingBottom={4}>
+                        <CardContent>
+                        <Typography variant='h3'> Option 3 </Typography>
+                        <Typography variant='h4'>
+                            Do you want to enter your data into a template?
+                        </Typography>
+                        <Typography variant='h6'>
+                            <br/>
+                            You can download a template below and fill it in using Excel or another spreadsheet software.
+                            <br/><br/>
+                        </Typography>
+                        <Button color="primary" variant="contained" component="label" disabled={true}>
+                            Download Template
+                            <input
+                                type="file"
+                                accept=".xls,.xlsx"
+                                hidden
+                            />
+                        </Button>
+                        <br/><br/>
+                        <Button color="primary" variant="contained" component="label" disabled={true}>
+                            Upload Completed Template
                             <input
                                 type="file"
                                 accept=".xls,.xlsx"

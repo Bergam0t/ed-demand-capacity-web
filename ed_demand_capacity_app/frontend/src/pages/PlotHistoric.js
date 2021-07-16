@@ -6,7 +6,7 @@ export default class PlotForecast extends Component {
     render() {
         return (
         <div>
-        <Typography variant = "h5"> Monthly Admissions by Stream </Typography>
+        <Typography variant = "h5"> Monthly Arrivals by Stream </Typography>
         <PlotlyPlot api_url="/api/most-recently-uploaded-historic-data-plotly-ms" />
         </div>
         )
