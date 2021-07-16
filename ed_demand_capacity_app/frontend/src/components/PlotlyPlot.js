@@ -8,6 +8,7 @@ import createPlotlyComponent from 'react-plotly.js/factory'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {useStoreState} from 'easy-peasy';
 import Typography from '@material-ui/core/Typography';
+import { v4 as uuidv4 } from 'uuid';
 
 const Plot = createPlotlyComponent(Plotly);
 
@@ -78,15 +79,17 @@ export default class PlotlyPlot extends Component {
     render() {
       if (!this.state.loaded) {
         return (
+          <div key={uuidv4()}>
           <CircularProgress />
+          </div>
         );
       } else {
         if (this.state.json instanceof Array) {
           return (           
-            <div>
+            <div key={uuidv4()}>
               {(this.state.json || []).map((plotJson) => {
                 return(
-                  <div>
+                  <div key={uuidv4()}>
                     <Typography variant="h5"> {plotJson.title} </Typography>
                     <Plot
                     data={$.parseJSON(plotJson.fig_json).data}
@@ -102,7 +105,7 @@ export default class PlotlyPlot extends Component {
           )
         } else {
           return (           
-            <div>
+            <div key={uuidv4()}>
             <Plot
                 data={this.state.json.data}
                 layout={this.state.json.layout}

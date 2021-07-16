@@ -46,3 +46,76 @@ class HistoricData(models.Model):
                                       default='Not logged in')
     upload_time = models.DateTimeField(auto_now_add=True, 
                                        blank=True)
+
+
+class Shift(models.Model):
+    '''
+    Model for storing a shift
+
+    To allow a shift to have as many breaks as required, the ShiftBreak table
+    links to this one, using the automatically generated shift primary key 
+    as the foreign key
+    '''
+    user_session = models.CharField(max_length=50, 
+                                    default='Not recorded')
+    
+    shift_type_name = models.CharField(max_length=150,
+                                        default='')
+    
+    shift_start_time = models.CharField(max_length=50,
+                                        default='')
+    shift_end_time = models.CharField(max_length=50,
+                                        default='')
+    
+    break_1_start = models.CharField(max_length=50,
+                                        default='')
+    break_1_end = models.CharField(max_length=50,
+                                        default='')
+    break_2_start = models.CharField(max_length=50,
+                                        default='')
+    break_2_end = models.CharField(max_length=50,
+                                        default='')
+    break_3_start = models.CharField(max_length=50,
+                                        default='')
+    break_3_end = models.CharField(max_length=50,
+                                        default='')
+
+
+
+class Notes(models.Model):
+    '''
+    Model for storing a shift
+
+    To allow a shift to have as many breaks as required, the ShiftBreak table
+    links to this one, using the automatically generated shift primary key 
+    as the foreign key
+    '''
+    user_session = models.CharField(max_length=50, 
+                                    default='Not recorded')
+    notes = models.TextField()
+
+
+class ProphetModel(models.Model):
+    '''
+    Model for storing a json-serialized fitted Prophet model
+    '''
+
+    user_session =  models.CharField(max_length=50, 
+                                    default='Not recorded')
+
+    stream = models.CharField(max_length=150,
+                                    default='Not recorded')
+
+    prophet_model_json = models.JSONField()
+
+
+class ProphetForecast(models.Model):
+    
+    user_session =  models.CharField(max_length=50, 
+                                     default='Not recorded')
+
+    stream = models.CharField(max_length=150,
+                              default='Not recorded')
+
+    prophet_forecast_df_feather = models.FileField(upload_to='forecasts', blank=True)
+    

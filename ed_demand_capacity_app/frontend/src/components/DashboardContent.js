@@ -15,6 +15,7 @@ import PlaceholderDashboardContent from "./PlaceholderDashboardContent"
 import PlotHistoric from "../pages/PlotHistoric"
 import SignIn from "../pages/SignIn"
 import PlotForecast from "../pages/RequiredVsAvailableCapacity"
+import Shifts from "../pages/Shifts"
 
 export default function DashboardContent() {
     return (
@@ -26,6 +27,7 @@ export default function DashboardContent() {
                 <Route path='/historic-demand-graphs' component={ PlotHistoric } />
                 <Route path='/login' component={ SignIn } />
                 <Route path='/required-vs-available-capacity' component={ PlotForecast } />
+                <Route path='/shift-types' component={ Shifts } />
                 </div>
     );
 }
