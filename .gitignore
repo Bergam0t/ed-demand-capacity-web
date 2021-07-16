@@ -24,3 +24,4 @@ ed_demand_capacity_app/db.sqlite3
 *.pkl
 *.pyc
 ed_demand_capacity_app/db.sqlite3
+*.pyc
