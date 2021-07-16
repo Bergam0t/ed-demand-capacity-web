@@ -8,7 +8,7 @@ import {
     CardContent,
     Modal,
     ButtonGroup,
-    Divider
+    Divider,
   } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import { useStoreActions } from 'easy-peasy';
@@ -38,8 +38,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-
+import moment from 'moment'
+import { withStyles } from '@material-ui/core/styles';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles((theme) => ({
     // modal: {
@@ -76,6 +77,15 @@ const useStyles = makeStyles((theme) => ({
         paddingRight: theme.spacing(4),
       },
 
+          // Add formatting for the resulting table
+    tableHead: {
+        background: '#cdcdcd',
+     },
+
+     tableHeadCell: {
+        fontWeight: 800,
+     }
+
     })
 );
 
@@ -90,9 +100,6 @@ const useStyles = makeStyles((theme) => ({
 // })
 
 export default function ShiftPage() {
-
-
-
 
 
     const classes = useStyles();
@@ -131,61 +138,72 @@ export default function ShiftPage() {
     const [shifttypes, setShiftTypes] = React.useState(null)
     const [loaded, setLoaded] = React.useState(false)
 
+
+
     function displayExistingShiftTypes() {
         if (loaded) {
         return (<div>
         <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Shift Type Name</TableCell>
-              <TableCell>Start Time</TableCell>
-              <TableCell>End Time</TableCell>
+          <TableHead className={classes.tableHead}>
+            <TableRow className={classes.tableHeadCell}>
+              <TableCell className={classes.tableHeadCell}>Shift Type Name</TableCell>
+              <TableCell className={classes.tableHeadCell}>Start Time</TableCell>
+              <TableCell className={classes.tableHeadCell}>End Time</TableCell>
               
-              <TableCell>Break 1 Start</TableCell>
-              <TableCell>Break 1 End</TableCell>
+              <TableCell className={classes.tableHeadCell}>Break 1 Start</TableCell>
+              <TableCell className={classes.tableHeadCell}>Break 1 End</TableCell>
               
-              <TableCell>Break 2 Start</TableCell>
-              <TableCell>Break 2 End</TableCell>
+              <TableCell className={classes.tableHeadCell}>Break 2 Start</TableCell>
+              <TableCell className={classes.tableHeadCell}>Break 2 End</TableCell>
               
-              <TableCell>Break 3 Start</TableCell>
-              <TableCell>Break 3 End</TableCell>
+              <TableCell className={classes.tableHeadCell}>Break 3 Start</TableCell>
+              <TableCell className={classes.tableHeadCell}>Break 3 End</TableCell>
+            
+              <TableCell className={classes.tableHeadCell}>Delete</TableCell>
+            
             </TableRow>
           </TableHead>
           <TableBody>
             {shifttypes.map((shiftType) => (
               <TableRow key={shiftType.id}>
                 
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" className={classes.tableHeadCell}>
                   {shiftType.shift_type_name}
                 </TableCell>
                 
                 <TableCell align="left">
-                    {shiftType.shift_start_time}
+                    {moment(shiftType.shift_start_time).format('HH:MM')}
                 </TableCell>
                 <TableCell align="left">
-                    {shiftType.shift_end_time}
+                    {moment(shiftType.shift_end_time).format('HH:MM')}
                 </TableCell>
                
                 <TableCell align="left">
-                    {shiftType.break_1_start}
+                    {moment(shiftType.break_1_start).format('HH:MM')}
                 </TableCell>
                 <TableCell align="left">
-                    {shiftType.break_1_end}
-                </TableCell>
-                
-                <TableCell align="left">
-                    {shiftType.break_2_start}
-                </TableCell>
-                <TableCell align="left">
-                    {shiftType.break_2_end}
+                    {moment(shiftType.break_1_end).format('HH:MM')}
                 </TableCell>
                 
                 <TableCell align="left">
-                    {shiftType.break_3_start}
+                    {moment(shiftType.break_2_start).format('HH:MM')}
                 </TableCell>
                 <TableCell align="left">
-                    {shiftType.break_3_end}
+                    {moment(shiftType.break_2_end).format('HH:MM')}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {moment(shiftType.break_3_start).format('HH:MM')}
+                </TableCell>
+                <TableCell align="left">
+                    {moment(shiftType.break_3_end).format('HH:MM')}
+                </TableCell>
+
+                <TableCell align="left">
+                    <IconButton> 
+                        <DeleteIcon />
+                    </ IconButton>
                 </TableCell>
 
               </TableRow>
@@ -560,7 +578,7 @@ export default function ShiftPage() {
 
 
         </Dialog>
-
+        <br /><br /><br />
         {displayExistingShiftTypes()}
 
         </div>
