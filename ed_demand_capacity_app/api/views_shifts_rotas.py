@@ -60,12 +60,23 @@ class CreateShiftType(APIView):
         # First reduce queryset to only shifts owned by the session
         # as don't want users to be able to find other user's shift types
         # (or at least not the full details)
+        log.info(request.data)
         serializer = ShiftSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            log.info('Serializer valid for submitted shift type')
+            # Save the shift type object, but the user session will be the 
+            # default value because we haven't passed that from the frontend
+            shift_object = serializer.save()
+            
+            # Add the user's session to the model object
+            user_session_key = request.session.session_key
+            shift_object.user_session = user_session_key
+            shift_object.save(update_fields=['user_session'])
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
+            log.error('Serializer not valid for submitted shift type')
             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateShiftType(APIView):

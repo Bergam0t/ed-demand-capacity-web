@@ -96,6 +96,8 @@ export default function ShiftPage() {
 
     const classes = useStyles();
 
+    const loggedIn = useStoreState(state => state.loggedIn)
+
     const [createShiftTypeModalOpen, setCreateShiftTypeModalOpen] = React.useState(false);
 
     const handleOpenCreateShiftTypeDialog = (() => {
@@ -107,6 +109,12 @@ export default function ShiftPage() {
     })
 
     const DefaultTime = new Date("January 1 2021 12:00");
+
+    const [shiftTypeName, setShiftTypeName] = useState('');
+
+    function handleShiftTypeNameChange(e) {
+        setShiftTypeName(e.target.value);
+    }
 
     const [selectedTimeStart, handleTimeStartChange] = useState(DefaultTime);
     const [selectedTimeEnd, handleTimeEndChange] = useState(DefaultTime);  
@@ -123,12 +131,6 @@ export default function ShiftPage() {
     const [break3TimeStart, handleBreak3StartChange] = useState(null);
     const [break3TimeEnd, handleBreak3EndChange] = useState(null);
 
-    // Handle Submit
-    // TODO: Set all form values back to defaults
-    // handleSubmit = (e) => {
-    
-    
-    // }
 
     // Control number of breaks
     // Needs to use a reducer rather than a simple state, hence why this is all a bit complex
@@ -146,8 +148,67 @@ export default function ShiftPage() {
             throw new Error();
         }
       }
-      
+    
     const [stateBreaks, dispatch] = useReducer(reducer, numberOfBreaksInitial);
+
+
+    function getHeaders() {
+        if (loggedIn) {
+            return  {
+                'content-type': 'application/json',
+                'authorization': `JWT ${localStorage.getItem('access_token')}`
+              }
+        } else {
+            return  {
+                'content-type': 'application/json'
+              }
+        }};
+
+    // Handle Submit
+    // TODO: Set all form values back to defaults
+    function handleConfirmCreateShiftType(e) {
+        let headers = getHeaders()
+
+        // setNotes(notesFieldRef.current)
+
+
+        // Need to convert any null time values to string
+        // They need to be null for the frontend so the time picker can work with the defaults
+        // while still being easily identifiable as unset, but the POST request is expecting
+        // all of the datetimes to be returned as strings, so provide a blank string if no
+        // time selected 
+        const requestOptions = {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+                shift_type_name: shiftTypeName,
+                shift_start_time: selectedTimeStart,
+                shift_end_time: selectedTimeEnd,
+                break_1_start: break1TimeStart == null ? "null" : break1TimeStart,
+                break_1_end: break1TimeEnd == null ? "null" : break1TimeEnd,
+                break_2_start: break2TimeStart == null ? "null" : break2TimeStart,
+                break_2_end: break2TimeEnd == null ? "null" : break2TimeEnd,
+                break_3_start: break3TimeStart == null ? "null" : break3TimeStart,
+                break_3_end: break3TimeEnd == null ? "null" : break3TimeEnd,
+            })
+        };
+        console.log(requestOptions)
+        fetch('/api/create-shift-type', requestOptions).then((response) => {
+            if (response.ok) {
+                console.log("Shift type created successfully")
+
+            } else {
+                console.log("Error creating shift type")
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+    
+
+
+
 
     // Rendering of page
 
@@ -197,6 +258,7 @@ export default function ShiftPage() {
                         id="shift-type-name"
                         label="Shift Type Name (e.g. Early, Late, Full Day, Long)"
                         type="text"
+                        onChange={(e) => handleShiftTypeNameChange(e)}
                     />
                     <br /><br /><br />
                     </Grid>
@@ -381,6 +443,7 @@ export default function ShiftPage() {
                             <Button 
                                 variant="contained" 
                                 color="primary"
+                                onClick={handleConfirmCreateShiftType}
                             >
                                 Confirm
                             </Button>

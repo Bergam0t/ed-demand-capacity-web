@@ -58,15 +58,28 @@ class Shift(models.Model):
     '''
     user_session = models.CharField(max_length=50, 
                                     default='Not recorded')
-    shift_type_name = models.CharField(max_length=150)
-    shift_start_time = models.TimeField()
-    shift_end_time = models.TimeField()
+    
+    shift_type_name = models.CharField(max_length=150,
+                                        default='')
+    
+    shift_start_time = models.CharField(max_length=50,
+                                        default='')
+    shift_end_time = models.CharField(max_length=50,
+                                        default='')
+    
+    break_1_start = models.CharField(max_length=50,
+                                        default='')
+    break_1_end = models.CharField(max_length=50,
+                                        default='')
+    break_2_start = models.CharField(max_length=50,
+                                        default='')
+    break_2_end = models.CharField(max_length=50,
+                                        default='')
+    break_3_start = models.CharField(max_length=50,
+                                        default='')
+    break_3_end = models.CharField(max_length=50,
+                                        default='')
 
-
-class ShiftBreak(models.Model):
-    shift = models.ForeignKey(Shift, models.CASCADE),
-    break_start = models.TimeField()
-    break_end = models.TimeField()
 
 
 class Notes(models.Model):

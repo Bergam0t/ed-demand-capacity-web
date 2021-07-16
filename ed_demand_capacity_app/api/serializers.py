@@ -24,10 +24,6 @@ class ShiftSerializer(serializers.ModelSerializer):
         model = Shift
         fields = '__all__'
 
-class ShiftBreakSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ShiftBreak
-        fields = '__all__'
 
 class ShiftSerializerAnonymised(serializers.ModelSerializer):
     class Meta:
