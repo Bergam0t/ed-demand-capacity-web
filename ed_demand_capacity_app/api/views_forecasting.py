@@ -28,6 +28,7 @@ from prophet.plot import (plot_plotly, plot_components_plotly,
                            plot_forecast_component)
 from prophet.diagnostics import cross_validation, performance_metrics
 
+from .forecast_utils import plot_plotly_history_optional
 
 # ---- VIEWS ---- #
 
@@ -95,13 +96,13 @@ class ProphetForecastIndividualPlot(APIView):
 
         model = model_from_json(prophet_model.prophet_model_json)
 
-        fig  = plot_plotly(model, fcst)
+        fig  = plot_plotly_history_optional(model, fcst, include_history=False)
 
         # Update the x-axis range so we only display the future (i.e. the prediction),
         # not the historic data, otherwise the period we are interested in is so small 
         # as to not be visible
-        fig = fig.update_layout(xaxis_range=[fcst.ds.max() - timedelta(weeks=8), 
-                                                fcst.ds.max()])
+        # fig = fig.update_layout(xaxis_range=[fcst.ds.max() - timedelta(weeks=8), 
+        #                                         fcst.ds.max()])
 
         plot_list = [{'title': stream, 'fig_json': fig.to_json()}]
         log.info('Plot created for stream ' + str(stream))
