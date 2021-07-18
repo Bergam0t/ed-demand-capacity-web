@@ -44,6 +44,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
 import PlotlyPlot from "../components/PlotlyPlot" 
 import { v4 as uuidv4 } from 'uuid';
+import { DataGrid, GridRowsProp, GridColDef } from '@material-ui/data-grid';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 
 const useStyles = makeStyles((theme) => ({
 
@@ -135,52 +138,196 @@ export default function EDSettings() {
             });
       };
 
-    
-      function displayStreams() {
-        if (loaded) {
-        return (<div>
-        <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead className={classes.tableHead}>
-            <TableRow className={classes.tableHeadCell}>
-              <TableCell className={classes.tableHeadCell}>Stream Name</TableCell>
-              <TableCell className={classes.tableHeadCell}>Priority</TableCell>
-              <TableCell className={classes.tableHeadCell}>Minutes for <br /> Decision</TableCell>
-            
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {streams.map((stream) => (
-              <TableRow key={stream.id}>
-                
-                <TableCell component="th" scope="row" className={classes.tableHeadCell}>
-                  {stream.stream_name}
-                </TableCell>
-                
-                <TableCell align="left">
-                    {stream.stream_priority}
-                </TableCell>
-                
-                <TableCell align="left">
-                    {stream.time_for_decision}
-                </TableCell>
+    // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
+    // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
+    function handleOnDragEnd(result) {
+        if (!result.destination) return;
 
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      </div>
-        )
-    } else {
-        return (
+        const items = Array.from(streams);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+
+        setStreams(items);
+    }
+
+    // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
+    // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
+    function displayStreams() {
+        if (loaded) {
+            return (
+            <div>
+                <Grid container spacing={2}> 
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                    <Droppable droppableId="streams-list">
+                    {(provided) => (
+              <ul className="streams-list" {...provided.droppableProps} ref={provided.innerRef}>
+                {streams.map((stream, index) => {
+                    console.log(index)
+                  return (
+                    <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
+                      
+                      {(provided) => (
+                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                <Paper elevation={3}>
+                                <TextField disabled value={stream.stream_name} label='Stream' /> 
+                                <TextField type='number' value={stream.time_for_decision} label='Minutes per Decision'/>
+                                <TextField disabled value={stream.stream_priority} label='Stream Priority'/>
+                                </Paper>
+                        </li>
+                      )}
+
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+                </DragDropContext>
+                </Grid>
+            </div>)
+        } else {
+            return (
             <div>
             <CircularProgress />
             </div>
-        )
-
+            )
+        }
     }
-}
+
+    // From https://www.pluralsight.com/guides/dynamic-tables-from-editable-columns-in-react-html
+    // const [inEditMode, setInEditMode] = useState({
+    //     status: false,
+    //     rowKey: null
+    // })
+
+    // const [priority, setPriority] = useState(null);
+
+    // const [minutesForDecision, setMinutesForDecision] = useState(null);
+    
+    // const onEdit = ({id, currentPriority, currentMinutesForDecision}) => {
+    //     setInEditMode({
+    //         status: true,
+    //         rowKey: id
+    //     })
+    //     setPriority(currentPriority);
+    //     setMinutesForDecision(currentMinutesForDecision)
+    // }
+
+    // function displayStreams() {
+    //     if (loaded) {
+    //         return (<div>
+    //         <TableContainer component={Paper}>
+    //         <Table className={classes.table} aria-label="simple table">
+    //             <TableHead className={classes.tableHead}>
+    //             <TableRow className={classes.tableHeadCell}>
+    //                 <TableCell className={classes.tableHeadCell}>Stream Name</TableCell>
+    //                 <TableCell className={classes.tableHeadCell}>Priority</TableCell>
+    //                 <TableCell className={classes.tableHeadCell}>Minutes for <br /> Decision</TableCell>
+                
+    //             </TableRow>
+    //             </TableHead>
+    //             <TableBody>
+    //             {streams.map((stream) => (
+    //                 <TableRow key={stream.id}>
+                    
+    //                 <TableCell component="th" scope="row" className={classes.tableHeadCell}>
+    //                     {stream.stream_name}
+    //                 </TableCell>
+                    
+    //                 <TableCell align="left">
+    //                     <TextField
+    //                     type = 'number'
+    //                     value = {stream.stream_priority}
+    //                     onChange={changeHandler}
+    //                     />
+    //                 </TableCell>
+                    
+    //                 <TableCell align="left">
+    //                     <TextField 
+    //                     type = 'number'
+    //                     value = {stream.time_for_decision}
+    //                     onChange={changeHandler}
+    //                     />
+    //                 </TableCell>
+
+    //                 </TableRow>
+    //             ))}
+    //             </TableBody>
+    //         </Table>
+    //         </TableContainer>
+    //         </div>
+    //         )
+    // } else {
+    //     return (
+    //         <div>
+    //         <CircularProgress />
+    //         </div>
+    //         )
+
+    //     }
+    // }
+
+    // function displayStreamsEditableDataGrid() {
+    //     if (loaded) {
+
+    //     const rows: GridRowsProp = [
+            
+    //         { id: 1, col1: 'Hello', col2: 'World' },
+    //         { id: 2, col1: 'XGrid', col2: 'is Awesome' },
+    //         { id: 3, col1: 'Material-UI', col2: 'is Amazing' },
+    //         ];
+            
+    //         const columns
+    //         { field: 'streamName', headerName: 'Steram Name', width: 150 },
+    //         { field: 'priority', headerName: 'Priority', width: 150 },
+    //         { field: 'minutesForDecision', headerName: 'Minutes for Decision', width: 150 },
+    //         ];
+
+    //     return (<div>
+    //     <TableContainer component={Paper}>
+    //     <Table className={classes.table} aria-label="simple table">
+    //     <TableHead className={classes.tableHead}>
+    //         <TableRow className={classes.tableHeadCell}>
+    //         <TableCell className={classes.tableHeadCell}>Stream Name</TableCell>
+    //         <TableCell className={classes.tableHeadCell}>Priority</TableCell>
+    //         <TableCell className={classes.tableHeadCell}>Minutes for <br /> Decision</TableCell>
+            
+    //         </TableRow>
+    //     </TableHead>
+    //     <TableBody>
+    //         {streams.map((stream) => (
+    //         <TableRow key={stream.id}>
+                
+    //             <TableCell component="th" scope="row" className={classes.tableHeadCell}>
+    //             {stream.stream_name}
+    //             </TableCell>
+                
+    //             <TableCell align="left">
+    //                 {stream.stream_priority}
+    //             </TableCell>
+                
+    //             <TableCell align="left">
+    //                 {stream.time_for_decision}
+    //             </TableCell>
+
+    //         </TableRow>
+    //         ))}
+    //     </TableBody>
+    //     </Table>
+    // </TableContainer>
+    // </div>
+    //     )
+    // } else {
+    //     return (
+    //         <div>
+    //         <CircularProgress />
+    //         </div>
+    //     )
+
+    // }
+    // }
+
 
 
     // Add function to handle deletion of role types on click
