@@ -199,7 +199,26 @@ class FilterByColsAndOverwriteData(APIView):
         
         log.info('Successfully updated selected columns')
 
-        # Set the prophet models to start generating in the background
+        # Then add stream models
+        for i, stream in enumerate(filtered_df['stream'].unique()):
+            stream_data = {'user_session': uploader,
+                           'stream_name': stream,
+                           # i + 1 so that priority starts at 1, not 0
+                           'stream_priority': i+1}
+            
+            stream_serializer = StreamSerializer(data=stream_data)
+
+            if stream_serializer.is_valid():
+                stream_serializer.save()
+
+            # Stream(user_session=uploader,
+            #        stream_name=stream,
+            #        stream_priority=i).save()
+
+
+        log.info('Successfully added stream objects to database')
+
+        # Set the prophet models to start generating 
         generate_prophet_models(session_id = uploader)
 
         
