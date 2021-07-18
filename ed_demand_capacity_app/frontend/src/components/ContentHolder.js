@@ -284,7 +284,7 @@ export default function ContentHolder() {
         
         <main className={classes.content}>
             <div className={classes.appBarSpacer} />
-            <Container maxWidth="lg" className={classes.container}>
+            <Container maxWidth={false} className={classes.container}>
                 <DashboardContent />
             </Container>
         </main>
