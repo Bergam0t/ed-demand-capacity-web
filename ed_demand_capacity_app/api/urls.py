@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .views import *
 from .views_forecasting import *
-from .views_shifts_rotas import *
+from .views_shift_types import *
 
 
 urlpatterns = []
