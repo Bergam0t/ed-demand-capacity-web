@@ -21,6 +21,7 @@ import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WarningIcon from '@material-ui/icons/Warning';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import DateRangeIcon from '@material-ui/icons/DateRange';
+import MultilineChartIcon from '@material-ui/icons/MultilineChart';
 
 // Routing imports
 import { 
@@ -126,14 +127,14 @@ export const secondaryListItems = (
     
     <ListItem button to="/forecast-demand" component = { Link }>
       <ListItemIcon>
-        <EventNoteIcon />
+        <TrendingUpIcon />
       </ListItemIcon>
       <ListItemText primary="Forecast Demand" />
     </ListItem>
 
     <ListItem button to="/required-vs-available-capacity" component = { Link } disabled>
       <ListItemIcon>
-        <EventNoteIcon />
+        <MultilineChartIcon />
       </ListItemIcon>
       <ListItemText primary="Required vs Available Capacity" />
     </ListItem>
