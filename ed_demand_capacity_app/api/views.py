@@ -350,6 +350,19 @@ class GetSessionStreams(APIView):
         return Response({'streams': df.stream.unique()}, 
                         status=status.HTTP_200_OK)
 
+
+class GetSessionStreamsFromDatabase(APIView):
+    '''
+    Return ED streams that have been saved to the database
+    (will include priority and )
+    '''
+    def get(self, request, *args, **kwargs):
+        user_session_key = request.session.session_key
+        queryset = Stream.objects.filter(user_session=user_session_key)
+        serializer = StreamSerializer(queryset, many=True)
+        return Response(serializer.data, 
+                        status=status.HTTP_200_OK)
+
 class DisplayMostRecentlyUploadedRawData(APIView):
     '''
     Testing class for showing last uploaded data regardless
