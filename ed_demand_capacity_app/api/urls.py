@@ -2,7 +2,7 @@ from django.urls import path, include
 from .views import *
 from .views_forecasting import *
 from .views_shift_types import *
-
+from .views_role_types import *
 
 urlpatterns = []
 
@@ -128,6 +128,33 @@ urlpatterns += [
          name='own_shift_types_plot'),
 ]
 
+
+# --- Roles --- #
+
+# Following https://www.youtube.com/watch?v=TmsD8QExZ84
+
+urlpatterns += [
+     path('own-role-types', 
+         ViewOwnRoleTypes.as_view(), 
+         name='view_own_role_types'),
+    
+    path('individual-role-type-own/<str:pk>', 
+         ViewIndividualRoleOwn.as_view(), 
+         name='view_individual_role_type_own'),
+    
+    path('create-role-type', 
+         CreateRoleType.as_view(), 
+         name='create_role_type'),
+
+#     path('update-shift-type/<str:pk>', 
+#          UpdateShiftType.as_view(), 
+#          name='update_shift_type'),
+
+    path('delete-role-type/<str:pk>', 
+         DeleteRoleType.as_view(), 
+         name='delete_role_type'),
+
+]
 
 # --- Authentication --- #
 
