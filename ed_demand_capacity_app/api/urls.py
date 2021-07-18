@@ -6,6 +6,9 @@ from .views_role_types import *
 
 urlpatterns = []
 
+urlpatterns += [
+
+]
 
 # --- Historic Data --- #
 
@@ -50,6 +53,14 @@ urlpatterns += [
     path('most-recently-uploaded-historic-data-pandas', 
          MostRecentAsPandas.as_view(), 
          name='most_recent_hist_pandas'),
+]
+
+# Streams
+urlpatterns += [
+     path('get-historic-data-streams-from-db', 
+        GetSessionStreamsFromDatabase.as_view(),  
+        name='get_historic_data_streams_from_db'),
+
 ]
 
 # Paths for historic data plots
