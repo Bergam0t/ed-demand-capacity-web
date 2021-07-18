@@ -137,7 +137,7 @@ export default function ShiftPage() {
     function formatTime(time) {
         var dt = new Date(time)
         return (
-            !dt.getTime() > 0 ? " " : moment(time).format('HH:MM')
+            !dt.getTime() > 0 ? " " : moment(time).format('HH:mm')
         )
     }
 
