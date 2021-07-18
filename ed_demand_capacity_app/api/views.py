@@ -221,6 +221,9 @@ class FilterByColsAndOverwriteData(APIView):
         # Set the prophet models to start generating 
         generate_prophet_models(session_id = uploader)
 
+        historic_data.processing_complete = True
+        historic_data.save(update_fields=['processing_complete'])
+
         
         return Response({'Message': 'Successfully processed data'}, 
                         status=status.HTTP_200_OK)
