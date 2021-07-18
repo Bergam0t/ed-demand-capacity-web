@@ -46,6 +46,7 @@ class HistoricData(models.Model):
                                       default='Not logged in')
     upload_time = models.DateTimeField(auto_now_add=True, 
                                        blank=True)
+    processing_complete = models.BooleanField(default=False)
 
 
 class Shift(models.Model):
