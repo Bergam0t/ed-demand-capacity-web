@@ -322,10 +322,14 @@ class GetSessionHistoricDataColumnNames(APIView):
         historic_data = queryset.last()
 
         df = pd.read_feather(historic_data.uploaded_data)
+        log.info(df.columns)
 
         # Get rid of a column which gets accidentally generated
-        if "Unnamed: 0" in df:
-            df = df.drop("Unnamed: 0", axis=1)
+        # Plus some behind-the-scenes columns
+        for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
+            if colname in df.columns:
+                df = df.drop(colname, axis=1)
+        log.info(df.columns)
 
         return Response({'columns': df.columns}, 
                         status=status.HTTP_200_OK)
@@ -398,8 +402,10 @@ class MostRecentAsAgGridJson(APIView):
         # except:
         data = pd.read_feather(historic_data.uploaded_data)
         log.info(data.columns)
-        if "Unnamed: 0" in data.columns:
-            data = data.drop("Unnamed: 0", axis=1)
+        for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
+            if colname in data.columns:
+                data = data.drop(colname, axis=1)
+        
 
         return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
 
