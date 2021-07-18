@@ -40,7 +40,7 @@ export const helpListItems = (
 
 export const saveLoadItems = (
     <div>
-        <ListItem button>
+        <ListItem button disabled>
       <ListItemIcon>
         <FolderOpenIcon />
       </ListItemIcon>
@@ -49,7 +49,7 @@ export const saveLoadItems = (
     </div>
 );
 
-export const mainListItems = (
+export const setupItems = (
   <div>
     <ListItem button to="/notes" component = { Link }>
       <ListItemIcon>
@@ -57,37 +57,47 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Notes" />
     </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Emergency Department Settings" />
-    </ListItem>
+
     <ListItem button to="/historic-demand" component = { Link }>
       <ListItemIcon>
         <HistoryIcon />
       </ListItemIcon>
       <ListItemText primary="Historic Demand Data" />
     </ListItem>
+    </div>
+);
+
+export const mainListItems = (
+  <div>
+    <ListItem button disabled>
+      <ListItemIcon>
+        <SettingsIcon />
+      </ListItemIcon>
+      <ListItemText primary="Emergency Department Settings" />
+    </ListItem>
+
     <ListItem button to="/shift-types" component = { Link }>
       <ListItemIcon>
         <ScheduleIcon />
       </ListItemIcon>
       <ListItemText primary="Shift Types" />
     </ListItem>
-    <ListItem button>
+    
+    <ListItem button disabled>
       <ListItemIcon>
         <DateRangeIcon />
       </ListItemIcon>
       <ListItemText primary="Rotas" />
     </ListItem>
-    <ListItem button>
+    
+    <ListItem button disabled>
       <ListItemIcon>
         <GroupIcon />
       </ListItemIcon>
       <ListItemText primary="Factors Affecting Demand" />
     </ListItem>
-    <ListItem button>
+    
+    <ListItem button disabled>
       <ListItemIcon>
         <Battery60Icon />
       </ListItemIcon>
@@ -99,35 +109,47 @@ export const mainListItems = (
 export const secondaryListItems = (
   <div>
     <ListSubheader inset>Model Outputs</ListSubheader>
+    
     <ListItem button to="/historic-demand-graphs" component = { Link }>
       <ListItemIcon>
         <TimelineIcon />
       </ListItemIcon>
       <ListItemText primary="Historic Data Graphs" />
     </ListItem>
-    <ListItem button>
+    
+    <ListItem button disabled>
       <ListItemIcon>
         <ThumbsUpDownIcon />
       </ListItemIcon>
       <ListItemText primary="Core-Adhoc Balance" />
     </ListItem>
-    <ListItem button to="/required-vs-available-capacity" component = { Link }>
+    
+    <ListItem button to="/forecast-demand" component = { Link }>
+      <ListItemIcon>
+        <EventNoteIcon />
+      </ListItemIcon>
+      <ListItemText primary="Forecast Demand" />
+    </ListItem>
+
+    <ListItem button to="/required-vs-available-capacity" component = { Link } disabled>
       <ListItemIcon>
         <EventNoteIcon />
       </ListItemIcon>
       <ListItemText primary="Required vs Available Capacity" />
     </ListItem>
-    <ListItem button>
+    
+    {/* <ListItem button disabled>
       <ListItemIcon>
         <TrendingUpIcon />
       </ListItemIcon>
       <ListItemText primary="Expected Queue Sizes" />
-    </ListItem>
-    <ListItem button>
+    </ListItem> */}
+    
+    {/* <ListItem button>
       <ListItemIcon>
         <WarningIcon />
       </ListItemIcon>
       <ListItemText primary="Areas of Concern" />
-    </ListItem>
+    </ListItem> */}
   </div>
 );

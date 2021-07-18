@@ -26,7 +26,7 @@ export default function DashboardContent() {
                 <Route path='/historic-demand' component={ HistoricDemandData } />
                 <Route path='/historic-demand-graphs' component={ PlotHistoric } />
                 <Route path='/login' component={ SignIn } />
-                <Route path='/required-vs-available-capacity' component={ PlotForecast } />
+                <Route path='/forecast-demand' component={ PlotForecast } />
                 <Route path='/shift-types' component={ Shifts } />
                 </div>
     );
