@@ -122,6 +122,10 @@ urlpatterns += [
     path('delete-shift-type/<str:pk>', 
          DeleteShiftType.as_view(), 
          name='delete_shift_type'),
+
+     path('own-shift-types-plot', 
+         PlotShiftTypes.as_view(), 
+         name='own_shift_types_plot'),
 ]
 
 

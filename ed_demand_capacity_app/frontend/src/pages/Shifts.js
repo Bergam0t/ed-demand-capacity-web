@@ -42,7 +42,8 @@ import moment from 'moment'
 import { withStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
-
+import PlotlyPlot from "../components/PlotlyPlot" 
+import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles((theme) => ({
     // modal: {
@@ -109,6 +110,10 @@ export default function ShiftPage() {
               }
         }};
 
+    // Create a uuid that can be used as the key for the shift type plot div
+    // If we update the uuid, the plot will be regenerated
+    const [plotUUID, setPlotUUID] = React.useState(uuidv4())
+
     // Add function for retrieving shift types from the server
     // for this user session
     const fetchShiftTypes = () => {
@@ -132,7 +137,7 @@ export default function ShiftPage() {
     function formatTime(time) {
         var dt = new Date(time)
         return (
-            !dt.getTime() > 0 ? " " : moment(time).format('HH:MM')
+            !dt.getTime() > 0 ? " " : moment(time).format('HH:mm')
         )
     }
 
@@ -224,9 +229,12 @@ export default function ShiftPage() {
         fetch('/api/delete-shift-type/' + shift_id, 
               {method: 'POST'})
               .then(() => {
-                fetchShiftTypes() 
+                fetchShiftTypes()
                 })
-              .then(() => notifyDelete());
+              .then(() => {
+                  notifyDelete()
+                  setPlotUUID(uuidv4()) 
+              });
 
     };
 
@@ -328,6 +336,7 @@ export default function ShiftPage() {
                 console.log("Shift type created successfully")
                 setCreateShiftTypeModalOpen(false)
                 fetchShiftTypes()
+                setPlotUUID(uuidv4())  
 
             } else {
                 console.log("Error creating shift type")
@@ -344,6 +353,7 @@ export default function ShiftPage() {
     // Get notes from server
     useEffect(() => {
         fetchShiftTypes()
+         
     }, []);
 
 
@@ -595,6 +605,10 @@ export default function ShiftPage() {
         <br /><br /><br />
         {displayExistingShiftTypes()}
 
+        <br /><br /><br />
+        <div key={plotUUID}>
+            <PlotlyPlot api_url="/api/own-shift-types-plot" />            
+        </div>
         </div>
 
 
