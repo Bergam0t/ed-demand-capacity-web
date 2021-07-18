@@ -261,17 +261,49 @@ class DeleteSessionHistoricData(APIView):
         log.info('database entry deleted')
 
         # Delete the file
-        log.info(f'Filepath: {filepath}')
-        if os.path.isfile(f'uploads/{filepath}'):
-            for i in range(3):
-                try: 
-                    os.remove(f'uploads/{filepath}')
-                    log.info(f'uploads/{filepath} deleted')
-                except PermissionError:
-                    log.info(f'Permission error: retrying in 1s')
-                    time.sleep(1)
-                else:
-                    log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
+
+        def deletion_attempt(filepath):
+            log.info(f'Filepath: {filepath}')
+            if os.path.isfile(f'uploads/{filepath}'):
+                for i in range(3):
+                    try: 
+                        os.remove(f'uploads/{filepath}')
+                        log.info(f'uploads/{filepath} deleted')
+                    except PermissionError:
+                        log.error(f'Permission error: retrying in 1s')
+                        time.sleep(1)
+                    except FileNotFoundError:
+                        log.error(f'Filepath uploads/{filepath} appears to be invalid. Skipping.')
+                    else:
+                        log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
+
+        deletion_attempt(filepath)
+
+        # Delete stream objects
+        Stream.objects.filter(user_session=uploader).delete()
+        log.info("Stream data deleted from database")
+
+        # Delete prophet models
+        ProphetModel.objects.filter(user_session=uploader).delete()
+        log.info("Prophet models deleted from database")
+
+        # Delete prophet forecasts
+        # First get the filepaths
+        forecast_queryset = ProphetForecast.objects.filter(user_session=uploader)
+        forecast_filepaths = []
+        # Get the filepath
+        for forecast in forecast_queryset:
+            forecast_filepaths.append(forecast.prophet_forecast_df_feather.name)
+    
+        # Now delete the database entries
+        ProphetForecast.objects.filter(user_session=uploader).delete()
+        log.info("Prophet forecasts deleted from database")
+        
+        # Now delete the files
+        for filepath in forecast_filepaths:
+            deletion_attempt(filepath)
+
+
 
         return Response({'result': 'Session data deleted'}, 
                         status=status.HTTP_200_OK)
