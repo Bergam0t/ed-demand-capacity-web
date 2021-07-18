@@ -137,4 +137,15 @@ class ProphetForecast(models.Model):
                               default='Not recorded')
 
     prophet_forecast_df_feather = models.FileField(upload_to='forecasts', blank=True)
-    
+
+
+class Stream(models.Model):
+    user_session =  models.CharField(max_length=50, 
+                                    default='Not recorded')
+
+    stream_name = models.CharField(max_length=150,
+                              default='')
+
+    stream_priority = models.IntegerField(default=1)
+
+    time_for_decision = models.IntegerField(default=30)
