@@ -122,7 +122,7 @@ export default function EDSettings() {
     const [streams, setStreams] = React.useState(null)
 
     const fetchStreams = () => {
-        return fetch('api/get-historic-data-streams')
+        return fetch('api/get-historic-data-streams-from-db')
             // Make sure to not wrap this first then statement in {}
             // otherwise it returns a promise instead of the json
             // and then you can't access the email attribute 
@@ -130,12 +130,58 @@ export default function EDSettings() {
                 response.json()
             )
             .then((json) => {
-                setStreams(json['streams']);
+                setStreams(json);
                 // console.log(json)
             });
       };
 
     
+      function displayStreams() {
+        if (loaded) {
+        return (<div>
+        <TableContainer component={Paper}>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead className={classes.tableHead}>
+            <TableRow className={classes.tableHeadCell}>
+              <TableCell className={classes.tableHeadCell}>Stream Name</TableCell>
+              <TableCell className={classes.tableHeadCell}>Priority</TableCell>
+              <TableCell className={classes.tableHeadCell}>Minutes for <br /> Decision</TableCell>
+            
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {streams.map((stream) => (
+              <TableRow key={stream.id}>
+                
+                <TableCell component="th" scope="row" className={classes.tableHeadCell}>
+                  {stream.stream_name}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {stream.stream_priority}
+                </TableCell>
+                
+                <TableCell align="left">
+                    {stream.time_for_decision}
+                </TableCell>
+
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      </div>
+        )
+    } else {
+        return (
+            <div>
+            <CircularProgress />
+            </div>
+        )
+
+    }
+}
+
 
     // Add function to handle deletion of role types on click
     const handleDeleteRoleType = (role_id) => {
@@ -160,6 +206,8 @@ export default function EDSettings() {
         progress: undefined,
     });
    
+
+
 
     // Add states required for creation of role types
     const [createRoleTypeModalOpen, setCreateRoleTypeModalOpen] = React.useState(false);
@@ -238,6 +286,8 @@ export default function EDSettings() {
                 <Typography variant="body1"> 
                     Here you can set the relative priority of streams and how long decisions take for different streams.
                 </Typography>
+                <br /> 
+                {displayStreams()}
                 </Paper>
             </Grid>
 
