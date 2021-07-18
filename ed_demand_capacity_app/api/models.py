@@ -80,7 +80,26 @@ class Shift(models.Model):
     break_3_end = models.CharField(max_length=50,
                                         default='')
 
+class Role(models.Model):
+    '''
+    Model for storing a role
 
+    The role defines the decision-making capabilities of a 
+    particular class of decision maker
+
+    e.g. a Role could be 'Consultant majors'
+
+    You may have >1 individual with the same role in an ED
+    '''
+
+    user_session = models.CharField(max_length=50, 
+                                    default='Not recorded')
+    
+
+    role_name = models.CharField(max_length=150,
+                                 default='')
+
+    decisions_per_hour_per_stream = models.JSONField()
 
 class Notes(models.Model):
     '''
