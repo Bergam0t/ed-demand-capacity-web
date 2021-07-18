@@ -70,7 +70,7 @@ export const setupItems = (
 
 export const mainListItems = (
   <div>
-    <ListItem button disabled>
+    <ListItem button to="/ed-settings" component = { Link }>
       <ListItemIcon>
         <SettingsIcon />
       </ListItemIcon>
