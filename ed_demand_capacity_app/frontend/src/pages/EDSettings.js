@@ -47,7 +47,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { DataGrid, GridRowsProp, GridColDef } from '@material-ui/data-grid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-
 const useStyles = makeStyles((theme) => ({
 
     dialog: {
@@ -104,6 +103,10 @@ export default function EDSettings() {
 
     const [roleTypes, setRoleTypes] = React.useState(null)
 
+    const [orderEdited, setOrderEdited] = React.useState(false)
+
+    const [divUUID, setDivUUID] = React.useState(uuidv4())
+
     // Add function for retrieving role types from the server
     // for this user session
     const fetchRoleTypes = () => {
@@ -141,13 +144,22 @@ export default function EDSettings() {
     // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
     // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
     function handleOnDragEnd(result) {
+        // Prevent errors being fired if drop is out of bounds
         if (!result.destination) return;
-
+        // console.log(result)
+        // Persist ordering after dropping        
         const items = Array.from(streams);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
 
+        for (const i in items) {
+            items[i].stream_priority = parseInt(i) + 1
+        }
+
         setStreams(items);
+        setDivUUID();
+
+
     }
 
     // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
@@ -155,24 +167,40 @@ export default function EDSettings() {
     function displayStreams() {
         if (loaded) {
             return (
-            <div>
+            <div key = {divUUID}>
                 <Grid container spacing={2}> 
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="streams-list">
                     {(provided) => (
               <ul className="streams-list" {...provided.droppableProps} ref={provided.innerRef}>
                 {streams.map((stream, index) => {
-                    console.log(index)
+                    // console.log(index)
                   return (
                     <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
                       
                       {(provided) => (
                         <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <Paper elevation={3}>
-                                <TextField disabled value={stream.stream_name} label='Stream' /> 
-                                <TextField type='number' value={stream.time_for_decision} label='Minutes per Decision'/>
-                                <TextField disabled value={stream.stream_priority} label='Stream Priority'/>
+                            <br />
+                                <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
+                                <Grid container spacing={1}>
+                                <Grid item xs={6}>
+                                    <Typography variant="h5"> Stream: </Typography> 
+                                    </Grid>
+                                    <Grid item xs={6} align="left">
+                                    <Typography variant="h6"> {stream.stream_name} </Typography>
+                                    </Grid>
+                                    
+                                    <Grid item xs={6}>
+                                <TextField value={stream.time_for_decision} label='Minutes per Decision'
+                                    inputProps={{size: 8}} />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                <TextField disabled value={stream.stream_priority} label='Stream Priority'
+                                    inputProps={{size: 5}} />
+                                    </Grid>
+                                    </Grid>
                                 </Paper>
+                            <br />
                         </li>
                       )}
 
