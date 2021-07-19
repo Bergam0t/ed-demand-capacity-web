@@ -100,7 +100,6 @@ export default function EDSettings() {
               }
         }};
 
-
     const [roleTypes, setRoleTypes] = React.useState(null)
 
     const [orderEdited, setOrderEdited] = React.useState(false)
@@ -136,18 +135,23 @@ export default function EDSettings() {
                 response.json()
             )
             .then((json) => {
-                setStreams(json);
-                setStreamsOriginal(json);
-                // console.log(json)
+                // Sort the returned states by priority
+                const sorted_json = json.sort((a, b) => {
+                    return a.stream_priority - b.stream_priority
+                }).slice()
+                setStreams(sorted_json);
+                setStreamsOriginal(sorted_json);
             });
       };
 
+    // Function to render the buttons to save or discard
+    // changes to the ordering and timing of streams
     const saveOrDiscardButtons = () => {
         if (orderEdited) {
             return (
             <ButtonGroup>
-                <Button variant="contained" color="primary"> 
-                    Save Changes to Streams 
+                <Button variant="contained" color="primary" onClick={handleSaveChanges}> 
+                    Save Changes <br />to Streams 
                 </Button>
                 <Button variant="contained" color="secondary" onClick={handleDiscardChanges}> 
                     Discard Changes
@@ -158,7 +162,7 @@ export default function EDSettings() {
             return (
             <ButtonGroup>
                 <Button variant="contained" color="default" disabled> 
-                    Save Changes to Streams 
+                    Save Changes <br />to Streams 
                 </Button>
                 <Button variant="contained" color="default" disabled> 
                     Discard Changes
@@ -174,27 +178,75 @@ export default function EDSettings() {
         // Prevent errors being fired if drop is out of bounds
         if (!result.destination) return;
         // console.log(result)
+
         // Persist ordering after dropping        
         const items = Array.from(streams);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
 
+        // Update the priority field on the stream to reflect its new 
+        // position in the list
         for (const i in items) {
             items[i].stream_priority = parseInt(i) + 1
         }
 
+        // Update the stream state with the new list
         setStreams(items);
+        // Make buttons for saving or discarding changes clickable
         setOrderEdited(true);
-
-
 
     }
 
     function handleDiscardChanges() {
+        // Remove the 'edited' status so the buttons get disabled
         setOrderEdited(false);
+        // Set the streams back 
         setStreams(streamsOriginal)
     }
 
+    // Toast notification for successful changes to streams
+    const notifySuccessStreams = () => toast.success('Changes to stream details saved', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+
+    function handleSaveChanges() {
+
+        let headers = getHeaders()
+
+        const requestOptions = {
+            method: "PATCH",
+            headers: headers,
+            body: JSON.stringify({
+                streams: streams
+            })
+        };
+        console.log(requestOptions)
+
+        // Update the streams on the server
+        fetch('/api/update-stream-details', requestOptions)
+            .then((response) => {
+                if (response.ok) {
+                    console.log("Stream details updated successfully")
+                }
+            })
+            .then(() => {
+                notifySuccessStreams()
+                // Remove the 'edited' status so the buttons get disabled
+                setOrderEdited(false);
+                // Update the 'original' streams so that the current state is reverted back to
+                // if discarding future changes
+                setStreamsOriginal(streams)
+            })
+        
+            }
+        
+    
     // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
     // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
     function displayStreams() {

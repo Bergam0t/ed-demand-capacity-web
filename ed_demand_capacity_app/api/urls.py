@@ -61,6 +61,10 @@ urlpatterns += [
         GetSessionStreamsFromDatabase.as_view(),  
         name='get_historic_data_streams_from_db'),
 
+     path('update-stream-details',
+          StreamUpdate.as_view(),
+          name='update_stream_details')    
+
 ]
 
 # Paths for historic data plots

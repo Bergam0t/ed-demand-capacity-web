@@ -498,3 +498,26 @@ class NotesView(APIView):
 #     def get(self, request, *args, **kwargs):
 #         user = Token.objects.get(key='token string').user
 #         return Response(
+
+class StreamUpdate(APIView):
+    def patch(self, request, *args, **kwargs):
+        # log.info(request.data)
+        stream_object_json = request.data['streams']
+
+        for stream in stream_object_json:
+            serializer = StreamSerializer(data=stream)
+            if serializer.is_valid():
+                relevant_stream_queryset = Stream.objects.filter(id=stream['id'])
+                for relevant_stream_obj in relevant_stream_queryset:
+                    relevant_stream_obj.stream_priority = stream['stream_priority']
+                    relevant_stream_obj.time_for_decision = stream['time_for_decision']
+
+                    relevant_stream_obj.save(update_fields=['stream_priority', 'time_for_decision'])
+        
+        
+        return Response({"Message": "Streams updated successfully"}, 
+                        status=status.HTTP_200_OK)
+            # else:
+            #     log.error('error', serializer.errors)
+            #     return Response(serializer.errors, 
+            #                     status=status.HTTP_400_BAD_REQUEST)
