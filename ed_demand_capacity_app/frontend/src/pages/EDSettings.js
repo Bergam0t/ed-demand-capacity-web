@@ -601,12 +601,13 @@ export default function EDSettings() {
         // while still being easily identifiable as unset, but the POST request is expecting
         // all of the datetimes to be returned as strings, so provide a blank string if no
         // time selected 
+
         const requestOptions = {
             method: "POST",
             headers: headers,
             body: JSON.stringify({
                 role_name: roleTypeName,
-                decisions_per_hour_per_stream: JSON.stringify({}),
+                decisions_per_hour_per_stream: JSON.parse(JSON.stringify({roleTypeData}))['roleTypeData'],
             })
         };
         console.log(requestOptions)
