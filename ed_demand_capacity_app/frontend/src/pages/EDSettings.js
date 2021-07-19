@@ -360,8 +360,23 @@ export default function EDSettings() {
 
     const [roleTypeData, setRoleTypeData] = React.useState([])
 
-    function handleChangeDecisionsPerHour() {
+    function handleChangeDecisionsPerHour(id, stream, event) {
+        console.log("handleChangeDecisionsPerHour activated")
+        const roleTypeDataItems = JSON.parse(JSON.stringify(roleTypeData));
 
+        // Update the priority field on the stream to reflect its new 
+        // position in the list
+        for (const j in roleTypeDataItems) {
+            if (roleTypeDataItems[j].id == id) {
+                // If so, update the time for decision value with what has been
+                // entered in the textinput field
+                // Need to parse as float, not int, as want to allow decimal decisions per hour
+                roleTypeDataItems[j].decisions_per_hour = parseFloat(event.target.value)
+            }
+        }
+
+        // Update the stream state with the new list
+        setRoleTypeData(roleTypeDataItems);
     }
 
     function displayStreamFieldsRoleType() {
@@ -379,7 +394,7 @@ export default function EDSettings() {
                                         key={index} 
                                         label={stream.stream_name} 
                                         value={stream.decisions_per_hour}
-                                        onChange={(e) => handleChangeDecisionsPerHour(e)}/>
+                                        onChange={(e) => handleChangeDecisionsPerHour(stream.id, stream.stream_name, e)}/>
                                 </Grid>
                             )
                         })}
@@ -691,9 +706,11 @@ export default function EDSettings() {
                     <Dialog
                         open={createRoleTypeModalOpen}
                         onClose={handleCloseCreateRoleTypeDialog}
+                        disableBackdropClick
                         classes={{
                             root: classes.dialog,
                             paper: classes.paper
+                            
                         }}
                     >
                         <Box>  
