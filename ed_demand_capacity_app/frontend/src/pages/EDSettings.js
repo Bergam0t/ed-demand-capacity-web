@@ -352,6 +352,36 @@ export default function EDSettings() {
         }
     }
 
+
+    function displayStreamFieldsRoleType() {
+        if (loaded) {
+            console.log(streams)
+            return (
+                <div>
+                    <Grid container spacing={2} align="center"> 
+                    {/* <Typography> test </Typography> */}
+                        
+                        {streams.map((stream, index) => {
+                            return (
+                                <Grid item xs={6}>
+                                    <TextField key={index} label={stream.stream_name} value={1}/>
+                                </Grid>
+                            )
+                        })}
+                        
+                    </Grid>
+                    <br /> <br />
+                </div>
+                );
+        } else {
+            return (
+                <div>
+                <CircularProgress />
+                </div>
+                )
+        }
+    }
+
     // From https://www.pluralsight.com/guides/dynamic-tables-from-editable-columns-in-react-html
     // const [inEditMode, setInEditMode] = useState({
     //     status: false,
@@ -579,7 +609,6 @@ export default function EDSettings() {
 
     return (
         <div>
-            
             <Grid container style = {{paddingLeft: 30, paddingRight: 30, paddingBottom:10}} spacing={2}>
                 <Grid item xs={12}>
                     <Typography variant="h4"> Emergency Department Settings </Typography>
@@ -588,7 +617,7 @@ export default function EDSettings() {
                 <Grid item xs={6}>
                     <Paper className={classes.paper}>
                         <Typography variant="h5"> Stream Settings </Typography>
-                        <br />
+                        <br /><br />
                         <Typography variant="body1"> 
                             Here you can set the relative priority of streams and how long decisions take for different streams.
                             <br /> <br />
@@ -611,8 +640,12 @@ export default function EDSettings() {
 
                 <Grid item xs={6}>
                     <Paper className={classes.paper}>
+                        <Typography variant="h5"> Role Types </Typography>
                         <Typography variant="body1"> 
                             Here you can add new role types, review existing role types, or delete existing role types.
+                            <br /><br />
+                            A role type defines how many decisions per hour can be made by a class of resource, e.g. a consultant.
+                        
                         </Typography>
                         <br />
                         <Button variant="contained" color="primary" onClick={handleOpenCreateRoleTypeDialog}> 
@@ -661,6 +694,7 @@ export default function EDSettings() {
                                     <br /><br /><br />
                                 </Grid>
 
+                                {displayStreamFieldsRoleType()}
 
                                 <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
                                     <Grid item xs={12}>
