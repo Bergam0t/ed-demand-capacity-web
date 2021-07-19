@@ -585,37 +585,41 @@ export default function EDSettings() {
                     <Typography variant="h4"> Emergency Department Settings </Typography>
                 </Grid>
 
-            <Grid item xs={6}>
-                <Paper className={classes.paper}>
-                    <Typography variant="h5"> Stream Settings </Typography>
-                    <br />
-                <Typography variant="body1"> 
-                    Here you can set the relative priority of streams and how long decisions take for different streams.
-                    <br /> <br />
-                    You can change the priority of the streams by dragging and dropping the cards below.               
-                </Typography>
-                <br />
-                <Grid container align="center">
-                <Grid item xs={12}>
-                {saveOrDiscardButtons()}
+                <Grid item xs={6}>
+                    <Paper className={classes.paper}>
+                        <Typography variant="h5"> Stream Settings </Typography>
+                        <br />
+                        <Typography variant="body1"> 
+                            Here you can set the relative priority of streams and how long decisions take for different streams.
+                            <br /> <br />
+                            You can change the priority of the streams by dragging and dropping the cards below.               
+                        </Typography>
+                        <br />
+                        
+                        <Grid container align="center">
+                            <Grid item xs={12}>
+                                {saveOrDiscardButtons()}
+                            </Grid>
+                            
+                            <Grid item xs={11}>
+                                {displayStreams()}
+                            </Grid>
+                        </Grid> 
+                    
+                    </Paper>
                 </Grid>
-                <Grid item xs={11}>
-                {displayStreams()}
-                </Grid>
-                </Grid> 
-                </Paper>
-            </Grid>
 
-            <Grid item xs={6}>
-                <Paper className={classes.paper}>
-                <Typography variant="body1"> 
-                    Here you can add new role types, review existing role types, or delete existing role types.
-                </Typography>
-                <br />
-                <Button variant="contained" color="primary" onClick={handleOpenCreateRoleTypeDialog}> 
-                    Add a new role type 
-                </Button>
-                </Paper>
+                <Grid item xs={6}>
+                    <Paper className={classes.paper}>
+                        <Typography variant="body1"> 
+                            Here you can add new role types, review existing role types, or delete existing role types.
+                        </Typography>
+                        <br />
+                        <Button variant="contained" color="primary" onClick={handleOpenCreateRoleTypeDialog}> 
+                            Add a new role type 
+                        </Button>
+                    </Paper>
+                    
                     <Dialog
                         open={createRoleTypeModalOpen}
                         onClose={handleCloseCreateRoleTypeDialog}
@@ -624,71 +628,66 @@ export default function EDSettings() {
                             paper: classes.paper
                         }}
                     >
-                    <Box>  
-                    <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
-                        <Grid item xs={6} align="left">
-                            <DialogTitle>
-                                Create a new role type
-                            </DialogTitle>
-                        </Grid>
-                        <Grid item xs={6} align="right">
-                            <IconButton onClick={handleCloseCreateRoleTypeDialog} >
-                                <CancelIcon />
-                            </IconButton>
-                        </Grid>
+                        <Box>  
+                            <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                                <Grid item xs={6} align="left">
+                                    <DialogTitle>
+                                        Create a new role type
+                                    </DialogTitle>
+                                </Grid>
+                                
+                                <Grid item xs={6} align="right">
+                                    <IconButton onClick={handleCloseCreateRoleTypeDialog} >
+                                        <CancelIcon />
+                                    </IconButton>
+                                </Grid>
                     
-                        <Grid item xs={12}>
-                            <DialogContentText>
-                                You will be able to select this role type when setting up a rota.
-                            </DialogContentText>
-                        </Grid>
+                                <Grid item xs={12}>
+                                    <DialogContentText>
+                                        You will be able to select this role type when setting up a rota.
+                                    </DialogContentText>
+                                </Grid>
                     
-                        <Grid item xs={12}>
-                        <TextField
-                            required
-                            fullWidth
-                            margin="dense"
-                            id="role-type-name"
-                            label="Role Type Name (e.g. Consultant Resus, FY2 Minors, Band 5)"
-                            type="text"
-                            onChange={(e) => handleRoleTypeNameChange(e)}
-                        />
-                        <br /><br /><br />
-                        </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        margin="dense"
+                                        id="role-type-name"
+                                        label="Role Type Name (e.g. Consultant Resus, FY2 Minors, Band 5)"
+                                        type="text"
+                                        onChange={(e) => handleRoleTypeNameChange(e)}
+                                    />
+                                    <br /><br /><br />
+                                </Grid>
 
 
-                    <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
-                        <Grid item xs={12}>
-                            <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
-                                <Button 
-                                    variant="contained" 
-                                    color="secondary" 
-                                    onClick={handleCloseCreateRoleTypeDialog}
-                                >
-                                    Discard
-                                </Button>
+                                <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                                    <Grid item xs={12}>
+                                        <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
+                                            <Button 
+                                                variant="contained" 
+                                                color="secondary" 
+                                                onClick={handleCloseCreateRoleTypeDialog}
+                                            >
+                                                Discard
+                                            </Button>
 
-                                <Button 
-                                    variant="contained" 
-                                    color="primary"
-                                    onClick={handleConfirmCreateRoleType}
-                                >
-                                    Confirm
-                                </Button>
-                            </ButtonGroup>
-                            
-                        </Grid>
-
-                    </Grid>
+                                            <Button 
+                                                variant="contained" 
+                                                color="primary"
+                                                onClick={handleConfirmCreateRoleType}
+                                            >
+                                                Confirm
+                                            </Button>
+                                        </ButtonGroup>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </Dialog>
                 </Grid>
-                
-
-                </Box>
-                </Dialog>
-                </Grid>
-                </Grid>
-
-                </div>
-        );
-
-    }
+            </Grid>
+        </div>
+    );
+}
