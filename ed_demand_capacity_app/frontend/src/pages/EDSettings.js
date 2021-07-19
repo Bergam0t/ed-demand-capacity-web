@@ -136,6 +136,7 @@ export default function EDSettings() {
             )
             .then((json) => {
                 // Sort the returned states by priority
+                // From https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
                 const sorted_json = json.sort((a, b) => {
                     return a.stream_priority - b.stream_priority
                 }).slice()
@@ -147,24 +148,25 @@ export default function EDSettings() {
     // Function to render the buttons to save or discard
     // changes to the ordering and timing of streams
     const saveOrDiscardButtons = () => {
-        if (orderEdited) {
+        if (!orderEdited) {
+            return (
+            <ButtonGroup>
+                <Button variant="contained" color="default" disabled> 
+                    Save Changes <br />to Streams 
+                </Button>
+                <Button variant="contained" color="default" disabled> 
+                    Discard Changes
+                </Button>
+            </ButtonGroup>
+            
+            )
+        } else {
             return (
             <ButtonGroup>
                 <Button variant="contained" color="primary" onClick={handleSaveChanges}> 
                     Save Changes <br />to Streams 
                 </Button>
                 <Button variant="contained" color="secondary" onClick={handleDiscardChanges}> 
-                    Discard Changes
-                </Button>
-            </ButtonGroup>
-            )
-        } else {
-            return (
-            <ButtonGroup>
-                <Button variant="contained" color="default" disabled> 
-                    Save Changes <br />to Streams 
-                </Button>
-                <Button variant="contained" color="default" disabled> 
                     Discard Changes
                 </Button>
             </ButtonGroup>
@@ -258,14 +260,14 @@ export default function EDSettings() {
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="streams-list">
                     {(provided) => (
-              <ul className="streams-list" {...provided.droppableProps} ref={provided.innerRef}>
+              <ul style={{listStyle:'none'}} className="streams-list" {...provided.droppableProps} ref={provided.innerRef}>
                 {streams.map((stream, index) => {
                     // console.log(index)
                   return (
                     <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
                       
                       {(provided) => (
-                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                        <li  ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                             <br />
                                 <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
                                 <Grid container spacing={1}>
