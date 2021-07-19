@@ -292,7 +292,7 @@ export default function EDSettings() {
         if (loaded) {
             return (
             <div>
-                <Grid container spacing={2}> 
+                <Grid container spacing={2} align="center"> 
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="streams-list">
                     {(provided) => (
@@ -307,14 +307,11 @@ export default function EDSettings() {
                             <br />
                             <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
                                 <Grid container spacing={1}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="h5"> Stream: </Typography> 
-                                        </Grid>
-                                        <Grid item xs={6} align="left">
-                                        <Typography variant="h6"> {stream.stream_name} </Typography>
-                                        </Grid>
+                                    <Grid item xs={12} align="left">
+                                        <Typography variant="h5"> {stream.stream_name} </Typography> 
+                                    </Grid>
                                         
-                                        <Grid item xs={9}>
+                                        <Grid item xs={9} align="left">
                                             <TextField 
                                                 value={stream.time_for_decision} 
                                                 label='Minutes per Decision'
@@ -326,7 +323,7 @@ export default function EDSettings() {
                                             <TextField 
                                                 disabled 
                                                 value={stream.stream_priority} 
-                                                label='Stream Priority'
+                                                label='Priority'
                                                 inputProps={{size: 5}} 
                                             />
                                         </Grid>
@@ -590,14 +587,22 @@ export default function EDSettings() {
 
             <Grid item xs={6}>
                 <Paper className={classes.paper}>
+                    <Typography variant="h5"> Stream Settings </Typography>
+                    <br />
                 <Typography variant="body1"> 
                     Here you can set the relative priority of streams and how long decisions take for different streams.
                     <br /> <br />
                     You can change the priority of the streams by dragging and dropping the cards below.               
                 </Typography>
-                <br /> 
+                <br />
+                <Grid container align="center">
+                <Grid item xs={12}>
                 {saveOrDiscardButtons()}
+                </Grid>
+                <Grid item xs={11}>
                 {displayStreams()}
+                </Grid>
+                </Grid> 
                 </Paper>
             </Grid>
 
