@@ -209,6 +209,25 @@ export default function EDSettings() {
 
     }
 
+    function handleChangeMinutesPerDecision(id, event) {
+        const items = Array.from(streams);
+
+        // Iterate through the array 
+        for (const i in items) {
+            // Check whether the item is the one we're looking for
+            if (items[i].id == id) {
+                // If so, update the time for decision value with what has been
+                // entered in the textinput field
+                items[i].time_for_decision = event.target.value
+            }
+
+        // Update the stream state with the new list
+        setStreams(items);
+        // Make buttons for saving or discarding changes clickable
+        setOrderEdited(true);
+        }
+    }
+
     function handleDiscardChanges() {
         // Remove the 'edited' status so the buttons get disabled
         setOrderEdited(false);
@@ -286,23 +305,31 @@ export default function EDSettings() {
                       {(provided) => (
                         <li  ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                             <br />
-                                <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
+                            <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
                                 <Grid container spacing={1}>
-                                <Grid item xs={6}>
-                                    <Typography variant="h5"> Stream: </Typography> 
-                                    </Grid>
-                                    <Grid item xs={6} align="left">
-                                    <Typography variant="h6"> {stream.stream_name} </Typography>
-                                    </Grid>
-                                    
                                     <Grid item xs={6}>
-                                <TextField value={stream.time_for_decision} label='Minutes per Decision'
-                                    inputProps={{size: 8}} />
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                <TextField disabled value={stream.stream_priority} label='Stream Priority'
-                                    inputProps={{size: 5}} />
-                                    </Grid>
+                                        <Typography variant="h5"> Stream: </Typography> 
+                                        </Grid>
+                                        <Grid item xs={6} align="left">
+                                        <Typography variant="h6"> {stream.stream_name} </Typography>
+                                        </Grid>
+                                        
+                                        <Grid item xs={9}>
+                                            <TextField 
+                                                value={stream.time_for_decision} 
+                                                label='Minutes per Decision'
+                                                inputProps={{size: 20}} 
+                                                onChange={(e) => handleChangeMinutesPerDecision(stream.id, e)}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={3} align="right">
+                                            <TextField 
+                                                disabled 
+                                                value={stream.stream_priority} 
+                                                label='Stream Priority'
+                                                inputProps={{size: 5}} 
+                                            />
+                                        </Grid>
                                     </Grid>
                                 </Paper>
                             <br />
@@ -372,7 +399,7 @@ export default function EDSettings() {
     //                     <TextField
     //                     type = 'number'
     //                     value = {stream.stream_priority}
-    //                     onChange={changeHandler}
+    //                     ={changeHandler}
     //                     />
     //                 </TableCell>
                     
