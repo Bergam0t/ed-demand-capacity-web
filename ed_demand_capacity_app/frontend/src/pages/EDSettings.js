@@ -192,7 +192,7 @@ export default function EDSettings() {
         // console.log(result)
 
         // Persist ordering after dropping        
-        const items = Array.from(streams);
+        const items = JSON.parse(JSON.stringify(streams));
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
 
@@ -210,7 +210,7 @@ export default function EDSettings() {
     }
 
     function handleChangeMinutesPerDecision(id, event) {
-        const items = Array.from(streams);
+        const items = JSON.parse(JSON.stringify(streams));
 
         // Iterate through the array 
         for (const i in items) {
