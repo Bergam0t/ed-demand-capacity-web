@@ -358,19 +358,28 @@ export default function EDSettings() {
         }
     }
 
+    const [roleTypeData, setRoleTypeData] = React.useState([])
+
+    function handleChangeDecisionsPerHour() {
+
+    }
 
     function displayStreamFieldsRoleType() {
+
         if (loaded) {
-            console.log(streams)
+          
             return (
                 <div>
                     <Grid container spacing={2} align="center"> 
-                    {/* <Typography> test </Typography> */}
                         
-                        {streams.map((stream, index) => {
+                        {roleTypeData.map((stream, index) => {
                             return (
                                 <Grid item xs={6}>
-                                    <TextField key={index} label={stream.stream_name} value={1}/>
+                                    <TextField 
+                                        key={index} 
+                                        label={stream.stream_name} 
+                                        value={stream.decisions_per_hour}
+                                        onChange={(e) => handleChangeDecisionsPerHour(e)}/>
                                 </Grid>
                             )
                         })}
@@ -599,17 +608,36 @@ export default function EDSettings() {
             console.log(error);
         });
     }
-    
 
+    function initialiseRoleTypeDefaults() {
+        console.log(streams)
+
+        var decision_array_initial = streams.map((stream) => ({
+            id: stream.id, stream_name: stream.stream_name, decisions_per_hour: 0})
+        )
+        
+        console.log(decision_array_initial)
+        setRoleTypeData(decision_array_initial)
+    }
+    
 
     // Determine what will run on page load
     // Get notes from server
     useEffect(() => {
         fetchStreams()
         .then(() => {fetchRoleTypes()})
-        .then(() => {setLoaded(true)})
-         
+        // .then(() => {initialiseRoleTypeDefaults()})
+        .then(() => {setLoaded(true)})         
     }, []);
+
+    useEffect(() => {
+        if (loaded) {
+            initialiseRoleTypeDefaults()
+        }
+        // Have to include the value in brackets to avoid infinite loop
+        // Means will only run the setState call when createRoleTypeModalOpen changes
+    }, [createRoleTypeModalOpen])
+    
 
     // Rendering of page
 
