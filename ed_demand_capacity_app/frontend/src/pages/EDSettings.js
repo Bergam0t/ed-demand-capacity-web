@@ -161,24 +161,30 @@ export default function EDSettings() {
         if (!orderEdited) {
             return (
             <ButtonGroup>
-                <Button variant="contained" color="default" disabled> 
-                    Save Changes <br />to Streams 
-                </Button>
+
                 <Button variant="contained" color="default" disabled> 
                     Discard Changes
                 </Button>
+
+                <Button variant="contained" color="default" disabled> 
+                    Save Changes <br />to Streams 
+                </Button>
+
             </ButtonGroup>
             
             )
         } else {
             return (
             <ButtonGroup>
-                <Button variant="contained" color="primary" onClick={handleSaveChanges}> 
-                    Save Changes <br />to Streams 
-                </Button>
+
                 <Button variant="contained" color="secondary" onClick={handleDiscardChanges}> 
                     Discard Changes
                 </Button>
+
+                <Button variant="contained" color="primary" onClick={handleSaveChanges}> 
+                    Save Changes <br />to Streams 
+                </Button>
+                
             </ButtonGroup>
             )
         }
