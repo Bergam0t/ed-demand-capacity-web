@@ -141,12 +141,22 @@ export default function EDSettings() {
                     return a.stream_priority - b.stream_priority
                 }).slice()
                 setStreams(sorted_json);
-                setStreamsOriginal(sorted_json);
+
+                // The parse & stringify here is necessary to create a deep copy of the array
+                // If we only make a shallow copy (either with [...sorted_json] or sorted_json.slice())
+                // then the priority values will later get changed in both our working array and
+                // the one we have stored as an 'original' array, which is not desirable behaviour.
+                setStreamsOriginal(JSON.parse(JSON.stringify(sorted_json)));
             });
       };
 
     // Function to render the buttons to save or discard
     // changes to the ordering and timing of streams
+
+    // Would be nice to add a check for the updated array being the same as the original
+    // array and disabling the buttons in that case as well, but it's not entirely simple
+    // to check arrays are equal in js (can't use == or ===) and it's only a minor QOL improvement
+    // so not implementing now
     const saveOrDiscardButtons = () => {
         if (!orderEdited) {
             return (
@@ -203,7 +213,11 @@ export default function EDSettings() {
         // Remove the 'edited' status so the buttons get disabled
         setOrderEdited(false);
         // Set the streams back 
+
+        console.log("Original streams array: ", streamsOriginal)
+        console.log("Edited streams array: ", streams)
         setStreams(streamsOriginal)
+        console.log("Updated streams array: ", streams)
     }
 
     // Toast notification for successful changes to streams
@@ -243,7 +257,11 @@ export default function EDSettings() {
                 setOrderEdited(false);
                 // Update the 'original' streams so that the current state is reverted back to
                 // if discarding future changes
-                setStreamsOriginal(streams)
+                // The parse & stringify here is necessary to create a deep copy of the array
+                // If we only make a shallow copy (either with [...sorted_json] or sorted_json.slice())
+                // then the priority values will later get changed in both our working array and
+                // the one we have stored as an 'original' array, which is not desirable behaviour.
+                setStreamsOriginal(JSON.parse(JSON.stringify(streams)));
             })
         
             }
@@ -256,7 +274,6 @@ export default function EDSettings() {
             return (
             <div>
                 <Grid container spacing={2}> 
-                {saveOrDiscardButtons()}
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="streams-list">
                     {(provided) => (
@@ -548,8 +565,11 @@ export default function EDSettings() {
                 <Paper className={classes.paper}>
                 <Typography variant="body1"> 
                     Here you can set the relative priority of streams and how long decisions take for different streams.
+                    <br /> <br />
+                    You can change the priority of the streams by dragging and dropping the cards below.               
                 </Typography>
                 <br /> 
+                {saveOrDiscardButtons()}
                 {displayStreams()}
                 </Paper>
             </Grid>
