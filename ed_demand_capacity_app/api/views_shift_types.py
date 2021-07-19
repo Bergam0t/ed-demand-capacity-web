@@ -163,9 +163,6 @@ class ViewIndividualShiftAnyAnonymous(APIView):
 
 class CreateShiftType(APIView):
     def post(self, request, *args, **kwargs):
-        # First reduce queryset to only shifts owned by the session
-        # as don't want users to be able to find other user's shift types
-        # (or at least not the full details)
         log.info(request.data)
         serializer = ShiftSerializer(data=request.data)
 
