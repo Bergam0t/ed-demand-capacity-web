@@ -105,7 +105,6 @@ export default function EDSettings() {
 
     const [orderEdited, setOrderEdited] = React.useState(false)
 
-    const [divUUID, setDivUUID] = React.useState(uuidv4())
 
     // Add function for retrieving role types from the server
     // for this user session
@@ -126,6 +125,7 @@ export default function EDSettings() {
     
     
     const [streams, setStreams] = React.useState(null)
+    const [streamsOriginal, setStreamsOriginal] = React.useState(null)
 
     const fetchStreams = () => {
         return fetch('api/get-historic-data-streams-from-db')
@@ -137,9 +137,36 @@ export default function EDSettings() {
             )
             .then((json) => {
                 setStreams(json);
+                setStreamsOriginal(json);
                 // console.log(json)
             });
       };
+
+    const saveOrDiscardButtons = () => {
+        if (orderEdited) {
+            return (
+            <ButtonGroup>
+                <Button variant="contained" color="primary"> 
+                    Save Changes to Streams 
+                </Button>
+                <Button variant="contained" color="secondary" onClick={handleDiscardChanges}> 
+                    Discard Changes
+                </Button>
+            </ButtonGroup>
+            )
+        } else {
+            return (
+            <ButtonGroup>
+                <Button variant="contained" color="default" disabled> 
+                    Save Changes to Streams 
+                </Button>
+                <Button variant="contained" color="default" disabled> 
+                    Discard Changes
+                </Button>
+            </ButtonGroup>
+            )
+        }
+    }
 
     // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
     // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
@@ -157,9 +184,15 @@ export default function EDSettings() {
         }
 
         setStreams(items);
-        setDivUUID();
+        setOrderEdited(true);
 
 
+
+    }
+
+    function handleDiscardChanges() {
+        setOrderEdited(false);
+        setStreams(streamsOriginal)
     }
 
     // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
@@ -167,8 +200,9 @@ export default function EDSettings() {
     function displayStreams() {
         if (loaded) {
             return (
-            <div key = {divUUID}>
+            <div>
                 <Grid container spacing={2}> 
+                {saveOrDiscardButtons()}
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="streams-list">
                     {(provided) => (
