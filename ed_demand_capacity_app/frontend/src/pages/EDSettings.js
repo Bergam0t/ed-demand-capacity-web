@@ -239,10 +239,10 @@ export default function EDSettings() {
         setstreamValuesChanged(false);
         // Set the streams back 
 
-        console.log("Original streams array: ", streamsOriginal)
-        console.log("Edited streams array: ", streams)
+        // console.log("Original streams array: ", streamsOriginal)
+        // console.log("Edited streams array: ", streams)
         setStreams(streamsOriginal)
-        console.log("Updated streams array: ", streams)
+        // console.log("Updated streams array: ", streams)
     }
 
     // Toast notification for successful changes to streams
