@@ -102,7 +102,7 @@ export default function EDSettings() {
 
     const [roleTypes, setRoleTypes] = React.useState(null)
 
-    const [orderEdited, setOrderEdited] = React.useState(false)
+    const [streamValuesChanged, setstreamValuesChanged] = React.useState(false)
 
 
     // Add function for retrieving role types from the server
@@ -158,7 +158,7 @@ export default function EDSettings() {
     // to check arrays are equal in js (can't use == or ===) and it's only a minor QOL improvement
     // so not implementing now
     const saveOrDiscardButtons = () => {
-        if (!orderEdited) {
+        if (!streamValuesChanged) {
             return (
             <ButtonGroup>
 
@@ -211,7 +211,7 @@ export default function EDSettings() {
         // Update the stream state with the new list
         setStreams(items);
         // Make buttons for saving or discarding changes clickable
-        setOrderEdited(true);
+        setstreamValuesChanged(true);
 
     }
 
@@ -230,13 +230,13 @@ export default function EDSettings() {
         // Update the stream state with the new list
         setStreams(items);
         // Make buttons for saving or discarding changes clickable
-        setOrderEdited(true);
+        setstreamValuesChanged(true);
         }
     }
 
     function handleDiscardChanges() {
         // Remove the 'edited' status so the buttons get disabled
-        setOrderEdited(false);
+        setstreamValuesChanged(false);
         // Set the streams back 
 
         console.log("Original streams array: ", streamsOriginal)
@@ -279,7 +279,7 @@ export default function EDSettings() {
             .then(() => {
                 notifySuccessStreams()
                 // Remove the 'edited' status so the buttons get disabled
-                setOrderEdited(false);
+                setstreamValuesChanged(false);
                 // Update the 'original' streams so that the current state is reverted back to
                 // if discarding future changes
                 // The parse & stringify here is necessary to create a deep copy of the array
@@ -623,7 +623,7 @@ export default function EDSettings() {
                 <Grid item xs={6}>
                     <Paper className={classes.paper}>
                         <Typography variant="h5"> Stream Settings </Typography>
-                        <br /><br />
+                        <br />
                         <Typography variant="body1"> 
                             Here you can set the relative priority of streams and how long decisions take for different streams.
                             <br /> <br />
@@ -647,6 +647,7 @@ export default function EDSettings() {
                 <Grid item xs={6}>
                     <Paper className={classes.paper}>
                         <Typography variant="h5"> Role Types </Typography>
+                        <br />
                         <Typography variant="body1"> 
                             Here you can add new role types, review existing role types, or delete existing role types.
                             <br /><br />
