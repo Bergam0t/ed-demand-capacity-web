@@ -39,6 +39,8 @@ module.exports = {
       /* assuming that one up is where your node_modules sit,
          relative to the currently executing script
       */
+     'node_modules',
+      path.join(__dirname, '../node_modules'),
       path.join(__dirname, '../../node_modules')
     ]
   }
