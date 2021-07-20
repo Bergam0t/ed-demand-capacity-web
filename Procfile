@@ -1,1 +1,1 @@
-python ./manage.py runserver
+python ed_demand_capacity_app/manage.py runserver
