@@ -508,69 +508,35 @@ export default function EDSettings() {
                 </TableRow>
             </TableHead>
             <TableBody>
-            <TableRow>
-                {/* {console.log("Role Types: ", roleTypes)} */}
+
                 {roleTypes.map((roleType) => (
-                    // console.log("Role types:", roleType)
+                    <TableRow key={roleType.id}> 
                     <TableCell>{roleType.role_name}</TableCell> 
-                ))}
 
-                
-                
-                {/* {roleTypes.map((roleType) => {
-                    streams.map((stream) => {
-                        // {console.log(stream['stream_name'])}
-                        // console.log(roleType)
-                        // Check whether the item is the one we're looking for
-                        (roleType['decisions_per_hour_per_stream']).map((decisions) => {
-                            // console.log(decisions['stream_name'])
-                            if (decisions['stream_name'] == stream['stream_name']) {
-                                {console.log(1)}
-                                // If so, update the time for decision value with what has been
-                                // entered in the textinput field
-                                
-                                // <TableCell>{decisions['decisions_per_hour'] > 0 ? decisions['decisions_per_hour'].toString() : "0"}</TableCell>
-                                <TableCell>{roleType.role_name}</TableCell>
-                                
-                                }
-                            }
-                        )
+                    {/* // Note that the usage of curly brackets vs brackets are important here!
+                    // If you replace the outer two sets of brackets with curly brackets, no values return.  */}
+                     {(roleType['decisions_per_hour_per_stream']).map((decisions) => (
+                        streams.map((stream) => {
+
+                                // Check whether the item is the one we're looking for
+                                // This is to ensure the stream values never become decoupled from the relevant
+                                // stream headers
+                                if (decisions['stream_name'] == stream['stream_name']) {
+                                    return (<TableCell align="left">{decisions['decisions_per_hour']}</TableCell>)
+                                    }
+                                })
+                            ))
                         }
-                    )
-                }
-                )
-                     } */}
-
-
-                {roleTypes.map((roleType) => (
-                     (roleType['decisions_per_hour_per_stream']).map((decisions) => (
-                                    streams.map((stream) => {
-                                        // {console.log(stream['stream_name'])}
-                                        // console.log(roleType)
-                                        // Check whether the item is the one we're looking for
-                                       
-                                            // console.log(decisions['stream_name'])
-                                            if (decisions['stream_name'] == stream['stream_name']) {
-                                                // If so, update the time for decision value with what has been
-                                                // entered in the textinput field
-                                                return (<TableCell align="left">{decisions['decisions_per_hour']}</TableCell>)
-                                                // <TableCell>{decisions['decisions_per_hour'] > 0 ? decisions['decisions_per_hour'].toString() : "0"}</TableCell>
-
-                                                }
-                                            })
-                                        ))
-                        ))
-                     }
-
-
-
-                    <TableCell align="left">
+                        <TableCell align="left">
                         <IconButton onClick={() => handleDeleteRoleType(roleType.id)}> 
                             <DeleteIcon />
                         </ IconButton>
                     </TableCell>
 
-                </TableRow>
+                        </TableRow>
+        ))}
+
+                
             </TableBody>
             </Table>
         </TableContainer>
