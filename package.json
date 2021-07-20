@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "webpack --mode production --config ed_demand_capacity_app/frontend/webpack.config.js",
+    "build": "webpack --mode production --config ./ed_demand_capacity_app/frontend/webpack.config.js",
     "heroku-prebuild": "npm install --dev"
   },
   "keywords": [],
