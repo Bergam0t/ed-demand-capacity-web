@@ -1,4 +1,4 @@
-import React, { Component, useState, useReducer, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Container,
@@ -86,8 +86,12 @@ export default function EDSettings() {
 
     const loggedIn = useStoreState(state => state.loggedIn)
 
-    const [loaded, setLoaded] = React.useState(false)
+    // Initialise state for determining whether the page has finished loading
+    const [roleTypesLoaded, setRoleTypesLoaded] = React.useState(false)
+    const [streamsLoaded, setStreamsLoaded] = React.useState(false)
 
+    // Function to get relevant request headers depending on whether the user is logged
+    // in or not
     function getHeaders() {
         if (loggedIn) {
             return  {
@@ -100,28 +104,15 @@ export default function EDSettings() {
               }
         }};
 
-    const [roleTypes, setRoleTypes] = React.useState(null)
-
-    const [streamValuesChanged, setstreamValuesChanged] = React.useState(false)
-
-
-    // Add function for retrieving role types from the server
-    // for this user session
-    const fetchRoleTypes = () => {
-        return fetch('api/own-role-types')
-            // Make sure to not wrap this first then statement in {}
-            // otherwise it returns a promise instead of the json
-            // and then you can't access the email attribute 
-            .then(response => 
-                response.json()
-            )
-            .then((json) => {
-                setRoleTypes(json);
-                // console.log(json)
-            });
-      };
-
     
+    // -------------------------------------------------- //
+    // Streams 
+    // -------------------------------------------------- //
+
+    // Initialise state variable to track whether values have changed
+    // Used to determine whether the save/discard changes buttons should
+    // be active
+    const [streamValuesChanged, setstreamValuesChanged] = React.useState(false)  
     
     const [streams, setStreams] = React.useState(null)
     const [streamsOriginal, setStreamsOriginal] = React.useState(null)
@@ -147,6 +138,7 @@ export default function EDSettings() {
                 // then the priority values will later get changed in both our working array and
                 // the one we have stored as an 'original' array, which is not desirable behaviour.
                 setStreamsOriginal(JSON.parse(JSON.stringify(sorted_json)));
+                setStreamsLoaded(true)
             });
       };
 
@@ -216,6 +208,7 @@ export default function EDSettings() {
     }
 
     function handleChangeMinutesPerDecision(id, event) {
+        // Take a deep copy of the streams state variable
         const items = JSON.parse(JSON.stringify(streams));
 
         // Iterate through the array 
@@ -295,7 +288,7 @@ export default function EDSettings() {
     // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
     // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
     function displayStreams() {
-        if (loaded) {
+        if (streamsLoaded) {
             return (
             <div>
                 <Grid container spacing={2} align="center"> 
@@ -358,43 +351,51 @@ export default function EDSettings() {
         }
     }
 
+    // ------------------------------------------------------------- //
+    // Role Types 
+    // ------------------------------------------------------------- //
+
+    // State variable for role types that will go to/from the database
+    const [roleTypes, setRoleTypes] = React.useState(null)
+
+    // State variable for managing changes to individual states during creation
     const [roleTypeData, setRoleTypeData] = React.useState([])
 
-    function handleChangeDecisionsPerHour(id, stream, event) {
-        console.log("handleChangeDecisionsPerHour activated")
-        const roleTypeDataItems = JSON.parse(JSON.stringify(roleTypeData));
+    // Add function for retrieving role types from the server
+    // for this user session
+    const fetchRoleTypes = () => {
+        return fetch('api/own-role-types')
+            // Make sure to not wrap this first then statement in {}
+            // otherwise it returns a promise instead of the json
+            // and then you can't access the email attribute 
+            .then(response => 
+                response.json()
+            )
+            .then((json) => {
+                setRoleTypes(json);
+                // console.log(json)
+                setRoleTypesLoaded(true);
+            });
+      };
 
-        // Update the priority field on the stream to reflect its new 
-        // position in the list
-        for (const j in roleTypeDataItems) {
-            if (roleTypeDataItems[j].id == id) {
-                // If so, update the time for decision value with what has been
-                // entered in the textinput field
-                // Need to parse as float, not int, as want to allow decimal decisions per hour
-                roleTypeDataItems[j].decisions_per_hour = parseFloat(event.target.value)
-            }
-        }
-
-        // Update the stream state with the new list
-        setRoleTypeData(roleTypeDataItems);
-    }
-
+    // Function to display role types with editable fields
+    // in a dialog box
     function displayStreamFieldsRoleType() {
-
-        if (loaded) {
+        if (streamsLoaded && roleTypesLoaded) {
           
             return (
                 <div>
                     <Grid container spacing={2} align="center"> 
                         
                         {roleTypeData.map((stream, index) => {
+                            console.log(stream.id)
                             return (
                                 <Grid item xs={6}>
                                     <TextField 
                                         key={index} 
                                         label={stream.stream_name} 
                                         value={stream.decisions_per_hour}
-                                        onChange={(e) => handleChangeDecisionsPerHour(stream.id, stream.stream_name, e)}/>
+                                        onChange={(e) => handleChangeDecisionsPerHour(stream.stream_object_id, e)}/>
                                 </Grid>
                             )
                         })}
@@ -406,172 +407,11 @@ export default function EDSettings() {
         } else {
             return (
                 <div>
-                <CircularProgress />
+                    <CircularProgress />
                 </div>
                 )
         }
     }
-
-    // From https://www.pluralsight.com/guides/dynamic-tables-from-editable-columns-in-react-html
-    // const [inEditMode, setInEditMode] = useState({
-    //     status: false,
-    //     rowKey: null
-    // })
-
-    // const [priority, setPriority] = useState(null);
-
-    // const [minutesForDecision, setMinutesForDecision] = useState(null);
-    
-    // const onEdit = ({id, currentPriority, currentMinutesForDecision}) => {
-    //     setInEditMode({
-    //         status: true,
-    //         rowKey: id
-    //     })
-    //     setPriority(currentPriority);
-    //     setMinutesForDecision(currentMinutesForDecision)
-    // }
-
-    // function displayStreams() {
-    //     if (loaded) {
-    //         return (<div>
-    //         <TableContainer component={Paper}>
-    //         <Table className={classes.table} aria-label="simple table">
-    //             <TableHead className={classes.tableHead}>
-    //             <TableRow className={classes.tableHeadCell}>
-    //                 <TableCell className={classes.tableHeadCell}>Stream Name</TableCell>
-    //                 <TableCell className={classes.tableHeadCell}>Priority</TableCell>
-    //                 <TableCell className={classes.tableHeadCell}>Minutes for <br /> Decision</TableCell>
-                
-    //             </TableRow>
-    //             </TableHead>
-    //             <TableBody>
-    //             {streams.map((stream) => (
-    //                 <TableRow key={stream.id}>
-                    
-    //                 <TableCell component="th" scope="row" className={classes.tableHeadCell}>
-    //                     {stream.stream_name}
-    //                 </TableCell>
-                    
-    //                 <TableCell align="left">
-    //                     <TextField
-    //                     type = 'number'
-    //                     value = {stream.stream_priority}
-    //                     ={changeHandler}
-    //                     />
-    //                 </TableCell>
-                    
-    //                 <TableCell align="left">
-    //                     <TextField 
-    //                     type = 'number'
-    //                     value = {stream.time_for_decision}
-    //                     onChange={changeHandler}
-    //                     />
-    //                 </TableCell>
-
-    //                 </TableRow>
-    //             ))}
-    //             </TableBody>
-    //         </Table>
-    //         </TableContainer>
-    //         </div>
-    //         )
-    // } else {
-    //     return (
-    //         <div>
-    //         <CircularProgress />
-    //         </div>
-    //         )
-
-    //     }
-    // }
-
-    // function displayStreamsEditableDataGrid() {
-    //     if (loaded) {
-
-    //     const rows: GridRowsProp = [
-            
-    //         { id: 1, col1: 'Hello', col2: 'World' },
-    //         { id: 2, col1: 'XGrid', col2: 'is Awesome' },
-    //         { id: 3, col1: 'Material-UI', col2: 'is Amazing' },
-    //         ];
-            
-    //         const columns
-    //         { field: 'streamName', headerName: 'Steram Name', width: 150 },
-    //         { field: 'priority', headerName: 'Priority', width: 150 },
-    //         { field: 'minutesForDecision', headerName: 'Minutes for Decision', width: 150 },
-    //         ];
-
-    //     return (<div>
-    //     <TableContainer component={Paper}>
-    //     <Table className={classes.table} aria-label="simple table">
-    //     <TableHead className={classes.tableHead}>
-    //         <TableRow className={classes.tableHeadCell}>
-    //         <TableCell className={classes.tableHeadCell}>Stream Name</TableCell>
-    //         <TableCell className={classes.tableHeadCell}>Priority</TableCell>
-    //         <TableCell className={classes.tableHeadCell}>Minutes for <br /> Decision</TableCell>
-            
-    //         </TableRow>
-    //     </TableHead>
-    //     <TableBody>
-    //         {streams.map((stream) => (
-    //         <TableRow key={stream.id}>
-                
-    //             <TableCell component="th" scope="row" className={classes.tableHeadCell}>
-    //             {stream.stream_name}
-    //             </TableCell>
-                
-    //             <TableCell align="left">
-    //                 {stream.stream_priority}
-    //             </TableCell>
-                
-    //             <TableCell align="left">
-    //                 {stream.time_for_decision}
-    //             </TableCell>
-
-    //         </TableRow>
-    //         ))}
-    //     </TableBody>
-    //     </Table>
-    // </TableContainer>
-    // </div>
-    //     )
-    // } else {
-    //     return (
-    //         <div>
-    //         <CircularProgress />
-    //         </div>
-    //     )
-
-    // }
-    // }
-
-
-
-    // Add function to handle deletion of role types on click
-    const handleDeleteRoleType = (role_id) => {
-        fetch('/api/delete-role-type/' + role_id, 
-              {method: 'POST'})
-              .then(() => {
-                fetchRoleTypes()
-                })
-              .then(() => {
-                  notifyDelete()
-              });
-
-    };
-
-    const notifyDelete = () => toast.success('Role Type Deleted', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
-   
-
-
 
     // Add states required for creation of role types
     const [createRoleTypeModalOpen, setCreateRoleTypeModalOpen] = React.useState(false);
@@ -590,6 +430,39 @@ export default function EDSettings() {
         setRoleTypeName(e.target.value);
     }
 
+    // Function to set staate for role type defaults that will be displayed in the dialog box
+    function initialiseRoleTypeDefaults() {
+        console.log(streams)
+
+        var decision_array_initial = streams.map((stream) => ({
+            stream_object_id: stream.id, stream_name: stream.stream_name, decisions_per_hour: 0})
+        )
+        
+        console.log("Initial decision array", decision_array_initial)
+        setRoleTypeData(decision_array_initial)
+    }
+
+    // Function to handle changes to the number of decisions per hour in the dialog box
+    function handleChangeDecisionsPerHour(id, event) {
+        // console.log("handleChangeDecisionsPerHour activated")
+        const roleTypeDataItems = JSON.parse(JSON.stringify(roleTypeData));
+
+        // Update the priority field on the stream to reflect its new 
+        // position in the list
+        for (const j in roleTypeDataItems) {
+            // console.log(j)
+            if (roleTypeDataItems[j].stream_object_id == id) {
+                // console.log(roleTypeDataItems[j])
+                // If so, update the time for decision value with what has been
+                // entered in the textinput field
+                // Need to parse as float, not int, as want to allow decimal decisions per hour
+                roleTypeDataItems[j].decisions_per_hour = event.target.value
+            }
+        }
+
+        // Update the stream state with the new list
+        setRoleTypeData(roleTypeDataItems);
+    }
 
     // Handle Submit
     // TODO: Set all form values back to defaults
@@ -610,7 +483,7 @@ export default function EDSettings() {
                 decisions_per_hour_per_stream: JSON.parse(JSON.stringify({roleTypeData}))['roleTypeData'],
             })
         };
-        console.log(requestOptions)
+        // console.log('Request being sent: ', requestOptions)
         fetch('/api/create-role-type', requestOptions).then((response) => {
             if (response.ok) {
                 console.log("Role type created successfully")
@@ -625,29 +498,110 @@ export default function EDSettings() {
         });
     }
 
-    function initialiseRoleTypeDefaults() {
-        console.log(streams)
 
-        var decision_array_initial = streams.map((stream) => ({
-            id: stream.id, stream_name: stream.stream_name, decisions_per_hour: 0})
+    // Function to display a table of existing role types
+    function displayExistingRoleTypes() {
+        if (roleTypesLoaded) {
+        return (
+            <div>
+            <TableContainer component={Paper}>
+            <Table className={classes.table} aria-label="simple table">
+            <TableHead className={classes.tableHead}>
+                <TableRow className={classes.tableHeadCell}>
+                <TableCell className={classes.tableHeadCell}>Role Type Name</TableCell>
+                
+                {streams.map((stream) => (
+
+                    <TableCell className={classes.tableHeadCell}>{stream.stream_name}</TableCell>
+                ))}
+                
+                    <TableCell className={classes.tableHeadCell}>Delete</TableCell>
+                
+                </TableRow>
+            </TableHead>
+            <TableBody>
+            <TableRow>
+                {/* {console.log("Role Types: ", roleTypes)} */}
+                {roleTypes.map((roleType) => (
+                    // console.log("Role types:", roleType)
+                    <TableCell>{roleType.role_name}</TableCell> 
+                ))}
+
+                
+
+                {/* streams.map((stream) => {
+                //     // Check whether the item is the one we're looking for
+                //     if (roleType['decisions_per_hour'].stream_name == stream) {
+                //         // If so, update the time for decision value with what has been
+                //         // entered in the textinput field
+                //         <TableCell>{roleType['decisions_per_hour']}</TableCell>
+                //     }
+                //     }
+                // )
+            //    })
+            })} */}
+
+
+                    <TableCell align="left">
+                        <IconButton onClick={() => handleDeleteRoleType(roleType.id)}> 
+                            <DeleteIcon />
+                        </ IconButton>
+                    </TableCell>
+
+                </TableRow>
+            </TableBody>
+            </Table>
+        </TableContainer>
+        </div>
         )
-        
-        console.log(decision_array_initial)
-        setRoleTypeData(decision_array_initial)
+    } else {
+        return (
+            <div>
+            <CircularProgress />
+            </div>
+        )
+
     }
-    
+}
+
+    // Function to handle deletion of role types on click
+    const handleDeleteRoleType = (role_id) => {
+        fetch('/api/delete-role-type/' + role_id, 
+            {method: 'POST'})
+            .then(() => {
+                fetchRoleTypes()
+                })
+            .then(() => {
+                notifyDelete()
+            });
+
+    };
+
+    // Function to create toast notification when role type successfully deleted
+    const notifyDelete = () => toast.success('Role Type Deleted', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+
+
+    // ------------------------------------------------- //
+    // Rendering 
+    // ------------------------------------------------ //
 
     // Determine what will run on page load
     // Get notes from server
     useEffect(() => {
         fetchStreams()
-        .then(() => {fetchRoleTypes()})
-        // .then(() => {initialiseRoleTypeDefaults()})
-        .then(() => {setLoaded(true)})         
+        fetchRoleTypes()      
     }, []);
 
     useEffect(() => {
-        if (loaded) {
+        if (streamsLoaded) {
             initialiseRoleTypeDefaults()
         }
         // Have to include the value in brackets to avoid infinite loop
@@ -773,6 +727,9 @@ export default function EDSettings() {
                             </Grid>
                         </Box>
                     </Dialog>
+
+                    {displayExistingRoleTypes()}
+
                 </Grid>
             </Grid>
         </div>
