@@ -3,7 +3,7 @@ const webpack = require("webpack");
 
 module.exports = {
   context: __dirname + '/src/',
-  entry: "./index.js",
+  entry: ["./index.js"],
   output: {
     path: path.resolve(__dirname, "./static/frontend"),
     filename: "[name].js",
@@ -26,14 +26,15 @@ module.exports = {
   optimization: {
     minimize: true,
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env": {
-        // This has effect on the react lib size
-        NODE_ENV: JSON.stringify("development"),
-      },
-    }),
-  ],
+  // https://stackoverflow.com/questions/66772358/webpack-warning-warning-in-defineplugin-conflicting-values-for-process-env-no
+  // plugins: [
+  //   new webpack.DefinePlugin({
+  //     "process.env": {
+  //       // This has effect on the react lib size
+  //       NODE_ENV: JSON.stringify("production"),
+  //     },
+  //   }),
+  // ],
   resolve: {
     roots: [
       __dirname,
