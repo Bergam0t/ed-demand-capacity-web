@@ -9,25 +9,15 @@ import {
     Modal,
     ButtonGroup,
     Divider,
+    Card,
   } from '@material-ui/core';
-import Card from '@material-ui/core/Card';
 import { useStoreActions } from 'easy-peasy';
 import {useStoreState} from 'easy-peasy';
-import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
-
+import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
-import DateFnsUtils from '@date-io/date-fns'; 
-import {
-  DatePicker,
-  TimePicker,
-  DateTimePicker,
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
 import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
 import Table from '@material-ui/core/Table';
@@ -38,13 +28,10 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import moment from 'moment'
-import { withStyles } from '@material-ui/core/styles';
+
 import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
-import PlotlyPlot from "../components/PlotlyPlot" 
 import { v4 as uuidv4 } from 'uuid';
-import { DataGrid, GridRowsProp, GridColDef } from '@material-ui/data-grid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,7 +55,6 @@ const useStyles = makeStyles((theme) => ({
         paddingRight: theme.spacing(4),
       },
 
-    // Add formatting for the resulting table
     tableHead: {
         background: '#cdcdcd',
      },
@@ -138,8 +124,9 @@ export default function EDSettings() {
                 // then the priority values will later get changed in both our working array and
                 // the one we have stored as an 'original' array, which is not desirable behaviour.
                 setStreamsOriginal(JSON.parse(JSON.stringify(sorted_json)));
-                setStreamsLoaded(true)
-            });
+                
+            })
+            .then(() => setStreamsLoaded(true))
       };
 
     // Function to render the buttons to save or discard
@@ -374,8 +361,9 @@ export default function EDSettings() {
             .then((json) => {
                 setRoleTypes(json);
                 // console.log(json)
-                setRoleTypesLoaded(true);
-            });
+                
+            })
+            .then(() => setRoleTypesLoaded(true));
       };
 
     // Function to display role types with editable fields
@@ -501,7 +489,7 @@ export default function EDSettings() {
 
     // Function to display a table of existing role types
     function displayExistingRoleTypes() {
-        if (roleTypesLoaded) {
+        if (roleTypesLoaded && streamsLoaded) {
         return (
             <div>
             <TableContainer component={Paper}>
@@ -528,18 +516,52 @@ export default function EDSettings() {
                 ))}
 
                 
+                
+                {/* {roleTypes.map((roleType) => {
+                    streams.map((stream) => {
+                        // {console.log(stream['stream_name'])}
+                        // console.log(roleType)
+                        // Check whether the item is the one we're looking for
+                        (roleType['decisions_per_hour_per_stream']).map((decisions) => {
+                            // console.log(decisions['stream_name'])
+                            if (decisions['stream_name'] == stream['stream_name']) {
+                                {console.log(1)}
+                                // If so, update the time for decision value with what has been
+                                // entered in the textinput field
+                                
+                                // <TableCell>{decisions['decisions_per_hour'] > 0 ? decisions['decisions_per_hour'].toString() : "0"}</TableCell>
+                                <TableCell>{roleType.role_name}</TableCell>
+                                
+                                }
+                            }
+                        )
+                        }
+                    )
+                }
+                )
+                     } */}
 
-                {/* streams.map((stream) => {
-                //     // Check whether the item is the one we're looking for
-                //     if (roleType['decisions_per_hour'].stream_name == stream) {
-                //         // If so, update the time for decision value with what has been
-                //         // entered in the textinput field
-                //         <TableCell>{roleType['decisions_per_hour']}</TableCell>
-                //     }
-                //     }
-                // )
-            //    })
-            })} */}
+
+                {roleTypes.map((roleType) => (
+                     (roleType['decisions_per_hour_per_stream']).map((decisions) => (
+                                    streams.map((stream) => {
+                                        // {console.log(stream['stream_name'])}
+                                        // console.log(roleType)
+                                        // Check whether the item is the one we're looking for
+                                       
+                                            // console.log(decisions['stream_name'])
+                                            if (decisions['stream_name'] == stream['stream_name']) {
+                                                // If so, update the time for decision value with what has been
+                                                // entered in the textinput field
+                                                return (<TableCell align="left">{decisions['decisions_per_hour']}</TableCell>)
+                                                // <TableCell>{decisions['decisions_per_hour'] > 0 ? decisions['decisions_per_hour'].toString() : "0"}</TableCell>
+
+                                                }
+                                            })
+                                        ))
+                        ))
+                     }
+
 
 
                     <TableCell align="left">
@@ -656,6 +678,8 @@ export default function EDSettings() {
                         <Button variant="contained" color="primary" onClick={handleOpenCreateRoleTypeDialog}> 
                             Add a new role type 
                         </Button>
+                        <br /> <br />
+                        {displayExistingRoleTypes()}
                     </Paper>
                     
                     <Dialog
@@ -728,7 +752,7 @@ export default function EDSettings() {
                         </Box>
                     </Dialog>
 
-                    {displayExistingRoleTypes()}
+                    
 
                 </Grid>
             </Grid>
