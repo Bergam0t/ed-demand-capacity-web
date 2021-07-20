@@ -46,6 +46,7 @@ class HistoricData(models.Model):
                                       default='Not logged in')
     upload_time = models.DateTimeField(auto_now_add=True, 
                                        blank=True)
+    processing_complete = models.BooleanField(default=False)
 
 
 class Shift(models.Model):
@@ -80,7 +81,26 @@ class Shift(models.Model):
     break_3_end = models.CharField(max_length=50,
                                         default='')
 
+class Role(models.Model):
+    '''
+    Model for storing a role
 
+    The role defines the decision-making capabilities of a 
+    particular class of decision maker
+
+    e.g. a Role could be 'Consultant majors'
+
+    You may have >1 individual with the same role in an ED
+    '''
+
+    user_session = models.CharField(max_length=50, 
+                                    default='Not recorded')
+    
+
+    role_name = models.CharField(max_length=150,
+                                 default='')
+
+    decisions_per_hour_per_stream = models.JSONField()
 
 class Notes(models.Model):
     '''
@@ -118,4 +138,15 @@ class ProphetForecast(models.Model):
                               default='Not recorded')
 
     prophet_forecast_df_feather = models.FileField(upload_to='forecasts', blank=True)
-    
+
+
+class Stream(models.Model):
+    user_session =  models.CharField(max_length=50, 
+                                    default='Not recorded')
+
+    stream_name = models.CharField(max_length=150,
+                              default='')
+
+    stream_priority = models.IntegerField(default=1)
+
+    time_for_decision = models.IntegerField(default=30)

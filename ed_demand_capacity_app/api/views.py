@@ -199,8 +199,30 @@ class FilterByColsAndOverwriteData(APIView):
         
         log.info('Successfully updated selected columns')
 
-        # Set the prophet models to start generating in the background
+        # Then add stream models
+        for i, stream in enumerate(filtered_df['stream'].unique()):
+            stream_data = {'user_session': uploader,
+                           'stream_name': stream,
+                           # i + 1 so that priority starts at 1, not 0
+                           'stream_priority': i+1}
+            
+            stream_serializer = StreamSerializer(data=stream_data)
+
+            if stream_serializer.is_valid():
+                stream_serializer.save()
+
+            # Stream(user_session=uploader,
+            #        stream_name=stream,
+            #        stream_priority=i).save()
+
+
+        log.info('Successfully added stream objects to database')
+
+        # Set the prophet models to start generating 
         generate_prophet_models(session_id = uploader)
+
+        historic_data.processing_complete = True
+        historic_data.save(update_fields=['processing_complete'])
 
         
         return Response({'Message': 'Successfully processed data'}, 
@@ -239,17 +261,49 @@ class DeleteSessionHistoricData(APIView):
         log.info('database entry deleted')
 
         # Delete the file
-        log.info(f'Filepath: {filepath}')
-        if os.path.isfile(f'uploads/{filepath}'):
-            for i in range(3):
-                try: 
-                    os.remove(f'uploads/{filepath}')
-                    log.info(f'uploads/{filepath} deleted')
-                except PermissionError:
-                    log.info(f'Permission error: retrying in 1s')
-                    time.sleep(1)
-                else:
-                    log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
+
+        def deletion_attempt(filepath):
+            log.info(f'Filepath: {filepath}')
+            if os.path.isfile(f'uploads/{filepath}'):
+                for i in range(3):
+                    try: 
+                        os.remove(f'uploads/{filepath}')
+                        log.info(f'uploads/{filepath} deleted')
+                    except PermissionError:
+                        log.error(f'Permission error: retrying in 1s')
+                        time.sleep(1)
+                    except FileNotFoundError:
+                        log.error(f'Filepath uploads/{filepath} appears to be invalid. Skipping.')
+                    else:
+                        log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
+
+        deletion_attempt(filepath)
+
+        # Delete stream objects
+        Stream.objects.filter(user_session=uploader).delete()
+        log.info("Stream data deleted from database")
+
+        # Delete prophet models
+        ProphetModel.objects.filter(user_session=uploader).delete()
+        log.info("Prophet models deleted from database")
+
+        # Delete prophet forecasts
+        # First get the filepaths
+        forecast_queryset = ProphetForecast.objects.filter(user_session=uploader)
+        forecast_filepaths = []
+        # Get the filepath
+        for forecast in forecast_queryset:
+            forecast_filepaths.append(forecast.prophet_forecast_df_feather.name)
+    
+        # Now delete the database entries
+        ProphetForecast.objects.filter(user_session=uploader).delete()
+        log.info("Prophet forecasts deleted from database")
+        
+        # Now delete the files
+        for filepath in forecast_filepaths:
+            deletion_attempt(filepath)
+
+
 
         return Response({'result': 'Session data deleted'}, 
                         status=status.HTTP_200_OK)
@@ -268,10 +322,14 @@ class GetSessionHistoricDataColumnNames(APIView):
         historic_data = queryset.last()
 
         df = pd.read_feather(historic_data.uploaded_data)
+        log.info(df.columns)
 
         # Get rid of a column which gets accidentally generated
-        if "Unnamed: 0" in df:
-            df = df.drop("Unnamed: 0", axis=1)
+        # Plus some behind-the-scenes columns
+        for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
+            if colname in df.columns:
+                df = df.drop(colname, axis=1)
+        log.info(df.columns)
 
         return Response({'columns': df.columns}, 
                         status=status.HTTP_200_OK)
@@ -290,6 +348,19 @@ class GetSessionStreams(APIView):
         df = pd.read_feather(historic_data.uploaded_data)
 
         return Response({'streams': df.stream.unique()}, 
+                        status=status.HTTP_200_OK)
+
+
+class GetSessionStreamsFromDatabase(APIView):
+    '''
+    Return ED streams that have been saved to the database
+    (will include priority and )
+    '''
+    def get(self, request, *args, **kwargs):
+        user_session_key = request.session.session_key
+        queryset = Stream.objects.filter(user_session=user_session_key)
+        serializer = StreamSerializer(queryset, many=True)
+        return Response(serializer.data, 
                         status=status.HTTP_200_OK)
 
 class DisplayMostRecentlyUploadedRawData(APIView):
@@ -344,8 +415,10 @@ class MostRecentAsAgGridJson(APIView):
         # except:
         data = pd.read_feather(historic_data.uploaded_data)
         log.info(data.columns)
-        if "Unnamed: 0" in data.columns:
-            data = data.drop("Unnamed: 0", axis=1)
+        for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
+            if colname in data.columns:
+                data = data.drop(colname, axis=1)
+        
 
         return  JsonResponse(data.to_dict(orient='records'), status=status.HTTP_200_OK, safe=False)
 
@@ -425,3 +498,26 @@ class NotesView(APIView):
 #     def get(self, request, *args, **kwargs):
 #         user = Token.objects.get(key='token string').user
 #         return Response(
+
+class StreamUpdate(APIView):
+    def patch(self, request, *args, **kwargs):
+        # log.info(request.data)
+        stream_object_json = request.data['streams']
+
+        for stream in stream_object_json:
+            serializer = StreamSerializer(data=stream)
+            if serializer.is_valid():
+                relevant_stream_queryset = Stream.objects.filter(id=stream['id'])
+                for relevant_stream_obj in relevant_stream_queryset:
+                    relevant_stream_obj.stream_priority = stream['stream_priority']
+                    relevant_stream_obj.time_for_decision = stream['time_for_decision']
+
+                    relevant_stream_obj.save(update_fields=['stream_priority', 'time_for_decision'])
+        
+        
+        return Response({"Message": "Streams updated successfully"}, 
+                        status=status.HTTP_200_OK)
+            # else:
+            #     log.error('error', serializer.errors)
+            #     return Response(serializer.errors, 
+            #                     status=status.HTTP_400_BAD_REQUEST)

@@ -24,7 +24,6 @@ class ShiftSerializer(serializers.ModelSerializer):
         model = Shift
         fields = '__all__'
 
-
 class ShiftSerializerAnonymised(serializers.ModelSerializer):
     class Meta:
         model = Shift
@@ -44,3 +43,14 @@ class ProphetForecastSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProphetForecast 
         fields = '__all__'      
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+class StreamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stream
+        fields = '__all__'

@@ -440,7 +440,12 @@ class HistoricDemandData extends Component {
                     {/* </form> */}
 
                     <Typography variant="h6"> Preview of your uploaded data </Typography>
-                    <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
+                    <br /> <br /> <br />
+                    <Grid container >
+                        <Grid item align="center" xs={12}>
+                            <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
+                        </Grid>
+                    </Grid>
                 </div>
             )
         }
@@ -491,7 +496,12 @@ class HistoricDemandData extends Component {
                                                             
                             </Grid>
                         </Grid>
+                        <br /> <br /> <br />
+                        <Grid container >
+                        <Grid item align="center" xs={12}>
                             <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
+                            </Grid>
+                        </Grid>
                         
                 </div>
             )

@@ -22,7 +22,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
-import { helpListItems, saveLoadItems, mainListItems, secondaryListItems } from './listItems';
+import { helpListItems, saveLoadItems, mainListItems, secondaryListItems, setupItems } from './listItems';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
@@ -275,6 +275,8 @@ export default function ContentHolder() {
             <Divider />
             <List>{helpListItems}</List>
             <Divider />
+            <List>{setupItems}</List>
+            <Divider />
             <List>{mainListItems}</List>
             <Divider />
             <List>{secondaryListItems}</List>
@@ -282,7 +284,7 @@ export default function ContentHolder() {
         
         <main className={classes.content}>
             <div className={classes.appBarSpacer} />
-            <Container maxWidth="lg" className={classes.container}>
+            <Container maxWidth={false} className={classes.container}>
                 <DashboardContent />
             </Container>
         </main>

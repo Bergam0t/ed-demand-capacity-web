@@ -364,7 +364,7 @@ export default function ShiftPage() {
             
             <Typography variant="h4"> Shift Types </Typography>
             <Typography variant="body1"> 
-                Here you can add new shift types, review existing shift types, or edit existing shift types.
+                Here you can add new shift types, review existing shift types, or delete existing shift types.
             </Typography>
             <br />
             <Button variant="contained" color="primary" onClick={handleOpenCreateShiftTypeDialog}> 

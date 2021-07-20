@@ -1,5 +1,4 @@
 
-ed_demand_capacity_app/uploads/historic_data/*.csv
 
 # Django #
 *.log
@@ -18,11 +17,12 @@ npm-debug.log
 
 # Environments#
 envs/
+
+# Data #
 ed_demand_capacity_app/sample_data/SO test data.csv
-ed_demand_capacity_app/db.sqlite3
+ed_demand_capacity_app/uploads/historic_data/*.csv
+
+*.sqlite3
 *.ftr
 *.pkl
 *.pyc
-ed_demand_capacity_app/db.sqlite3
-*.pyc
-*.csv
