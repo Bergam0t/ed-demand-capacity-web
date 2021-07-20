@@ -496,7 +496,7 @@ export default function EDSettings() {
             <Table className={classes.table} aria-label="simple table">
             <TableHead className={classes.tableHead}>
                 <TableRow className={classes.tableHeadCell}>
-                <TableCell className={classes.tableHeadCell}>Role Type Name</TableCell>
+                <TableCell className={classes.tableHeadCell}>Role Type</TableCell>
                 
                 {streams.map((stream) => (
 
@@ -509,13 +509,14 @@ export default function EDSettings() {
             </TableHead>
             <TableBody>
 
+                    {/* // Note that the usage of curly brackets vs brackets are important here!
+                    // If you replace the outer two sets of brackets with curly brackets, no values return.  */}
                 {roleTypes.map((roleType) => (
                     <TableRow key={roleType.id}> 
                     <TableCell>{roleType.role_name}</TableCell> 
 
-                    {/* // Note that the usage of curly brackets vs brackets are important here!
-                    // If you replace the outer two sets of brackets with curly brackets, no values return.  */}
                      {(roleType['decisions_per_hour_per_stream']).map((decisions) => (
+                        
                         streams.map((stream) => {
 
                                 // Check whether the item is the one we're looking for
@@ -524,8 +525,10 @@ export default function EDSettings() {
                                 if (decisions['stream_name'] == stream['stream_name']) {
                                     return (<TableCell align="left">{decisions['decisions_per_hour']}</TableCell>)
                                     }
+                                
                                 })
-                            ))
+                            
+                                ))
                         }
                         <TableCell align="left">
                         <IconButton onClick={() => handleDeleteRoleType(roleType.id)}> 
@@ -595,7 +598,6 @@ export default function EDSettings() {
         // Have to include the value in brackets to avoid infinite loop
         // Means will only run the setState call when createRoleTypeModalOpen changes
     }, [createRoleTypeModalOpen])
-    
 
     // Rendering of page
 
@@ -606,7 +608,7 @@ export default function EDSettings() {
                     <Typography variant="h4"> Emergency Department Settings </Typography>
                 </Grid>
 
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                     <Paper className={classes.paper}>
                         <Typography variant="h5"> Stream Settings </Typography>
                         <br />
@@ -630,7 +632,7 @@ export default function EDSettings() {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={6}>
+                <Grid item xs={8}>
                     <Paper className={classes.paper}>
                         <Typography variant="h5"> Role Types </Typography>
                         <br />
