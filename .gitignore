@@ -26,3 +26,5 @@ ed_demand_capacity_app/uploads/historic_data/*.csv
 *.ftr
 *.pkl
 *.pyc
+env_test_ed/
+env_ed_app_pip/
