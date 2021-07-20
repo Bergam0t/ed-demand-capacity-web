@@ -2,8 +2,8 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
-  context: __dirname + '/src/',
-  entry: ["./index.js"],
+  // context: __dirname + '/src/',
+  entry: __dirname + '/src/index.js',
   output: {
     path: path.resolve(__dirname, "./static/frontend"),
     filename: "[name].js",
