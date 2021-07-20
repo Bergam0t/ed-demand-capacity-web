@@ -2,8 +2,9 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
-  // context: '',
-  entry: '/ed_demand_capacity_app/frontend/src/index.js',
+  // If deploying to heroku, uncomment the following line
+  // If running locally, leave it commented out! 
+  // entry: '/ed_demand_capacity_app/frontend/src/index.js',
   output: {
     path: path.resolve(__dirname, "./static/frontend"),
     filename: "[name].js",
