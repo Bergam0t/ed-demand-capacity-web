@@ -2,6 +2,9 @@
   "name": "frontend",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "12.18.2"
+  },
   "main": "index.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
