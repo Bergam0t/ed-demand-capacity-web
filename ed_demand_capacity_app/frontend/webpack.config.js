@@ -38,6 +38,7 @@ module.exports = {
     roots: [
       __dirname,
       path.resolve(__dirname, "src/"),
+      path.resolve(__dirname, "frontend/"),
       path.resolve(__dirname, "ed_demand_capacity_app/frontend/src/"),
       path.resolve(__dirname, "ed_demand_capacity_app/frontend/"),
       path.resolve(__dirname, "ed_demand_capacity_app/"),
