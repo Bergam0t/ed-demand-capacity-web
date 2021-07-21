@@ -1,1 +1,1 @@
-python ed_demand_capacity_app/manage.py runserver
+web: gunicorn ed_demand_capacity_app.wsgi 
