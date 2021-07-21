@@ -151,6 +151,8 @@ class HistoricDataView(APIView):
                 # Convert date using method here
                 # https://stackoverflow.com/questions/31359150/convert-date-from-excel-in-number-format-to-date-format-python
                 df['Date'] = df['Date'].apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + x - 2))
+                # Convert to datetime format
+                df['Date'] = pd.to_datetime(df['Date'])
 
                 # Reshape for more similarity with the Excel file and allow 
                 df = df.melt(id_vars=['Date', 'Hour range', 'Hour']).rename({'variable': 'stream'}, axis=1)
