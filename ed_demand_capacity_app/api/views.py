@@ -156,8 +156,6 @@ class HistoricDataView(APIView):
 
                 # Reshape for more similarity with the Excel file and allow 
                 df = df.melt(id_vars=['Date', 'Hour range', 'Hour']).rename({'variable': 'stream'}, axis=1)
-                # Reset index - required for Feather serialization
-                df = df.reset_index(drop=True)
                 
                 # Then add stream models
                 add_stream_models(df=df, user_session=self.request.session.session_key)
