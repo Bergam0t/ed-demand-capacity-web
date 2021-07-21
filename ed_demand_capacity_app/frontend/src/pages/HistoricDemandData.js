@@ -316,6 +316,10 @@ class HistoricDemandData extends Component {
                             );
         let url = '/api/historic-data';
         let conditional_request_headers = this.getHeaders();
+        this.setState({
+            waitingForDataProcessing: true
+            })   
+
         // console.log(conditional_request_headers)
         axios.post(url, form_data, {
             headers: conditional_request_headers
@@ -330,7 +334,8 @@ class HistoricDemandData extends Component {
                         uploaded_data_excel: null,
                         successful_submission: "File uploaded successfully!",
                         session_has_historic_data: true,
-                        colsSelected: true
+                        colsSelected: true,
+                        waitingForDataProcessing: false
                         })   
 
                     
