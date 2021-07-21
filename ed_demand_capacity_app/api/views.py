@@ -27,6 +27,7 @@ import tempfile
 import os
 import io
 import time
+import re
 
 
 # Ensure all log messages of INFO level and above get shown
@@ -69,6 +70,7 @@ class HistoricDataView(APIView):
         historic_data_serializer = UploadedHistoricDataSerializer(data=request.data)
        
         if historic_data_serializer.is_valid():
+            log.info("Historic data serializer valid")
             # First, save the response as is so that we have a model object that exists
             historic_data_instance = historic_data_serializer.save()
             
@@ -78,23 +80,69 @@ class HistoricDataView(APIView):
             log.info(self.request.session.session_key)
             historic_data_instance.uploader_session = self.request.session.session_key
             
-            # Next, grab the uploaded csv and convert it to a pandas dataframe
-            df = pd.read_csv(historic_data_instance.uploaded_data)
+            # ---- If a csv file has been uploaded ---- #
+            if bool(re.search('\.csv', historic_data_instance.uploaded_data.name)):
+                log.info("csv file uploaded")
+                # Next, grab the uploaded csv and convert it to a pandas dataframe
+                df = pd.read_csv(historic_data_instance.uploaded_data)
 
-            # Update csv to feather file
-            # Using feather from here on in as it allows datatypes to persist
-            # across file loads, meaning we won't have to repeatedly parse dates,
-            # which is a very time-consuming operation 
+                # Update csv to feather file
+                # Using feather from here on in as it allows datatypes to persist
+                # across file loads, meaning we won't have to repeatedly parse dates,
+                # which is a very time-consuming operation 
 
-            # First get the filepath and apply some corrections so it goes to the correct folder
-            # and updates the filetype suffix
-            csv_filepath = historic_data_instance.uploaded_data.name
-            
-            filepath =  (
-                csv_filepath
-                .replace('historic_data/', '', 1)
-                .replace('csv', 'ftr')
-            )
+                # First get the filepath and apply some corrections so it goes to the correct folder
+                # and updates the filetype suffix
+                original_filepath = historic_data_instance.uploaded_data.name
+                
+                filepath =  (
+                    original_filepath
+                    .replace('historic_data/', '', 1)
+                    .replace('csv', 'ftr')
+                )
+
+            # ---- If an excel file format has been uploaded ---- #
+            if bool(re.search('\.xlsb', historic_data_instance.uploaded_data.name)):
+                log.info("xlsb file uploaded")
+                imported_df = pd.read_excel(historic_data_instance.uploaded_data, 
+                                            engine='pyxlsb', 
+                                            sheet_name="Demand")
+                # Get streams
+                stream_row = imported_df.iloc[4, :]
+                stream_names = stream_row.dropna().values
+                # Ignore any default names
+                names_to_ignore = [f'Stream {i} Name' for i in range(1, 11, 1)]
+                final_stream_names = [i for i in stream_names 
+                      if i not in names_to_ignore]
+                # Get only the relevant data
+                df = imported_df.iloc[7 : , 1 : 4+len(final_stream_names)]
+                # Update column names
+                df.columns = ['Date', 'Hour range', 'Hour'] + final_stream_names
+                # Get rid of rows from end of dataframe that contain no data
+                df = df.iloc[:df.last_valid_index()]
+                # Remove any straggler missing data
+                # There seems to be odd rows where hour range is 'None' instead
+                # of blank, which breaks the command above
+                df = df.dropna(subset=df.columns[1:])
+
+                # Fix the dates, which will have been imported as integers
+                # First need to fill na values using the forward fill method
+                # As there's only one value per day
+                df['Date'] = df['Date'].fillna(method='ffill')
+                # Convert date using method here
+                # https://stackoverflow.com/questions/31359150/convert-date-from-excel-in-number-format-to-date-format-python
+                df['Date'] = df['Date'].apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + x - 2))
+
+                # Reset index - required for Feather serialization
+                df = df.reset_index(drop=True)
+                
+                original_filepath = historic_data_instance.uploaded_data.name
+                
+                filepath =  (
+                    original_filepath
+                    .replace('historic_data/', '', 1)
+                    .replace('xlsb', 'ftr')
+                )
 
             # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
             # which is good because it's what the later file update step needs
@@ -122,9 +170,9 @@ class HistoricDataView(APIView):
             historic_data_instance.save()
 
             # Tidy up by deleting the originally-uploaded csv
-            log.info(f'csv filepath: {csv_filepath}')
-            if os.path.isfile(f'uploads/{csv_filepath}'):
-                os.remove(f'uploads/{csv_filepath}')
+            log.info(f'csv filepath: {original_filepath}')
+            if os.path.isfile(f'uploads/{original_filepath}'):
+                os.remove(f'uploads/{original_filepath}')
                 log.info('csv file deleted')
 
             return Response(historic_data_serializer.data, 
@@ -227,6 +275,7 @@ class FilterByColsAndOverwriteData(APIView):
         
         return Response({'Message': 'Successfully processed data'}, 
                         status=status.HTTP_200_OK)
+
 
 class SessionHasHistoricData(APIView):
     '''

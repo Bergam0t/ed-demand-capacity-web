@@ -103,6 +103,10 @@ class HistoricDemandData extends Component {
             this.fetchColumnList = this.fetchColumnList.bind(this);
             this.renderListColumns = this.renderListColumns.bind(this);
             this.handleSubmitSelectedColumns = this.handleSubmitSelectedColumns.bind(this);
+            this.handleFileChange = this.handleFileChange.bind(this);
+            this.handleFileChangeExcel = this.handleFileChangeExcel.bind(this);
+            this.handleSubmit = this.handleSubmit.bind(this);
+            this.handleSubmitExcel = this.handleSubmitExcel.bind(this);
     }
     // Should this move inside the constructor and change to this.state?
     // See CreateRoomPage.js in tutorial app
@@ -110,6 +114,7 @@ class HistoricDemandData extends Component {
         existing_data_check_complete: false,
         session_has_historic_data: null,
         uploaded_data: null,
+        uploaded_data_excel: null,
         successful_submission: null,
         loggedIn: localStorage.getItem('token') ? true : false,
         deleteConfirmationModalOpen: false,
@@ -208,6 +213,12 @@ class HistoricDemandData extends Component {
             })
     };
 
+    handleFileChangeExcel = (e) => {
+        this.setState({
+            uploaded_data_excel: e.target.files[0]
+            })
+    };
+
     // Handle submission of uploaded file
     // From *TO DO*: Find link 
     handleSubmit = (e) => {
@@ -294,6 +305,38 @@ class HistoricDemandData extends Component {
     }
 
     //const classes = useStyles();
+
+    handleSubmitExcel = (e) => {
+        e.preventDefault();
+        // console.log(this.state);
+        let form_data = new FormData();
+        form_data.append('uploaded_data', 
+                            this.state.uploaded_data_excel, 
+                            this.state.uploaded_data_excel.name,
+                            );
+        let url = '/api/historic-data';
+        let conditional_request_headers = this.getHeaders();
+        // console.log(conditional_request_headers)
+        axios.post(url, form_data, {
+            headers: conditional_request_headers
+        })
+            .then(res => {
+                console.log(res);
+                if(res.status == 201) {
+                    console.log("File upload successful")
+                    notify();
+                       
+                    this.setState({
+                        uploaded_data_excel: null,
+                        successful_submission: "File uploaded successfully!",
+                        session_has_historic_data: true,
+                        colsSelected: true
+                        })   
+
+                    
+                }
+            })
+        }
 
     componentDidMount () { 
         this.fetchHistoricBool()
@@ -531,7 +574,7 @@ class HistoricDemandData extends Component {
                             Your data needs to contain columns for arrival date, arrival time, and stream.
                             <br/><br/>
                         </Typography>
-                        <form onSubmit={this.handleSubmit}>
+                        <form onSubmit={this.handleSubmit} id="csv">
                             <Button color="secondary" variant="contained" component="label">
                                 Upload record-format data
                                 <input
@@ -578,14 +621,35 @@ class HistoricDemandData extends Component {
                             to extract the historic data in it. 
                             <br/><br/>
                         </Typography>
-                        <Button color="primary" variant="contained" component="label" disabled={true}>
+                        <form onSubmit={this.handleSubmitExcel} id="xlsb">
+                        <Button color="secondary" variant="contained" component="label" onChange={this.handleFileChangeExcel}>
                             Upload Excel Model
                             <input
                                 type="file"
-                                accept=".xls,.xlsx"
+                                accept=".xlsb"
                                 hidden
                             />
                         </Button>
+                        <br/>
+                            {
+                                this.state.uploaded_data_excel ? (
+                                    <Typography variant="h6">File selected: {this.state.uploaded_data_excel.name}</Typography>
+                                ) : (
+                                    <Typography variant="h6">No file selected</Typography>
+                                )
+                            }
+                        <Button color="primary" 
+                                    variant="contained" 
+                                    component="label" 
+                                    disabled={!this.state.uploaded_data_excel}
+                                    >
+                                Confirm
+                                <input
+                                    type="submit"
+                                    hidden
+                                />
+                            </Button>
+                            </form>
                         </CardContent>   
                     </Card>
                 </Grid>
