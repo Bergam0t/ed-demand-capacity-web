@@ -1,1 +1,1 @@
-web: gunicorn --chdir ed_demand_capacity_app.wsgi 
+web: gunicorn ed_demand_capacity_app.wsgi 
