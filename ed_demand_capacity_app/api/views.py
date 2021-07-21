@@ -168,6 +168,12 @@ class HistoricDataView(APIView):
                     .replace('xlsb', 'ftr')
                 )
 
+                source = 'excel'
+
+            # Update model with source
+            historic_data_instance.source = source
+            historic_data_instance.save(update_fields=['source'])
+            
             # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
             # which is good because it's what the later file update step needs
             # However, everything like .to_pickle, .to_feather and .to_hdf does not
