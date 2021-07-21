@@ -150,3 +150,48 @@ class Stream(models.Model):
     stream_priority = models.IntegerField(default=1)
 
     time_for_decision = models.IntegerField(default=30)
+
+
+class RotaEntry(models.Model):
+    # See https://www.merixstudio.com/blog/django-models-declaring-list-available-choices-right-way/
+    CORE = 'core'
+    ADHOC = 'adhoc'
+
+    RESOURCETYPE = [
+        (CORE, _('Core')),
+        (ADHOC, _('Ad-hoc'))
+    ]
+
+    user_session =  models.CharField(max_length=50, 
+                                default='Not recorded')
+
+    role_type_name = 
+
+    role_type_id = models.IntegerField(default=0)
+
+    resource_name = models.CharField(max_length=150,
+                              default='')
+
+    week_start = models.CharField(max_length=50,
+                              default='')
+
+    week_end = models.CharField(max_length=50,
+                              default='')
+
+    resource_type = models.CharField(max_length=10,
+                              choices=RESOURCETYPE,
+                              default=CORE)
+
+    monday = models.IntegerField(default=0)
+
+    tuesday = models.IntegerField(default=0)
+
+    wednesday = models.IntegerField(default=0)
+
+    thursday = models.IntegerField(default=0)
+
+    friday =  models.IntegerField(default=0)
+
+    saturday = models.IntegerField(default=0)
+
+    sunday = models.IntegerField(default=0)
