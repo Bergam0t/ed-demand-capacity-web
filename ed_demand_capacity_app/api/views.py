@@ -95,7 +95,8 @@ class HistoricDataView(APIView):
             # I had to do it here as it throws a wobbly if you try 
             # to modify the request data, even if you copy it first
             log.info(self.request.session.session_key)
-            historic_data_instance.uploader_session = self.request.session.session_key
+            user_session = self.request.session.session_key
+            historic_data_instance.uploader_session = user_session
             
             # ---- If a csv file has been uploaded ---- #
             if bool(re.search('\.csv', historic_data_instance.uploaded_data.name)):
@@ -157,8 +158,9 @@ class HistoricDataView(APIView):
                 # Reshape for more similarity with the Excel file and allow 
                 df = df.melt(id_vars=['Date', 'Hour range', 'Hour']).rename({'variable': 'stream'}, axis=1)
                 
+
                 # Then add stream models
-                add_stream_models(df=df, user_session=self.request.session.session_key)
+                add_stream_models(df=df, user_session=user_session)
 
                 original_filepath = historic_data_instance.uploaded_data.name
                 
@@ -199,6 +201,13 @@ class HistoricDataView(APIView):
 
             # Save the updated historic data instance
             historic_data_instance.save()
+
+            # If excel model, now generate Prophet models
+            # Easier to happen now rather than earlier because of the way the 
+            # prophet models function is written
+            if historic_data_instance.source == "excel":
+                generate_prophet_models(session_id = user_session, 
+                                        data_source=historic_data_instance.source) 
 
             # Tidy up by deleting the originally-uploaded csv
             log.info(f'csv filepath: {original_filepath}')
@@ -300,7 +309,7 @@ class FilterByColsAndOverwriteData(APIView):
         log.info('Successfully added stream objects to database')
 
         # Set the prophet models to start generating 
-        generate_prophet_models(session_id = uploader)
+        generate_prophet_models(session_id = uploader, data_source=historic_data.source)
 
         historic_data.processing_complete = True
         historic_data.save(update_fields=['processing_complete'])
