@@ -172,6 +172,10 @@ STATIC_URL = '/static/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# location where you will store your static files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'ed_demand_capacity_app/static')
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
