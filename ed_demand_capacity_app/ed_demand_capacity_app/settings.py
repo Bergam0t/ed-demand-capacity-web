@@ -17,6 +17,12 @@ import django_heroku
 import dj_database_url
 import psycopg2
 
+env_path=find_dotenv()
+
+print(env_path)
+
+if os.path.exists(env_path):
+    load_dotenv(env_path)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -123,8 +129,9 @@ DATABASES = {
 # Comment out the next line if running on Heroku
 # os.environ['DATABASE_URL'] = "postgres://ozdqiskfjtelee:9cffeb67f7e9331ed83c5c04eb26a327b0bc6ab1e8a6768ee1a3fa164678d740@ec2-54-220-35-19.eu-west-1.compute.amazonaws.com:5432/dokmln8i3j7lk"
 
-DATABASE_URL = os.environ['DATABASE_URL']
-
+DATABASE_URL = os.environ.get('DATABASE_URL')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 
 db_from_env = dj_database_url.config(conn_max_age=600)
@@ -186,9 +193,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
-MEDIA_URL = '/uploads/'
+# Following s3 storage instructions from here: 
+# https://blog.theodo.com/2019/07/aws-s3-upload-django/
 
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_URL = '/uploads/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STORAGE_BUCKET_NAME = 'ed-demand-capacity-storage'
+AWS_S3_REGION_NAME = 'eu-west-2'
 
 # Added to deal with authentication
 # See https://medium.com/@dakota.lillie/django-react-jwt-authentication-5015ee00ef9a
