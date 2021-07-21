@@ -43,6 +43,23 @@ class OrganisationView(generics.CreateAPIView):
     queryset = Organisation.objects.all()
     serializer_class = OrganisationSerializer
 
+
+# ------------------------ #
+# HISTORIC DATA UPLOAD
+# ------------------------ #
+
+def add_stream_models(df, user_session):
+    for i, stream in enumerate(df['stream'].unique()):
+        stream_data = {'user_session': user_session,
+                        'stream_name': stream,
+                        # i + 1 so that priority starts at 1, not 0
+                        'stream_priority': i+1}
+        
+        stream_serializer = StreamSerializer(data=stream_data)
+
+        if stream_serializer.is_valid():
+            stream_serializer.save()
+
 class HistoricDataView(APIView):
     '''
     Upload historic data in csv format
@@ -133,9 +150,14 @@ class HistoricDataView(APIView):
                 # https://stackoverflow.com/questions/31359150/convert-date-from-excel-in-number-format-to-date-format-python
                 df['Date'] = df['Date'].apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + x - 2))
 
+                # Reshape for more similarity with the Excel file and allow 
+                df = df.melt(id_vars=['Date', 'Hour range', 'Hour']).rename({'variable': 'stream'}, axis=1)
                 # Reset index - required for Feather serialization
                 df = df.reset_index(drop=True)
                 
+                # Then add stream models
+                add_stream_models(df=df, user_session=self.request.session.session_key)
+
                 original_filepath = historic_data_instance.uploaded_data.name
                 
                 filepath =  (
@@ -181,6 +203,7 @@ class HistoricDataView(APIView):
             log.error('error', historic_data_serializer.errors)
             return Response(historic_data_serializer.errors, 
                             status=status.HTTP_400_BAD_REQUEST)
+   
 
 class FilterByColsAndOverwriteData(APIView):
     def post(self, request, *args, **kwargs):
@@ -248,16 +271,17 @@ class FilterByColsAndOverwriteData(APIView):
         log.info('Successfully updated selected columns')
 
         # Then add stream models
-        for i, stream in enumerate(filtered_df['stream'].unique()):
-            stream_data = {'user_session': uploader,
-                           'stream_name': stream,
-                           # i + 1 so that priority starts at 1, not 0
-                           'stream_priority': i+1}
+        add_stream_models(df=filtered_df, user_session=uploader)
+        # for i, stream in enumerate(filtered_df['stream'].unique()):
+        #     stream_data = {'user_session': uploader,
+        #                    'stream_name': stream,
+        #                    # i + 1 so that priority starts at 1, not 0
+        #                    'stream_priority': i+1}
             
-            stream_serializer = StreamSerializer(data=stream_data)
+        #     stream_serializer = StreamSerializer(data=stream_data)
 
-            if stream_serializer.is_valid():
-                stream_serializer.save()
+        #     if stream_serializer.is_valid():
+        #         stream_serializer.save()
 
             # Stream(user_session=uploader,
             #        stream_name=stream,
