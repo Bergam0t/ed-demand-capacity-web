@@ -16,6 +16,7 @@ from datetime import timedelta
 import django_heroku
 import dj_database_url
 import psycopg2
+from dotenv import load_dotenv, find_dotenv
 
 env_path=find_dotenv()
 
