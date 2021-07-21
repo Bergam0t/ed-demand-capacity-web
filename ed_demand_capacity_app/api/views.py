@@ -488,13 +488,6 @@ class MostRecentAsAgGridJson(APIView):
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
-        # with open(historic_data.uploaded_data) as f:
-        #     ncols = len(f.readline().split(','))
-        # try:
-        #     data = pd.read_csv(historic_data.uploaded_data, 
-        #     # usecols=range(2, ncols)
-        #     ).drop("Unnamed: 0", axis=1)
-        # except:
         data = pd.read_feather(historic_data.uploaded_data)
         log.info(data.columns)
         for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
@@ -510,25 +503,36 @@ class PlotlyTimeSeriesMostRecent(APIView):
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
-        # with open(historic_data.uploaded_data) as f:
-        #     ncols = len(f.readline().split(','))
 
         imported = pd.read_feather(historic_data.uploaded_data)
         log.info("Data read")       
         
-        pivot_dt = imported.pivot_table(index='datetime', 
-                                        columns='stream', 
-                                        values='dummy_row', 
-                                        aggfunc='count').fillna(0)
+        # Check whether the data has been imported from Excel
+        if historic_data.source == "record_csv":
+            date_col = 'datetime'
+            pivot_dt = imported.pivot_table(index=date_col, 
+                                            columns='stream', 
+                                            values='dummy_row', 
+                                            aggfunc='count').fillna(0)
+            
+        elif historic_data.source == "excel":
+            # pivot_dt = imported.set_index('Date')
+            # date_col = 'Date'
+            date_col = 'Date'
+            pivot_dt = imported.pivot_table(index=date_col, 
+                                            columns='stream', 
+                                            values='value', 
+                                            aggfunc='sum').fillna(0)
+
         log.info("Data pivoted")
         
         plotting_df_ms = pivot_dt.resample('MS').sum()[1:-1]
         log.info("Resampling complete")
         
         fig = px.line(data_frame=plotting_df_ms.reset_index(), 
-                      x='datetime', 
+                      x=date_col, 
                       y=plotting_df_ms.columns,
-                      labels={'datetime': 'Date',
+                      labels={date_col: 'Date',
                               'value': 'Number of visits per month',
                               'variable': 'Stream'})
 
