@@ -27,6 +27,7 @@ import tempfile
 import os
 import io
 import time
+import re
 
 
 # Ensure all log messages of INFO level and above get shown
@@ -41,6 +42,23 @@ log = logging.getLogger(__name__)
 class OrganisationView(generics.CreateAPIView):
     queryset = Organisation.objects.all()
     serializer_class = OrganisationSerializer
+
+
+# ------------------------ #
+# HISTORIC DATA UPLOAD
+# ------------------------ #
+
+def add_stream_models(df, user_session):
+    for i, stream in enumerate(df['stream'].unique()):
+        stream_data = {'user_session': user_session,
+                        'stream_name': stream,
+                        # i + 1 so that priority starts at 1, not 0
+                        'stream_priority': i+1}
+        
+        stream_serializer = StreamSerializer(data=stream_data)
+
+        if stream_serializer.is_valid():
+            stream_serializer.save()
 
 class HistoricDataView(APIView):
     '''
@@ -69,6 +87,7 @@ class HistoricDataView(APIView):
         historic_data_serializer = UploadedHistoricDataSerializer(data=request.data)
        
         if historic_data_serializer.is_valid():
+            log.info("Historic data serializer valid")
             # First, save the response as is so that we have a model object that exists
             historic_data_instance = historic_data_serializer.save()
             
@@ -76,32 +95,94 @@ class HistoricDataView(APIView):
             # I had to do it here as it throws a wobbly if you try 
             # to modify the request data, even if you copy it first
             log.info(self.request.session.session_key)
-            historic_data_instance.uploader_session = self.request.session.session_key
+            user_session = self.request.session.session_key
+            historic_data_instance.uploader_session = user_session
             
-            # Next, grab the uploaded csv and convert it to a pandas dataframe
-            df = pd.read_csv(historic_data_instance.uploaded_data)
+            # ---- If a csv file has been uploaded ---- #
+            if bool(re.search('\.csv', historic_data_instance.uploaded_data.name)):
+                log.info("csv file uploaded")
+                # Next, grab the uploaded csv and convert it to a pandas dataframe
+                df = pd.read_csv(historic_data_instance.uploaded_data)
 
-            # Update csv to feather file
-            # Using feather from here on in as it allows datatypes to persist
-            # across file loads, meaning we won't have to repeatedly parse dates,
-            # which is a very time-consuming operation 
+                # Update csv to feather file
+                # Using feather from here on in as it allows datatypes to persist
+                # across file loads, meaning we won't have to repeatedly parse dates,
+                # which is a very time-consuming operation 
 
-            # First get the filepath and apply some corrections so it goes to the correct folder
-            # and updates the filetype suffix
-            csv_filepath = historic_data_instance.uploaded_data.name
+                # First get the filepath and apply some corrections so it goes to the correct folder
+                # and updates the filetype suffix
+                original_filepath = historic_data_instance.uploaded_data.name
+                
+                filepath =  (
+                    original_filepath
+                    .replace('historic_data/', '', 1)
+                    .replace('csv', 'ftr')
+                )
+
+                source = 'record_csv'
+
+            # ---- If an excel file format has been uploaded ---- #
+            if bool(re.search('\.xlsb', historic_data_instance.uploaded_data.name)):
+                log.info("xlsb file uploaded")
+                imported_df = pd.read_excel(historic_data_instance.uploaded_data, 
+                                            engine='pyxlsb', 
+                                            sheet_name="Demand")
+                # Get streams
+                stream_row = imported_df.iloc[4, :]
+                stream_names = stream_row.dropna().values
+                # Ignore any default names
+                names_to_ignore = [f'Stream {i} Name' for i in range(1, 11, 1)]
+                final_stream_names = [i for i in stream_names 
+                      if i not in names_to_ignore]
+                # Get only the relevant data
+                df = imported_df.iloc[7 : , 1 : 4+len(final_stream_names)]
+                # Update column names
+                df.columns = ['Date', 'Hour range', 'Hour'] + final_stream_names
+                # Get rid of rows from end of dataframe that contain no data
+                df = df.iloc[:df.last_valid_index()]
+                # Remove any straggler missing data
+                # There seems to be odd rows where hour range is 'None' instead
+                # of blank, which breaks the command above
+                df = df.dropna(subset=df.columns[1:])
+
+                # Fix the dates, which will have been imported as integers
+                # First need to fill na values using the forward fill method
+                # As there's only one value per day
+                df['Date'] = df['Date'].fillna(method='ffill')
+                # Convert date using method here
+                # https://stackoverflow.com/questions/31359150/convert-date-from-excel-in-number-format-to-date-format-python
+                df['Date'] = df['Date'].apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + x - 2))
+                # Convert to datetime format
+                df['Date'] = pd.to_datetime(df['Date'])
+
+                # Reshape for more similarity with the Excel file and allow 
+                df = df.melt(id_vars=['Date', 'Hour range', 'Hour']).rename({'variable': 'stream'}, axis=1)
+                
+
+                # Then add stream models
+                add_stream_models(df=df, user_session=user_session)
+
+                original_filepath = historic_data_instance.uploaded_data.name
+                
+                filepath =  (
+                    original_filepath
+                    .replace('historic_data/', '', 1)
+                    .replace('xlsb', 'ftr')
+                )
+
+                source = 'excel'
+
+            # Update model with source
+            historic_data_instance.source = source
+            historic_data_instance.save(update_fields=['source'])
             
-            filepath =  (
-                csv_filepath
-                .replace('historic_data/', '', 1)
-                .replace('csv', 'ftr')
-            )
-
             # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
             # which is good because it's what the later file update step needs
             # However, everything like .to_pickle, .to_feather and .to_hdf does not
             # provide this option, so you need to workaround this by writing the dataframe
             # to a buffer, returning to the beginning of the buffer, and then passing
             # this buffer to the file save. 
+
             buf = io.BytesIO()
             df.to_feather(buf)
             buf.seek(0)
@@ -121,10 +202,17 @@ class HistoricDataView(APIView):
             # Save the updated historic data instance
             historic_data_instance.save()
 
+            # If excel model, now generate Prophet models
+            # Easier to happen now rather than earlier because of the way the 
+            # prophet models function is written
+            if historic_data_instance.source == "excel":
+                generate_prophet_models(session_id = user_session, 
+                                        data_source=historic_data_instance.source) 
+
             # Tidy up by deleting the originally-uploaded csv
-            log.info(f'csv filepath: {csv_filepath}')
-            if os.path.isfile(f'uploads/{csv_filepath}'):
-                os.remove(f'uploads/{csv_filepath}')
+            log.info(f'csv filepath: {original_filepath}')
+            if os.path.isfile(f'uploads/{original_filepath}'):
+                os.remove(f'uploads/{original_filepath}')
                 log.info('csv file deleted')
 
             return Response(historic_data_serializer.data, 
@@ -133,6 +221,7 @@ class HistoricDataView(APIView):
             log.error('error', historic_data_serializer.errors)
             return Response(historic_data_serializer.errors, 
                             status=status.HTTP_400_BAD_REQUEST)
+   
 
 class FilterByColsAndOverwriteData(APIView):
     def post(self, request, *args, **kwargs):
@@ -200,16 +289,17 @@ class FilterByColsAndOverwriteData(APIView):
         log.info('Successfully updated selected columns')
 
         # Then add stream models
-        for i, stream in enumerate(filtered_df['stream'].unique()):
-            stream_data = {'user_session': uploader,
-                           'stream_name': stream,
-                           # i + 1 so that priority starts at 1, not 0
-                           'stream_priority': i+1}
+        add_stream_models(df=filtered_df, user_session=uploader)
+        # for i, stream in enumerate(filtered_df['stream'].unique()):
+        #     stream_data = {'user_session': uploader,
+        #                    'stream_name': stream,
+        #                    # i + 1 so that priority starts at 1, not 0
+        #                    'stream_priority': i+1}
             
-            stream_serializer = StreamSerializer(data=stream_data)
+        #     stream_serializer = StreamSerializer(data=stream_data)
 
-            if stream_serializer.is_valid():
-                stream_serializer.save()
+        #     if stream_serializer.is_valid():
+        #         stream_serializer.save()
 
             # Stream(user_session=uploader,
             #        stream_name=stream,
@@ -219,7 +309,7 @@ class FilterByColsAndOverwriteData(APIView):
         log.info('Successfully added stream objects to database')
 
         # Set the prophet models to start generating 
-        generate_prophet_models(session_id = uploader)
+        generate_prophet_models(session_id = uploader, data_source=historic_data.source)
 
         historic_data.processing_complete = True
         historic_data.save(update_fields=['processing_complete'])
@@ -227,6 +317,7 @@ class FilterByColsAndOverwriteData(APIView):
         
         return Response({'Message': 'Successfully processed data'}, 
                         status=status.HTTP_200_OK)
+
 
 class SessionHasHistoricData(APIView):
     '''
@@ -406,13 +497,6 @@ class MostRecentAsAgGridJson(APIView):
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
-        # with open(historic_data.uploaded_data) as f:
-        #     ncols = len(f.readline().split(','))
-        # try:
-        #     data = pd.read_csv(historic_data.uploaded_data, 
-        #     # usecols=range(2, ncols)
-        #     ).drop("Unnamed: 0", axis=1)
-        # except:
         data = pd.read_feather(historic_data.uploaded_data)
         log.info(data.columns)
         for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
@@ -428,25 +512,36 @@ class PlotlyTimeSeriesMostRecent(APIView):
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
         historic_data = queryset.last()
-        # with open(historic_data.uploaded_data) as f:
-        #     ncols = len(f.readline().split(','))
 
         imported = pd.read_feather(historic_data.uploaded_data)
         log.info("Data read")       
         
-        pivot_dt = imported.pivot_table(index='datetime', 
-                                        columns='stream', 
-                                        values='dummy_row', 
-                                        aggfunc='count').fillna(0)
+        # Check whether the data has been imported from Excel
+        if historic_data.source == "record_csv":
+            date_col = 'datetime'
+            pivot_dt = imported.pivot_table(index=date_col, 
+                                            columns='stream', 
+                                            values='dummy_row', 
+                                            aggfunc='count').fillna(0)
+            
+        elif historic_data.source == "excel":
+            # pivot_dt = imported.set_index('Date')
+            # date_col = 'Date'
+            date_col = 'Date'
+            pivot_dt = imported.pivot_table(index=date_col, 
+                                            columns='stream', 
+                                            values='value', 
+                                            aggfunc='sum').fillna(0)
+
         log.info("Data pivoted")
         
         plotting_df_ms = pivot_dt.resample('MS').sum()[1:-1]
         log.info("Resampling complete")
         
         fig = px.line(data_frame=plotting_df_ms.reset_index(), 
-                      x='datetime', 
+                      x=date_col, 
                       y=plotting_df_ms.columns,
-                      labels={'datetime': 'Date',
+                      labels={date_col: 'Date',
                               'value': 'Number of visits per month',
                               'variable': 'Stream'})
 

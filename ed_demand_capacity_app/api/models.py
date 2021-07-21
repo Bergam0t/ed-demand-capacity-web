@@ -47,6 +47,8 @@ class HistoricData(models.Model):
     upload_time = models.DateTimeField(auto_now_add=True, 
                                        blank=True)
     processing_complete = models.BooleanField(default=False)
+    source =  models.CharField(max_length=20, 
+                                        default='Not recorded')
 
 
 class Shift(models.Model):

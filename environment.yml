@@ -162,6 +162,7 @@ dependencies:
     - plotly==4.14.3
     - psycopg2==2.9.1
     - pyjwt==2.1.0
+    - pyxlsb==1.0.8
     - requests==2.25.1
     - rest-pandas==1.1.0
     - retrying==1.3.3

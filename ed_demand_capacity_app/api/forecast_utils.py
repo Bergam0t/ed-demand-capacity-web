@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 # and dataframes containing the forecast
 
 # @background(schedule=1)
-def generate_prophet_models(session_id):
+def generate_prophet_models(session_id, data_source):
     '''
     '''
     log.info('generate_prophet_models() triggered in background')
@@ -44,22 +44,34 @@ def generate_prophet_models(session_id):
 
     historic_df = pd.read_feather(historic_data.uploaded_data)
 
-    grouped = (
-        historic_df.groupby(['date', 'hour', 'stream'])
-        .count()
-        [['dummy_row']]
-        .reset_index()
+    if data_source == "record_csv":
+        grouped = (
+            historic_df.groupby(['date', 'hour', 'stream'])
+            .count()
+            [['dummy_row']]
+            .reset_index()
+            )
+        
+        grouped['date_time_hour_start'] = (
+            pd.to_datetime(grouped.date.astype('str') 
+                            + ':' 
+                            + grouped.hour.astype('str'), 
+                            format='%Y-%m-%d:%H')
         )
+        
+        # Limit to relevant columns only
+        grouped = grouped[['date_time_hour_start', 'stream', 'dummy_row']]
+
+        grouped = grouped.rename({"dummy_row": "value"}, axis=1)
     
-    grouped['date_time_hour_start'] = (
-        pd.to_datetime(grouped.date.astype('str') 
-                        + ':' 
-                        + grouped.hour.astype('str'), 
-                        format='%Y-%m-%d:%H')
-    )
-    
-    # Limit to relevant columns only
-    grouped = grouped[['date_time_hour_start', 'stream', 'dummy_row']]
+    elif data_source == "excel":
+        grouped = historic_df.copy()
+        grouped['date_time_hour_start'] = (
+            pd.to_datetime(grouped.Date.astype('str') 
+                            + ':' 
+                            + grouped.Hour.astype('str'), 
+                            format='%Y-%m-%d:%H')
+        )
 
     # Begin iterating through streams
     for stream in grouped.stream.unique():
@@ -68,7 +80,7 @@ def generate_prophet_models(session_id):
         stream_only = (
             stream_only.drop('stream', axis=1)
             .rename({'date_time_hour_start': 'ds', 
-                        'dummy_row': 'y'}, axis=1)
+                        'value': 'y'}, axis=1)
         )
         
         # Generate forecasting model
