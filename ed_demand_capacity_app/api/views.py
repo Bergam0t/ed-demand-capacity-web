@@ -118,6 +118,8 @@ class HistoricDataView(APIView):
                     .replace('csv', 'ftr')
                 )
 
+                source = 'record_csv'
+
             # ---- If an excel file format has been uploaded ---- #
             if bool(re.search('\.xlsb', historic_data_instance.uploaded_data.name)):
                 log.info("xlsb file uploaded")
@@ -172,6 +174,7 @@ class HistoricDataView(APIView):
             # provide this option, so you need to workaround this by writing the dataframe
             # to a buffer, returning to the beginning of the buffer, and then passing
             # this buffer to the file save. 
+
             buf = io.BytesIO()
             df.to_feather(buf)
             buf.seek(0)
