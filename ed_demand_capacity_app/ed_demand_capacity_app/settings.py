@@ -20,7 +20,7 @@ from dotenv import load_dotenv, find_dotenv
 
 env_path=find_dotenv()
 
-print(env_path)
+print(f".env path: {env_path}")
 
 if os.path.exists(env_path):
     load_dotenv(env_path)
@@ -194,6 +194,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
+# -------------------------- #
+# Storage of file uploads
+# -------------------------- #
+
 # Following s3 storage instructions from here: 
 # https://blog.theodo.com/2019/07/aws-s3-upload-django/
 
@@ -202,6 +206,10 @@ MEDIA_URL = '/uploads/'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'ed-demand-capacity-storage'
 AWS_S3_REGION_NAME = 'eu-west-2'
+
+# ------------------------------------- #
+# REST Framework settings and auth
+# ------------------------------------- #
 
 # Added to deal with authentication
 # See https://medium.com/@dakota.lillie/django-react-jwt-authentication-5015ee00ef9a
@@ -231,7 +239,16 @@ REST_FRAMEWORK = {
 #     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.my_jwt_response_handler'
 # }
 
+# --------------------------- #
+# Sessions
+# --------------------------- #
+
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+
+# ---------------------------- #
+# Auth with jwt
+# ---------------------------- #
 
 # JWT_PAYLOAD_GET_USER_ID_HANDLER: 'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler'
 
@@ -265,6 +282,10 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# ----------------------- #
+# Heroku settings
+# ----------------------- #
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
