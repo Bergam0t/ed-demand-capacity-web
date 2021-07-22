@@ -377,7 +377,7 @@ export default function HistoricDemandData() {
           );
         }
 
-    else if (!sessionDataProcessed && session_has_historic_data) {
+    else if (!sessionDataProcessed && session_has_historic_data && colsSelected) {
         return (
             <div>
             <CircularProgress />
