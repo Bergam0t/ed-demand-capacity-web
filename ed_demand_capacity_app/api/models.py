@@ -113,7 +113,7 @@ class Notes(models.Model):
     '''
     user_session = models.CharField(max_length=50, 
                                     default='Not recorded')
-    notes = models.TextField()
+    notes = models.TextField(default='')
 
 
 class ProphetModel(models.Model):

@@ -230,6 +230,10 @@ class HistoricDataView(APIView):
 class FilterByColsAndOverwriteData(APIView):
     def post(self, request, *args, **kwargs):
 
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
+
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
@@ -329,6 +333,9 @@ class SessionHasHistoricData(APIView):
     and returns a boolean response
     '''
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
 
@@ -343,6 +350,9 @@ class DeleteSessionHistoricData(APIView):
     from both the database and the file system
     '''
     def post(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data (shouldn't be possible but worth handling), 
@@ -410,6 +420,9 @@ class GetSessionHistoricDataColumnNames(APIView):
     Return column names found in uploaded historic data as a list
     '''
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         # log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
@@ -434,6 +447,9 @@ class GetSessionStreams(APIView):
     Return ED streams found in uploaded historic data as a list
     '''
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         
@@ -452,6 +468,9 @@ class GetSessionStreamsFromDatabase(APIView):
     (will include priority and )
     '''
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         user_session_key = request.session.session_key
         queryset = Stream.objects.filter(user_session=user_session_key)
         serializer = StreamSerializer(queryset, many=True)
@@ -477,7 +496,9 @@ class DisplayMostRecentlyUploadedOwnRawData(APIView):
         # if not request.session.exists(request.session.session_key):
         #     request.session.create()
         # Filter down to last uploaded data (as id'd by session key)
-        
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
@@ -490,6 +511,9 @@ class DisplayMostRecentlyUploadedOwnRawData(APIView):
 
 class MostRecentAsPandas(PandasSimpleView):
     def get_data(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         historic_data = queryset.last()
@@ -497,6 +521,9 @@ class MostRecentAsPandas(PandasSimpleView):
 
 class MostRecentAsAgGridJson(APIView):
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
@@ -512,6 +539,9 @@ class MostRecentAsAgGridJson(APIView):
 
 class PlotlyTimeSeriesMostRecent(APIView):
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         uploader = request.session.session_key
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
@@ -554,6 +584,9 @@ class PlotlyTimeSeriesMostRecent(APIView):
 
 class NotesView(APIView):
     def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
         user_session_key = request.session.session_key
         queryset = Notes.objects.filter(user_session=user_session_key)
         user_notes = queryset.last()
@@ -572,6 +605,9 @@ class NotesView(APIView):
             log.info("Notes: " + notes)
             
             # Get any existing notes
+            # If user session doesn't exist, create one
+            if not self.request.session.exists(self.request.session.session_key):
+                self.request.session.create()
             user_session_key = request.session.session_key
             queryset = Notes.objects.filter(user_session=user_session_key)
 
