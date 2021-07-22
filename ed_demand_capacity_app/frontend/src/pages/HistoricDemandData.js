@@ -16,6 +16,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 
 
 
@@ -119,6 +120,10 @@ export default function HistoricDemandData() {
     const [streamColumn, setStreamColumn] = React.useState('');
     const [waitingForDataProcessing, setWaitingForDataProcessing] = React.useState(false);
 
+    // Check for processed data
+    const sessionDataProcessed = useStoreState(state => state.sessionDataProcessed)
+    const toggleDataProcessed = useStoreActions((actions) => actions.setSessionDataProcessed);
+
     function handleOpen() {
         setDeleteConfirmationModalOpen(true)
     };
@@ -130,9 +135,11 @@ export default function HistoricDemandData() {
     // ADD 'if response == 200' check to this
     function handleDeleteAndClose() {
         fetch('/api/delete-session-historic-data', {method: 'POST'});
-        setDeleteConfirmationModalOpen(false),
-        set_session_has_historic_data(false)
+        setDeleteConfirmationModalOpen(false);
+        set_session_has_historic_data(false);
+        toggleDataProcessed(false);
         notifyDelete(); 
+
 
     };
 
@@ -370,7 +377,7 @@ export default function HistoricDemandData() {
           );
         }
 
-    else if (waitingForDataProcessing) {
+    else if (!sessionDataProcessed && session_has_historic_data) {
         return (
             <div>
             <CircularProgress />
@@ -464,7 +471,7 @@ export default function HistoricDemandData() {
         // data are relevant (which defaults to true on page load and only gets set
         // to false during data upload), display that historic data and give them the 
         // option to remove it from the server.
-        else if (session_has_historic_data && colsSelected) {
+        else if (session_has_historic_data && colsSelected && sessionDataProcessed) {
             return (
                 <div>
                     <Grid container spacing={3} align="center">
