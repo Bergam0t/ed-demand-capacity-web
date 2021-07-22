@@ -21,6 +21,8 @@ from background_task import background
 import json
 from datetime import timedelta
 
+
+
 # Ensure all log messages of INFO level and above get shown
 logging.basicConfig(level = logging.INFO,
  format='%(asctime)s %(levelname)-8s %(message)s',
@@ -32,7 +34,7 @@ log = logging.getLogger(__name__)
 # Create a background function that can generate the forecasting model
 # and dataframes containing the forecast
 
-# @background(schedule=1)
+@background(schedule=0)
 def generate_prophet_models(session_id, data_source):
     '''
     '''
@@ -135,6 +137,10 @@ def generate_prophet_models(session_id, data_source):
         else:
             log.error(f'Forecast serializer not valid for stream {stream}')
     
+
+    historic_data.processing_complete = True
+    historic_data.save(update_fields=['processing_complete'])
+
     log.info("All model and forecast generation complete")
 
 
