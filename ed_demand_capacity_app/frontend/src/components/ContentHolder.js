@@ -1,6 +1,6 @@
 // Use this similar to HomePage in the sample app
 // Routing code happens here? 
-import React, { Component, useState, useEffect } from "react";
+import React, { Component, useState, useEffect, useRef } from "react";
 import { 
     BrowserRouter as Router, 
     Switch, 
@@ -30,12 +30,12 @@ import Card from '@material-ui/core/Card';
 import Button from "@material-ui/core/Button";
 import DashboardContent from "./DashboardContent";
 import { makeStyles } from '@material-ui/core/styles';
-import { useStoreState } from 'easy-peasy';
-import { useStoreActions } from 'easy-peasy';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 import DisplayUserWelcome from './DisplayUserWelcome';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import Glossary from './Glossary'
 import Modal from '@material-ui/core/Modal';
+import { v4 as uuidv4 } from 'uuid';
 
 
 // Styling from https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
@@ -148,6 +148,42 @@ const drawerWidth = 320;
 
 
 
+// https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+// https://blog.bitsrc.io/polling-in-react-using-the-useinterval-custom-hook-e2bcefda4197
+export function useInterval(callback, delay) {
+  const savedCallback = useRef();
+  // Remember the latest callback
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+
+}
+
+
+function fetchDataProcessedBool() {
+  return fetch('api/session-data-processed')
+      // Make sure to not wrap this first then statement in {}
+      // otherwise it returns a promise instead of the json
+      // and then you can't access the email attribute 
+      .then(response => 
+          response.json()
+      )
+      .then((json) => {
+          return json["result"];
+      });
+}
+
 export default function ContentHolder() {
 
     // Control of styling
@@ -193,15 +229,77 @@ export default function ContentHolder() {
     
     const userEmail = useStoreState(state => state.userEmail)
     const fetchInitialStateEmail = useStoreActions(actions => actions.fetchInitialStateEmail);
+    
+    
     const fetchInitialStateSessionHistoric = useStoreActions(actions => actions.fetchInitialStateSessionHistoric);
+
+    // Check for processed data
+    const sessionDataProcessed = useStoreState(state => state.sessionDataProcessed)
+    const toggleDataProcessed = useStoreActions((actions) => actions.setSessionDataProcessed);
+    const fetchInitialStateDataProcessed = useStoreActions((actions) => actions.fetchInitialStateSessionDataProcessed)
+
+    const [previousCheckResult, setPreviousCheckResult] = React.useState(false)
+    const [menuUUID, setMenuUUID] = React.useState(uuidv4())
+
+    // If session data hasn't yet been processed, check every 15 seconds
+    // whether the processing is complete
+    var count = 0
+    
+    useInterval(async () => {
+      var processed = true
+      if (count == 0){
+        setPreviousCheckResult(sessionDataProcessed)
+      }
+
+      if (!sessionDataProcessed) {
+        processed = await fetchDataProcessedBool();
+        count++
+        console.log("Data processed: ", processed)
+        }
+        if (count != 0) {
+          setPreviousCheckResult(processed)
+        }
+      if (sessionDataProcessed != previousCheckResult) {
+        setMenuUUID(uuidv4())
+      }
+      
+      // Have to still do this step to avoid invalidating rules of hooks
+      toggleDataProcessed(processed)
+
+    }, 15000)
+    
+
+
+    // Only render some menu components if data has been processed
+    function renderDependentMenuItems() {
+      if (sessionDataProcessed) {
+        return (
+          <div key={menuUUID}>
+            <List>{capacityItems}</List>
+            <Divider />
+            <List>{adjustmentItems}</List>
+            <Divider />
+            <List>{secondaryListItems}</List>
+            <List> " " </List>
+            <List> " " </List>
+            <List> " " </List>
+            <List> " " </List>
+          </div>
+            )
+      }
+    }
+
 
     // On loading, run the followwing
 
     useEffect(() => {
       fetchInitialStateEmail(); 
       fetchInitialStateSessionHistoric();
-    }, [])
+      fetchInitialStateDataProcessed();
+  }, [])
+    
 
+    
     // App logic
 
     return (
@@ -277,15 +375,21 @@ export default function ContentHolder() {
             <Divider />
             <List>{setupItems}</List>
             <Divider />
-            <List>{capacityItems}</List>
+
+            {/* <List>{capacityItems}</List>
             <Divider />
+            
             <List>{adjustmentItems}</List>
-            <Divider />
+             <Divider />
+            
             <List>{secondaryListItems}</List>
+            
             <List> " " </List>
             <List> " " </List>
             <List> " " </List>
-            <List> " " </List>
+            <List> " " </List> */}
+
+            {renderDependentMenuItems()}
         </Drawer>
         
         <main className={classes.content}>
