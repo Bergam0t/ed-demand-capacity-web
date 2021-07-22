@@ -22,7 +22,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
-import { helpListItems, saveLoadItems, mainListItems, secondaryListItems, setupItems } from './ListItems';
+import { helpListItems, saveLoadItems, capacityItems, adjustmentItems, secondaryListItems, setupItems } from './ListItems';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
@@ -144,7 +144,7 @@ const useStyles = makeStyles((theme) => ({
     
   }));
 
-const drawerWidth = 280;
+const drawerWidth = 320;
 
 
 
@@ -271,15 +271,21 @@ export default function ContentHolder() {
             </div>
             {userEmail && <DisplayUserWelcome />}
             <Divider />
-            <List>{saveLoadItems}</List>
-            <Divider />
             <List>{helpListItems}</List>
+            <Divider />
+            <List>{saveLoadItems}</List>
             <Divider />
             <List>{setupItems}</List>
             <Divider />
-            <List>{mainListItems}</List>
+            <List>{capacityItems}</List>
+            <Divider />
+            <List>{adjustmentItems}</List>
             <Divider />
             <List>{secondaryListItems}</List>
+            <List> " " </List>
+            <List> " " </List>
+            <List> " " </List>
+            <List> " " </List>
         </Drawer>
         
         <main className={classes.content}>
