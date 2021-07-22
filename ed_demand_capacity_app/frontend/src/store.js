@@ -103,7 +103,7 @@ export default {
       }),
 
     fetchInitialStateSessionHistoric: thunk(async (actions) => {
-        const data = await FetchDataProcessedBool()
+        const data = await FetchHistoricBool()
     actions.setInitialStateSessionHasHistoric(data);      
     }),
 
@@ -114,7 +114,7 @@ export default {
       }),
 
     fetchInitialStateSessionDataProcessed: thunk(async (actions) => {
-        const data = await FetchEmail()
+        const data = await FetchDataProcessedBool()
         actions.setSessionDataProcessed(data);      
       }),
 
