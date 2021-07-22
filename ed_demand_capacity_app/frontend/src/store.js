@@ -46,11 +46,23 @@ function FetchHistoricBool() {
         });
 }
 
+function FetchDataProcessedBool() {
+    return fetch('api/session-data-processed')
+        // Make sure to not wrap this first then statement in {}
+        // otherwise it returns a promise instead of the json
+        // and then you can't access the email attribute 
+        .then(response => 
+            response.json()
+        )
+        .then((json) => {
+            return json["result"];
+        });
+  }
 
-function FetchShiftTypes() {
-    return fetch('api/'
-    )
-}
+// function FetchShiftTypes() {
+//     return fetch('api/'
+//     )
+// }
 
 export default {
     
@@ -64,6 +76,8 @@ export default {
     shiftTypes: null,
 
     unsavedChangesFlag: false,
+
+    sessionDataProcessed: false,
 
     // ---- Actions ---- //
 
@@ -89,9 +103,20 @@ export default {
       }),
 
     fetchInitialStateSessionHistoric: thunk(async (actions) => {
-        const data = await FetchHistoricBool()
+        const data = await FetchDataProcessedBool()
     actions.setInitialStateSessionHasHistoric(data);      
     }),
+
+    // Set whether data has been processed
+
+    setSessionDataProcessed: action((state, payload) => {
+        state.sessionDataProcessed = payload;
+      }),
+
+    fetchInitialStateSessionDataProcessed: thunk(async (actions) => {
+        const data = await FetchEmail()
+        actions.setSessionDataProcessed(data);      
+      }),
 
     // Logging in 
     loggedInTrue: action((state, payload) => {
@@ -120,5 +145,7 @@ export default {
     clearUnsavedChangesFlag: action((state) => {
         state.unsavedChangesFlag = false;
     }),
+
+
 
 };
