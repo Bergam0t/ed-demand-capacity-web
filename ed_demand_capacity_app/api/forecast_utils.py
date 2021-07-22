@@ -134,6 +134,8 @@ def generate_prophet_models(session_id, data_source):
             log.info(f'Forecast dataframe saved to database for stream {stream}')
         else:
             log.error(f'Forecast serializer not valid for stream {stream}')
+    
+    log.info("All model and forecast generation complete")
 
 
 

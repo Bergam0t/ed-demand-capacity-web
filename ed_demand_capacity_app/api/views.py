@@ -210,10 +210,14 @@ class HistoricDataView(APIView):
                                         data_source=historic_data_instance.source) 
 
             # Tidy up by deleting the originally-uploaded csv
-            log.info(f'csv filepath: {original_filepath}')
-            if os.path.isfile(f'uploads/{original_filepath}'):
-                os.remove(f'uploads/{original_filepath}')
-                log.info('csv file deleted')
+            if historic_data_instance.source == "record_csv":
+                log.info(f'original filepath: {original_filepath}')
+                try:
+                    if os.path.isfile(f'uploads/{original_filepath}'):
+                        os.remove(f'uploads/{original_filepath}')
+                        log.info('csv file deleted')
+                except:
+                    log.error("Couldn't remove original csv file")
 
             return Response(historic_data_serializer.data, 
                             status=status.HTTP_201_CREATED)

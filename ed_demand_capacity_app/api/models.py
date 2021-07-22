@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-
 # See accepted answer here for what the different 'on_delete' options do
 # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
 
