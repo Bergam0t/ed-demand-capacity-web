@@ -341,6 +341,26 @@ class SessionHasHistoricData(APIView):
         else:
             return Response({'result': False}, status=status.HTTP_200_OK)
 
+class SessionDataProcessed(APIView):
+    '''
+    Checks whether there is historic data associated with a user's session
+    and, if so, whether this data has finished processing in the background
+    '''
+    def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+
+        if len(queryset) >= 1:
+            historic_data = queryset.last()
+            return Response({'result': historic_data.processing_complete}, 
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({'result': False}, 
+                            status=status.HTTP_200_OK)
+
 class DeleteSessionHistoricData(APIView):
     '''
     On POST, deletes historic data associated with the user's session
