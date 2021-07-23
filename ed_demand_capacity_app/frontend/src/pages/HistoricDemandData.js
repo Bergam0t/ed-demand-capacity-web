@@ -114,15 +114,31 @@ export default function HistoricDemandData() {
     const [successful_submission, set_successful_submission] = React.useState(null);
     const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem('token') ? true : false);
     const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = React.useState(false);
-    const [colsSelected, setColsSelected] = React.useState(true);
-    const [allDataframeColumnsList, setAllDataframeColumnsList] = React.useState();
+    // const [colsSelected, setColsSelected] = React.useState(true);
+    // const [allDataframeColumnsList, setAllDataframeColumnsList] = React.useState();
     const [dateTimeColumn, setDateTimeColumn] = React.useState('');
     const [streamColumn, setStreamColumn] = React.useState('');
     const [waitingForDataProcessing, setWaitingForDataProcessing] = React.useState(false);
+    const [errorMessagesColSelect, setErrorMessagesColSelect] = React.useState('');
+
+    const [submitButtonActive, setSubmitButtonActive] = React.useState(false);
+    const [excelSubmitButtonActive, setExcelSubmitButtonActive] = React.useState(false);
+
+    const [waitingForFileSubmission, setWaitingForFileSubmission] = React.useState(false);
+    const [waitingForFileSubmissionExcel, setWaitingForFileSubmissionExcel] = React.useState(false);
 
     // Check for processed data
-    const sessionDataProcessed = useStoreState(state => state.sessionDataProcessed)
+    const sessionDataProcessed = useStoreState(state => state.sessionDataProcessed);
     const toggleDataProcessed = useStoreActions((actions) => actions.setSessionDataProcessed);
+    
+    const colsSelected = useStoreState(state => state.colsSelected);
+    const setColsSelected = useStoreActions((actions) => actions.setColsSelected);
+
+    const allDataframeColumnsList = useStoreState(state => state.allDataframeColumnsList)
+    const setAllDataframeColumnsList = useStoreActions((actions) => actions.setAllDataframeColumnsList)
+    const fetchInitialColData = useStoreActions((actions) => actions.fetchInitialColData)
+
+    
 
     function handleOpen() {
         setDeleteConfirmationModalOpen(true)
@@ -201,16 +217,20 @@ export default function HistoricDemandData() {
     // From *TO DO*: Find link
     const handleFileChange = (e) => {
         set_uploaded_data(e.target.files[0])
+        setSubmitButtonActive(true)
     };
 
     const handleFileChangeExcel = (e) => {
         set_uploaded_data_excel(e.target.files[0])
+        setExcelSubmitButtonActive(true)
     };
 
     // Handle submission of uploaded file
     // From *TO DO*: Find link 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setSubmitButtonActive(false);
+        setWaitingForFileSubmission(true);
         // console.log(this.state);
         let form_data = new FormData();
         form_data.append('uploaded_data', 
@@ -244,30 +264,23 @@ export default function HistoricDemandData() {
                     setAllDataframeColumnsList(data.map(data => ({label:data, value:data})))
                         // existing_data_check_complete: true,
                       });
-            });
+            })
+            .then(() => setWaitingForFileSubmission(false));
 
             // .catch(err => console.log(err))
     };
 
     const handleSubmitSelectedColumns = (e) => {
         e.preventDefault();
-
-        // let form_data = new FormData();
-        // form_data.append('datetime_column', 
-        //                     this.state.dateTimeColumn
-        //                     );
-        // form_data.append('stream_column', 
-        //                     this.state.streamColumn
-        //                     );
-        // console.log(form_data);
         let jsonData = {'datetime_column': dateTimeColumn,
                         'stream_column': streamColumn}
         let url = '/api/filter-by-cols-and-overwrite-data';
         let conditional_request_headers = getHeadersColSelectRequest();
         console.log(jsonData)
         console.log(conditional_request_headers)
+        // Update app state
         setWaitingForDataProcessing(true) 
-        // axios.post(url, form_data, {
+        // Make API post request
         axios.post(url, jsonData, {    
             headers: conditional_request_headers
         })
@@ -275,9 +288,18 @@ export default function HistoricDemandData() {
                 console.log(res);
                 if(res.status == 200) {
                 console.log("File updated successfully")
-                notifyColsSelected();    
+                // Fire a notification for the user to confirm the columns got selected
+                notifyColsSelected();
+                // Update app state    
                 setColsSelected(true);
                 setWaitingForDataProcessing(false);
+                // Clear any error messages that were previously generated
+                setErrorMessagesColSelect('')
+                } else {
+                    console.error("Can't select these columns")
+                    setErrorMessagesColSelect("The columns you selected cannot be processed. \
+                                               Please ensure that the date column you have selected contains the date followed by the time of admission \
+                                               and the stream column is recording the stream each patient was assigned to.")
                 }
             })
             .catch(err => console.log(err))
@@ -287,6 +309,8 @@ export default function HistoricDemandData() {
 
     const handleSubmitExcel = (e) => {
         e.preventDefault();
+        setExcelSubmitButtonActive(false);
+        setWaitingForFileSubmissionExcel(true);
         // console.log(this.state);
         let form_data = new FormData();
         form_data.append('uploaded_data', 
@@ -313,6 +337,7 @@ export default function HistoricDemandData() {
                     setWaitingForDataProcessing(false);
                 }
             })
+            .then(() => setWaitingForFileSubmissionExcel(false))
         }
 
     const handleChangeDateTimeCol = (e) =>{
@@ -355,10 +380,13 @@ export default function HistoricDemandData() {
                     setAllDataframeColumnsList(data.map(data => ({label:data, value:data})))
                     // existing_data_check_complete: true,
 
-                // console.log(data)
+                {console.log("Column list data retrieved by fetchColumnList:", data)}
               });
         }
     })
+        .then(() => 
+        fetchInitialColData()
+        )
         .then(() => 
         set_existing_data_check_complete(true),
           
@@ -451,7 +479,8 @@ export default function HistoricDemandData() {
                                     onChange={this.handleFileChange}
                                 /> */}
                             </Button>
-
+                            <br /> 
+                    <Typography> {errorMessagesColSelect} </Typography>
                     {/* </form> */}
 
                     <Typography variant="h6"> Preview of your uploaded data </Typography>
@@ -567,7 +596,7 @@ export default function HistoricDemandData() {
                             <Button color="primary" 
                                     variant="contained" 
                                     component="label" 
-                                    disabled={!uploaded_data}
+                                    disabled={!submitButtonActive}
                                     >
                                 Confirm
                                 <input
@@ -576,6 +605,7 @@ export default function HistoricDemandData() {
                                 />
                             </Button>
                         </form>
+                        {waitingForFileSubmission ? <CircularProgress /> : null}
                         </CardContent>   
                     </Card>
                 </Grid>
@@ -613,7 +643,7 @@ export default function HistoricDemandData() {
                         <Button color="primary" 
                                     variant="contained" 
                                     component="label" 
-                                    disabled={!uploaded_data_excel}
+                                    disabled={!excelSubmitButtonActive}
                                     >
                                 Confirm
                                 <input
@@ -622,6 +652,7 @@ export default function HistoricDemandData() {
                                 />
                             </Button>
                             </form>
+                            {waitingForFileSubmissionExcel ? <CircularProgress /> : null}
                         </CardContent>   
                     </Card>
                 </Grid>
