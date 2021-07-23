@@ -22,7 +22,7 @@ import WarningIcon from '@material-ui/icons/Warning';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import DateRangeIcon from '@material-ui/icons/DateRange';
 import MultilineChartIcon from '@material-ui/icons/MultilineChart';
-
+import HelpIcon from '@material-ui/icons/Help';
 
 
 
@@ -34,6 +34,12 @@ import {
 
 export const helpListItems = (
     <div>
+      <ListItem button to="/" component = { Link }>
+        <ListItemIcon>
+          <HelpIcon />
+        </ListItemIcon>
+        <ListItemText primary="About" />
+      </ListItem>
       <ListItem button to="/getting-started" component = { Link }>
         <ListItemIcon>
           <EmojiObjectsIcon />
