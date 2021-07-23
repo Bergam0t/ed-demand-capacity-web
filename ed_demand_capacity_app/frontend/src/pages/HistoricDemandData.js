@@ -2,6 +2,7 @@ import {
     Grid,
     Typography,
     Button,
+    ButtonGroup,
     CardContent,
     Modal,
     Paper
@@ -70,6 +71,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'baseline'
     },
 
+
     root: {
         '& > *': {
           margin: theme.spacing(1),
@@ -82,6 +84,16 @@ const useStyles = makeStyles((theme) => ({
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
+    },
+
+    redPaper: {
+        backgroundColor: '#ffa9a3',
+        overflow: "hidden",
+        // margin: "10px",
+        maxHeight: "none",
+        padding: "10px",
+        elevation: 3,
+        borderRadius: "4px"
     },
 }));
 
@@ -157,6 +169,7 @@ export default function HistoricDemandData() {
         fetch('/api/delete-session-historic-data', {method: 'POST'});
         setDeleteConfirmationModalOpen(false);
         set_session_has_historic_data(false);
+        set_existing_data_check_complete(true);
         toggleDataProcessed(false);
         notifyDelete(); 
 
@@ -373,6 +386,24 @@ export default function HistoricDemandData() {
         }
     }
 
+    function deleteAndTryAgain(message) {
+        return (
+            <div>
+            <Typography variant="h6">
+            {message}
+            </Typography>
+            <Button 
+                        color="secondary" 
+                        variant="contained" 
+                        component="label" 
+                        onClick={handleDeleteAndClose}
+                        >
+                    Delete data and start again 
+            </Button>
+            </div>
+        )
+    }
+
     useEffect(() => { 
         fetchHistoricBool()
         .then((data) => {
@@ -380,20 +411,19 @@ export default function HistoricDemandData() {
           // the server is returning a json-like object rather than
           // a valid json
             set_session_has_historic_data(data)
-          // console.log(data)
+          console.log("Session has historic data? ", data)
         })
 
         // If there is data, get the column names from the data
-        .then(
-
-        () => {if (session_has_historic_data) {
+        .then(() => {
+            if (session_has_historic_data) {
             // *TODO* Is this fetch needed? Check.
             fetchColumnList()
             .then((data) => {
                 // It's necessary to use the next line as for some reason
                 // the server is returning a json-like object rather than
                 // a valid json
-                  
+                    console.log("Column List: ", data)
                     setAllDataframeColumnsList(data.map(data => ({label:data, value:data})))
                     // existing_data_check_complete: true,
 
@@ -417,12 +447,18 @@ export default function HistoricDemandData() {
     // If API call to retrieve existing data has not yet happened, 
     // return a circular loading bar
     if (!existing_data_check_complete) {
+        console.log("Checking for existing data")
         return (
+            <div>
             <CircularProgress />
+            <br /><br /><br />
+            {deleteAndTryAgain("If this is loading for more than 30 seconds, something's not right.")}
+            </div>
           );
         }
 
     else if (!sessionDataProcessed && session_has_historic_data && colsSelected) {
+        console.log("Session has historic data, cols have been selected but data not yet processed")
         return (
             <div>
             <CircularProgress />
@@ -433,17 +469,7 @@ export default function HistoricDemandData() {
                 Please wait...
             </Typography>
             <br /><br />
-            <Typography variant="h6">
-                Think something's broken?
-            </Typography>
-            <Button 
-                        color="secondary" 
-                        variant="contained" 
-                        component="label" 
-                        onClick={handleDeleteAndClose}
-                        >
-                    Delete data and start again 
-            </Button>
+            {deleteAndTryAgain("Think something's broken?")}
             </div>
         );
     
@@ -465,6 +491,7 @@ export default function HistoricDemandData() {
 
         
         if (session_has_historic_data && !colsSelected) {
+            console.log("Session has historic data but cols not yet selected")
             return (
                 <div>
                     <Paper class={classes.paper}>
@@ -536,6 +563,7 @@ export default function HistoricDemandData() {
         // to false during data upload), display that historic data and give them the 
         // option to remove it from the server.
         else if (session_has_historic_data && colsSelected && sessionDataProcessed) {
+            console.log("Session has historic data, cols have been selected and data has been processed.")
             return (
                 <div>
                     <Grid container spacing={3} align="center">
@@ -585,7 +613,7 @@ export default function HistoricDemandData() {
                 </div>
             )
         } else {
-
+        console.log("No data has been uploaded yet")
         return (
 
             // If the API call shows that there is no data associated with this user's session,
@@ -594,12 +622,39 @@ export default function HistoricDemandData() {
             // the delete completes successfully, this view will show
             
             <div>
+                <Grid container>
+                    <Grid item xs={12}>
+                        <Paper class={classes.redPaper} align="center">
+                            <Typography variant="h5">
+                                Warning!
+                            </Typography>
+                            <Typography>
+                                Please do not upload any real data to this prototype. 
+                                <br /> 
+                            </Typography>
+                            <Grid container spacing = {1}>
+                                <Grid item xs={6}>
+                                    <Button
+                                        variant="contained">
+                                        Download a sample record-format dataset
+                                    </Button>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                    <Button
+                                        variant="contained">
+                                        Download a sample Excel model
+                                    </Button>
+                                    </Grid>
+                              </Grid>
+                        </Paper>
+                        <br />
+                    </Grid>
+                </Grid>
                 <Grid container spacing={1}>
-                
-                <Grid container item xs={6}>
-                    <Card paddingBottom={4}>
+                <Grid item xs={12} med={6} lg={4}>
+                    <Card padding={4} elevation={6}>
                         <CardContent>
-                        <Typography variant='h3'> Option 1 </Typography>
+                        <Typography variant='h3' style={{fontWeight: 800}}> Option 1 </Typography>
                         <Typography variant='h4'>
                             Is your data in record format?
                         </Typography>
@@ -645,12 +700,12 @@ export default function HistoricDemandData() {
                     </Card>
                 </Grid>
 
-                <Grid container item xs={6}>
-                    <Card paddingBottom={4}>
+                <Grid item xs={12} med={6} lg={4}>
+                    <Card padding={4} elevation={6}>
                         <CardContent>
-                        <Typography variant='h3'> Option 2 </Typography>
+                        <Typography variant='h3' style={{fontWeight: 800}}> Option 2 </Typography>
                         <Typography variant='h4'>
-                            Is your data being imported from the Excel model?
+                            Is your data in the Excel model?
                         </Typography>
                         <Typography variant='h6'>
                             <br/>
@@ -692,10 +747,17 @@ export default function HistoricDemandData() {
                     </Card>
                 </Grid>
 
-                <Grid container item xs={6}>
-                    <Card paddingBottom={4}>
+                <Grid item xs={12} med={6} lg={4}>
+                    <Card padding={4} elevation={6}>
                         <CardContent>
-                        <Typography variant='h3'> Option 3 </Typography>
+                            <Grid container>
+                                <Grid item xs={8}>
+                                    <Typography variant='h3' style={{fontWeight: 800}}> Option 3 </Typography> 
+                                </Grid>
+                                <Grid item xs={4} align="right">
+                                <Typography variant='h5'> (Coming Soon) </Typography>
+                            </Grid>
+                        </Grid>
                         <Typography variant='h4'>
                             Do you want to enter your data into a template?
                         </Typography>
