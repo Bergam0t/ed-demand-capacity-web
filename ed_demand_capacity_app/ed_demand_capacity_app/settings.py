@@ -183,7 +183,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_URL = '/static/'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
 
 # location where you will store your static files
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'ed_demand_capacity_app/static')
