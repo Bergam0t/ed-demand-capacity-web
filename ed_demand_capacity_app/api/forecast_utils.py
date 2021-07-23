@@ -137,8 +137,17 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
 
             log.info(f'Forecast generated for stream {stream}')
             
+            # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
+            # which is good because it's what the later file update step needs
+            # However, everything like .to_pickle, .to_feather and .to_hdf does not
+            # provide this option, so you need to workaround this by writing the dataframe
+            # to a buffer, returning to the beginning of the buffer, and then passing
+            # this buffer to the file save. 
+
+            # Set compression to "uncompressed" to avoid a bug relating to lz4 compression
+
             buf = io.BytesIO()
-            fcst.to_feather(buf)
+            fcst.to_feather(buf, compression="uncompressed")
             buf.seek(0)
 
             prophet_forecast_serializer = ProphetForecastSerializer(data={
@@ -164,26 +173,26 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
                 log.error(f'Forecast serializer not valid for stream {stream}')
         
 
-            historic_data.processing_complete = True
-            historic_data.save(update_fields=['processing_complete'])
+        historic_data.processing_complete = True
+        historic_data.save(update_fields=['processing_complete'])
 
-            log.info("All model and forecast generation complete")
-        else:
-            # If the request was triggered before the existing models were
-            # created, this suggests that it's an old request that's hanging
-            # around because e.g. the user deleted the dataset and uploaded another
-            # one before the initial round of processing was complete. In that case,
-            # we will want to delete any remaining background tasks associated with the user
-            background_tasks = BackgroundTasks.objects.all()
-            my_tasks = []
-            for task in background_tasks:
-                try:
-                    if task.task_params[1]['session_id'] == session_id:
-                        my_tasks.append(task.id)
-                except:
-                    pass
-            for id in my_tasks:
-                BackgroundTasks.objects.delete(id=id)
+        log.info("All model and forecast generation complete")
+    else:
+        # If the request was triggered before the existing models were
+        # created, this suggests that it's an old request that's hanging
+        # around because e.g. the user deleted the dataset and uploaded another
+        # one before the initial round of processing was complete. In that case,
+        # we will want to delete any remaining background tasks associated with the user
+        background_tasks = BackgroundTasks.objects.all()
+        my_tasks = []
+        for task in background_tasks:
+            try:
+                if task.task_params[1]['session_id'] == session_id:
+                    my_tasks.append(task.id)
+            except:
+                pass
+        for id in my_tasks:
+            BackgroundTasks.objects.delete(id=id)
 
 
 
