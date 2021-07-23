@@ -46,7 +46,7 @@ function FetchHistoricBool() {
         });
 }
 
-function FetchDataProcessedBool() {
+function FetchDataProcessed() {
     return fetch('api/session-data-processed')
         // Make sure to not wrap this first then statement in {}
         // otherwise it returns a promise instead of the json
@@ -55,7 +55,7 @@ function FetchDataProcessedBool() {
             response.json()
         )
         .then((json) => {
-            return json["result"];
+            return json;
         });
   }
 
@@ -146,13 +146,16 @@ export default {
     }),
 
     fetchInitialStateSessionDataProcessed: thunk(async (actions) => {
-        const data = await FetchDataProcessedBool()
-        actions.setSessionDataProcessed(data)
+        const data = await FetchDataProcessed()
+        actions.setSessionDataProcessed(data["result"])
         // This only runs on page load. Can assume if data is processed then
         // columns were selected
         // and if data hasn't finished processing, then columns won't be selected
-        actions.setColsSelected(data);
-        
+        if (data["source"] == "excel") {
+            actions.setColsSelected(true) 
+        } else {
+            actions.setColsSelected(data);
+        }
 
 
       }),

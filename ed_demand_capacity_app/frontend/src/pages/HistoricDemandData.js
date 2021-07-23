@@ -3,7 +3,8 @@ import {
     Typography,
     Button,
     CardContent,
-    Modal
+    Modal,
+    Paper
   } from '@material-ui/core';
 import React, { useEffect } from "react";
 import Card from '@material-ui/core/Card';
@@ -126,6 +127,9 @@ export default function HistoricDemandData() {
 
     const [waitingForFileSubmission, setWaitingForFileSubmission] = React.useState(false);
     const [waitingForFileSubmissionExcel, setWaitingForFileSubmissionExcel] = React.useState(false);
+
+    const [submitColsActive, setSubmitColsActive] = React.useState(false);
+    const [waitingForColsSubmission, setWaitingForColsSubmission] = React.useState(false);
 
     // Check for processed data
     const sessionDataProcessed = useStoreState(state => state.sessionDataProcessed);
@@ -281,28 +285,35 @@ export default function HistoricDemandData() {
         // Update app state
         setWaitingForDataProcessing(true) 
         // Make API post request
+        
         axios.post(url, jsonData, {    
             headers: conditional_request_headers
         })
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 if(res.status == 200) {
-                console.log("File updated successfully")
-                // Fire a notification for the user to confirm the columns got selected
-                notifyColsSelected();
-                // Update app state    
-                setColsSelected(true);
-                setWaitingForDataProcessing(false);
-                // Clear any error messages that were previously generated
-                setErrorMessagesColSelect('')
+                    console.log("File updated successfully")
+                    // Fire a notification for the user to confirm the columns got selected
+                    notifyColsSelected();
+                    // Update app state    
+                    setColsSelected(true);
+                    setWaitingForDataProcessing(false);
+                    // Clear any error messages that were previously generated
+                    setErrorMessagesColSelect('')
+                    // Clear selected columns so that they're blank if the user
+                    // deletes their data and tries to upload a new set
+                    setStreamColumn('')
+                    setDateTimeColumn('')
                 } else {
-                    console.error("Can't select these columns")
+                    // console.log(res)
+                    // console.error("Can't select these columns")
                     setErrorMessagesColSelect("The columns you selected cannot be processed. \
                                                Please ensure that the date column you have selected contains the date followed by the time of admission \
                                                and the stream column is recording the stream each patient was assigned to.")
+                    console.log("Error message set: ", errorMessagesColSelect)
                 }
             })
-            .catch(err => console.log(err))
+            // .catch(err => console.log(err))
     }
 
     //const classes = useStyles();
@@ -342,10 +353,16 @@ export default function HistoricDemandData() {
 
     const handleChangeDateTimeCol = (e) =>{
         setDateTimeColumn(e.target.value)
+        if (streamColumn) {
+            setSubmitColsActive(true)
+        }
         }
 
     const handleChangeStreamCol = (e) =>{
         setStreamColumn(e.target.value)
+        if (dateTimeColumn) {
+            setSubmitColsActive(true)
+        }
         }
 
     function renderListColumns() {
@@ -415,6 +432,18 @@ export default function HistoricDemandData() {
                 This will take up to five minutes.
                 Please wait...
             </Typography>
+            <br /><br />
+            <Typography variant="h6">
+                Think something's broken?
+            </Typography>
+            <Button 
+                        color="secondary" 
+                        variant="contained" 
+                        component="label" 
+                        onClick={handleDeleteAndClose}
+                        >
+                    Delete data and start again 
+            </Button>
             </div>
         );
     
@@ -438,7 +467,7 @@ export default function HistoricDemandData() {
         if (session_has_historic_data && !colsSelected) {
             return (
                 <div>
-                    
+                    <Paper class={classes.paper}>
                     <Typography variant="h6"> Select the columns from your dataset that contain admission date/time and stream.</Typography>
                     <FormControl className={classes.formControl}>
                         <InputLabel id="select-date-time-column-label">Admission Datetime</InputLabel>
@@ -468,23 +497,29 @@ export default function HistoricDemandData() {
       })}
       </Select>
                     </FormControl> 
-
-                    {/* <form onSubmit={this.handleSubmitSelectedColumns}> */}
-                            <Button color="secondary" variant="contained" component="label" onClick={handleSubmitSelectedColumns}> 
+                            <Button 
+                                color="secondary" 
+                                variant="contained" 
+                                component="label" 
+                                onClick={handleSubmitSelectedColumns}
+                                disabled={!submitColsActive}> 
                                 Confirm column selection
-                                {/* <input
-                                    type="file"
-                                    accept=".csv"
-                                    hidden
-                                    onChange={this.handleFileChange}
-                                /> */}
                             </Button>
+                            </Paper>
                             <br /> 
                     <Typography> {errorMessagesColSelect} </Typography>
-                    {/* </form> */}
 
-                    <Typography variant="h6"> Preview of your uploaded data </Typography>
-                    <br /> <br /> <br />
+                    <Typography variant="h5"> Preview of your uploaded data </Typography>
+                    <br />
+                    <Button 
+                        color="secondary" 
+                        variant="contained" 
+                        component="label" 
+                        onClick={handleDeleteAndClose}
+                        >
+                    Delete data and start again 
+                    </Button>
+                    <br /> <br /> 
                     <Grid container >
                         <Grid item align="center" xs={12}>
                             <DisplayExistingData api_url='/api/most-recently-uploaded-ag-grid-json' />
