@@ -58,7 +58,7 @@ export default function GettingStarted() {
                     <Typography>
                         Please do not upload any real data to this prototype. 
                         <br /> 
-                        Sample datasets can be downloaded below.
+                        Sample datasets can be downloaded on the 'historic demand data' tab.
                     </Typography>
                 </Paper>
             </Grid>
