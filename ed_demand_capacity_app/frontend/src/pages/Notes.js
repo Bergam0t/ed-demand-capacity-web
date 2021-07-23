@@ -150,18 +150,18 @@ export default function Notes() {
             />
             <br /><br />
             <ButtonGroup>
-            <Button 
-                variant="contained" 
-                color="primary"
-                onClick={() => handleSubmit()}> 
-                Submit 
-            </Button>
-            <Button 
-                variant="contained" 
-                color="secondary"
-                onClick={() => handleDiscard()}> 
-                Discard Changes
-            </Button>
+                <Button 
+                    variant="contained" 
+                    color="secondary"
+                    onClick={() => handleDiscard()}> 
+                    Discard Changes
+                </Button>
+                <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={() => handleSubmit()}> 
+                    Submit 
+                </Button>
             </ButtonGroup>
         </Grid>   
         
