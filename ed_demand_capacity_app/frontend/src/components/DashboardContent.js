@@ -17,11 +17,12 @@ import SignIn from "../pages/SignIn"
 import PlotForecast from "../pages/RequiredVsAvailableCapacity"
 import Shifts from "../pages/Shifts"
 import EDSettings from "../pages/EDSettings"
+import Welcome from "../pages/Welcome"
 
 export default function DashboardContent() {
     return (
                 <div>
-                <Route exact path='/' component={ PlaceholderDashboardContent }/>
+                <Route exact path='/' component={ Welcome }/>
                 <Route path='/getting-started' component={ GettingStarted } />
                 <Route path='/notes' component={ Notes } />
                 <Route path='/historic-demand' component={ HistoricDemandData } />
