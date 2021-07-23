@@ -206,6 +206,8 @@ class HistoricDataView(APIView):
             # Easier to happen now rather than earlier because of the way the 
             # prophet models function is written
             if historic_data_instance.source == "excel":
+                historic_data_instance.processing_initialised_at = datetime.now()
+                historic_data_instance.save(update_fields=['processing_initialised_at'])
                 generate_prophet_models(session_id = user_session, 
                                         data_source=historic_data_instance.source) 
 
@@ -327,6 +329,8 @@ class FilterByColsAndOverwriteData(APIView):
 
         # Set the prophet models to start generating
         try: 
+            historic_data.processing_initialised_at = datetime.now()
+            historic_data.save(update_fields=['processing_initialised_at'])
             generate_prophet_models(session_id = uploader, data_source=historic_data.source)
         except:
             return Response({'Message': 'Error initialising prophet model generation'}, 
