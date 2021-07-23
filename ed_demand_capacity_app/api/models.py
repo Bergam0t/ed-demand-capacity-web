@@ -48,6 +48,7 @@ class HistoricData(models.Model):
     processing_complete = models.BooleanField(default=False)
     source =  models.CharField(max_length=20, 
                                         default='Not recorded')
+    processing_initialised_at = models.DateTimeField(null=True)
 
 
 class Shift(models.Model):
@@ -129,6 +130,9 @@ class ProphetModel(models.Model):
 
     prophet_model_json = models.JSONField()
 
+    created_at = models.DateTimeField(auto_now_add=True, 
+                                       null=True)
+
 
 class ProphetForecast(models.Model):
     
@@ -139,6 +143,9 @@ class ProphetForecast(models.Model):
                               default='Not recorded')
 
     prophet_forecast_df_feather = models.FileField(upload_to='forecasts', blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, 
+                                       null=True)
 
 
 class Stream(models.Model):

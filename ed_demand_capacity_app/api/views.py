@@ -206,6 +206,8 @@ class HistoricDataView(APIView):
             # Easier to happen now rather than earlier because of the way the 
             # prophet models function is written
             if historic_data_instance.source == "excel":
+                historic_data_instance.processing_initialised_at = datetime.now()
+                historic_data_instance.save(update_fields=['processing_initialised_at'])
                 generate_prophet_models(session_id = user_session, 
                                         data_source=historic_data_instance.source) 
 
@@ -244,84 +246,95 @@ class FilterByColsAndOverwriteData(APIView):
         # log.info(historic_data.uploaded_data)
         log.info(historic_data.uploaded_data.name)
 
-        df = pd.read_feather(historic_data.uploaded_data)
+        try:
+            df = pd.read_feather(historic_data.uploaded_data)
+        except:
+            return Response({'Message': 'File appears to be missing'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
         
         # log.info(self.request.data)
-        columns_from_request = ColumnSelectSerializer(self.request.data).data
-        # log.info(columns_from_request)
-        
+        try:
+            columns_from_request = ColumnSelectSerializer(self.request.data).data
+            # log.info(columns_from_request)
+            
 
-        filtered_df = df[[columns_from_request['datetime_column'], 
-                          columns_from_request['stream_column']
-                          ]]
-        
-        filtered_df = filtered_df.rename(
-            {columns_from_request['datetime_column']: 'datetime',
-             columns_from_request['stream_column']: 'stream'}, 
-             axis=1
-        )
+            filtered_df = df[[columns_from_request['datetime_column'], 
+                            columns_from_request['stream_column']
+                            ]]
+            
+            filtered_df = filtered_df.rename(
+                {columns_from_request['datetime_column']: 'datetime',
+                columns_from_request['stream_column']: 'stream'}, 
+                axis=1
+            )
 
-        filtered_df['datetime'] = pd.to_datetime(filtered_df['datetime'])
+            filtered_df['datetime'] = pd.to_datetime(filtered_df['datetime'])
 
-        filtered_df['dummy_row'] = 1
+            filtered_df['dummy_row'] = 1
 
-        filtered_df['date'] = filtered_df['datetime'].dt.date
-        filtered_df['hour'] = filtered_df['datetime'].dt.hour
+            filtered_df['date'] = filtered_df['datetime'].dt.date
+            filtered_df['hour'] = filtered_df['datetime'].dt.hour
+        except:
+            return Response({'Message': 'Error with converting or creating columns'}, 
+                    status=status.HTTP_400_BAD_REQUEST)
+
+        # Check there are a sensible number of streams
+        if len(filtered_df['stream'].unique()) > 25:
+            return Response({'Message': 'Too many streams identified from stream column. Limit is 25.'}, 
+                    status=status.HTTP_400_BAD_REQUEST)
 
         # Update existing model
         # First get the filepath and apply some corrections so it goes to the correct folder
         # and updates the filetype suffix
-        filepath =  (
-            historic_data.uploaded_data.name
-            .replace('historic_data/', '', 1)
-        )
-
-        # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
-        # which is good because it's what the later file update step needs
-        # However, everything like .to_pickle, .to_feather and .to_hdf does not
-        # provide this option, so you need to workaround this by writing the dataframe
-        # to a buffer, returning to the beginning of the buffer, and then passing
-        # this buffer to the file save. 
-        buf = io.BytesIO()
-        filtered_df.to_feather(buf)
-        buf.seek(0)
-
-        # Note that we have to use buf.read(), not just buf, 
-        # else we receive errors relating to this not being a 
-        # bytes-like object 
-        historic_data.uploaded_data.save(
-            filepath,
-            ContentFile(buf.read())
+        try:
+        
+            filepath =  (
+                historic_data.uploaded_data.name
+                .replace('historic_data/', '', 1)
             )
+
+            # In pd.to_csv(), if you do not provide a path, it returns the csv as a string
+            # which is good because it's what the later file update step needs
+            # However, everything like .to_pickle, .to_feather and .to_hdf does not
+            # provide this option, so you need to workaround this by writing the dataframe
+            # to a buffer, returning to the beginning of the buffer, and then passing
+            # this buffer to the file save. 
+            buf = io.BytesIO()
+            filtered_df.to_feather(buf)
+            buf.seek(0)
+
+            # Note that we have to use buf.read(), not just buf, 
+            # else we receive errors relating to this not being a 
+            # bytes-like object 
+            historic_data.uploaded_data.save(
+                filepath,
+                ContentFile(buf.read())
+                )
+        
+        except:
+            return Response({'Message': 'Error updating feather file in storage'}, 
+                status=status.HTTP_400_BAD_REQUEST)
         
         log.info('Successfully updated selected columns')
 
         # Then add stream models
-        add_stream_models(df=filtered_df, user_session=uploader)
-        # for i, stream in enumerate(filtered_df['stream'].unique()):
-        #     stream_data = {'user_session': uploader,
-        #                    'stream_name': stream,
-        #                    # i + 1 so that priority starts at 1, not 0
-        #                    'stream_priority': i+1}
-            
-        #     stream_serializer = StreamSerializer(data=stream_data)
-
-        #     if stream_serializer.is_valid():
-        #         stream_serializer.save()
-
-            # Stream(user_session=uploader,
-            #        stream_name=stream,
-            #        stream_priority=i).save()
+        try:
+            add_stream_models(df=filtered_df, user_session=uploader)
+        except:
+            return Response({'Message': 'Error adding stream models'}, 
+                status=status.HTTP_400_BAD_REQUEST)
 
 
         log.info('Successfully added stream objects to database')
 
-        # Set the prophet models to start generating 
-        generate_prophet_models(session_id = uploader, data_source=historic_data.source)
-
-        historic_data.processing_complete = True
-        historic_data.save(update_fields=['processing_complete'])
-
+        # Set the prophet models to start generating
+        try: 
+            historic_data.processing_initialised_at = datetime.now()
+            historic_data.save(update_fields=['processing_initialised_at'])
+            generate_prophet_models(session_id = uploader, data_source=historic_data.source)
+        except:
+            return Response({'Message': 'Error initialising prophet model generation'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
         
         return Response({'Message': 'Successfully processed data'}, 
                         status=status.HTTP_200_OK)
@@ -343,6 +356,28 @@ class SessionHasHistoricData(APIView):
             return Response({'result': True}, status=status.HTTP_200_OK)
         else:
             return Response({'result': False}, status=status.HTTP_200_OK)
+
+class SessionDataProcessed(APIView):
+    '''
+    Checks whether there is historic data associated with a user's session
+    and, if so, whether this data has finished processing in the background
+    '''
+    def get(self, request, *args, **kwargs):
+        # If user session doesn't exist, create one
+        if not self.request.session.exists(self.request.session.session_key):
+             self.request.session.create()
+        uploader = request.session.session_key
+        queryset = HistoricData.objects.filter(uploader_session=uploader)
+
+        if len(queryset) >= 1:
+            historic_data = queryset.last()
+            return Response({'result': historic_data.processing_complete, 
+                             "data_source": historic_data.source }, 
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({'result': False,
+                            'data_source': "unknown"}, 
+                            status=status.HTTP_200_OK)
 
 class DeleteSessionHistoricData(APIView):
     '''
@@ -427,20 +462,24 @@ class GetSessionHistoricDataColumnNames(APIView):
         # log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
-        historic_data = queryset.last()
+        if len(queryset) > 0:
+            historic_data = queryset.last()
 
-        df = pd.read_feather(historic_data.uploaded_data)
-        log.info(df.columns)
+            df = pd.read_feather(historic_data.uploaded_data)
+            log.info(df.columns)
 
-        # Get rid of a column which gets accidentally generated
-        # Plus some behind-the-scenes columns
-        for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
-            if colname in df.columns:
-                df = df.drop(colname, axis=1)
-        log.info(df.columns)
+            # Get rid of a column which gets accidentally generated
+            # Plus some behind-the-scenes columns
+            for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
+                if colname in df.columns:
+                    df = df.drop(colname, axis=1)
+            log.info(df.columns)
 
-        return Response({'columns': df.columns}, 
-                        status=status.HTTP_200_OK)
+            return Response({'columns': df.columns}, 
+                            status=status.HTTP_200_OK)
+        else: 
+            return Response({'columns': None},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 class GetSessionStreams(APIView):
     '''

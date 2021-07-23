@@ -46,11 +46,42 @@ function FetchHistoricBool() {
         });
 }
 
+function FetchDataProcessed() {
+    return fetch('api/session-data-processed')
+        // Make sure to not wrap this first then statement in {}
+        // otherwise it returns a promise instead of the json
+        // and then you can't access the email attribute 
+        .then(response => 
+            response.json()
+        )
+        .then((json) => {
+            return json;
+        });
+  }
 
-function FetchShiftTypes() {
-    return fetch('api/'
-    )
-}
+  function fetchColumnList() {
+    return fetch('api/get-historic-data-columns')
+        // Make sure to not wrap this first then statement in {}
+        // otherwise it returns a promise instead of the json
+        // and then you can't access the email attribute 
+        .then(response => 
+                response.json()
+        )
+                .then((json) => {
+
+                    if (json) {
+                        return json["columns"];
+                    } else {
+                        return null
+                    }
+                })
+        }
+
+
+// function FetchShiftTypes() {
+//     return fetch('api/'
+//     )
+// }
 
 export default {
     
@@ -64,6 +95,12 @@ export default {
     shiftTypes: null,
 
     unsavedChangesFlag: false,
+
+    sessionDataProcessed: false,
+
+    colsSelected: false,
+
+    allDataframeColumnsList: null,
 
     // ---- Actions ---- //
 
@@ -90,7 +127,45 @@ export default {
 
     fetchInitialStateSessionHistoric: thunk(async (actions) => {
         const data = await FetchHistoricBool()
-    actions.setInitialStateSessionHasHistoric(data);      
+        actions.setInitialStateSessionHasHistoric(data);      
+    }),
+
+    // Set whether data has been processed
+
+    setSessionDataProcessed: action((state, payload) => {
+        state.sessionDataProcessed = payload;
+      }),
+
+    // Set whether columns selected
+      setColsSelected: action((state, payload) => {
+          state.colsSelected = payload;
+      }),
+
+      setAllDataframeColumnsList: action((state, payload) => {
+        state.allDataframeColumnsList = payload;
+    }),
+
+    fetchInitialStateSessionDataProcessed: thunk(async (actions) => {
+        const data = await FetchDataProcessed()
+        actions.setSessionDataProcessed(data["result"])
+        // This only runs on page load. Can assume if data is processed then
+        // columns were selected
+        // and if data hasn't finished processing, then columns won't be selected
+        if (data["source"] == "excel") {
+            actions.setColsSelected(true) 
+        } else {
+            actions.setColsSelected(data);
+        }
+
+
+      }),
+
+    // Getting a list of columns from the historical data
+
+    fetchInitialColData: thunk(async (actions) => {
+        const colData = await fetchColumnList()
+        console.log("ColData", colData)
+        actions.setAllDataframeColumnsList(colData ? colData.map(data => ({label:data, value:data})) : null)
     }),
 
     // Logging in 
@@ -108,9 +183,6 @@ export default {
         // console.log(localStorage.getItem('access_token'))
     }),
 
-    // Getting existing shift types
-
-
 
     // Unsaved changes
     setUnsavedChangesFlag: action((state) => {
@@ -120,5 +192,7 @@ export default {
     clearUnsavedChangesFlag: action((state) => {
         state.unsavedChangesFlag = false;
     }),
+
+
 
 };
