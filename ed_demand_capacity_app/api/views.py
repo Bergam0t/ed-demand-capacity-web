@@ -444,20 +444,24 @@ class GetSessionHistoricDataColumnNames(APIView):
         # log.info(request.session.session_key)
         queryset = HistoricData.objects.filter(uploader_session=uploader)
         # If owner has >1 uploaded data, find the most recent
-        historic_data = queryset.last()
+        if len(queryset) > 0:
+            historic_data = queryset.last()
 
-        df = pd.read_feather(historic_data.uploaded_data)
-        log.info(df.columns)
+            df = pd.read_feather(historic_data.uploaded_data)
+            log.info(df.columns)
 
-        # Get rid of a column which gets accidentally generated
-        # Plus some behind-the-scenes columns
-        for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
-            if colname in df.columns:
-                df = df.drop(colname, axis=1)
-        log.info(df.columns)
+            # Get rid of a column which gets accidentally generated
+            # Plus some behind-the-scenes columns
+            for colname in ["Unnamed: 0", "dummy_row", "date", "hour"]:
+                if colname in df.columns:
+                    df = df.drop(colname, axis=1)
+            log.info(df.columns)
 
-        return Response({'columns': df.columns}, 
-                        status=status.HTTP_200_OK)
+            return Response({'columns': df.columns}, 
+                            status=status.HTTP_200_OK)
+        else: 
+            return Response({'columns': None},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 class GetSessionStreams(APIView):
     '''
