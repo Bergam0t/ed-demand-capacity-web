@@ -725,7 +725,7 @@ export default function EDSettings() {
                     <Typography variant="h4"> Emergency Department Settings </Typography>
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} lg={4}>
                     <Paper className={classes.paper} elevation={6}>
                         <Typography variant="h5"> Stream Settings </Typography>
                         <br />
@@ -770,7 +770,7 @@ export default function EDSettings() {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={8}>
+                <Grid item xs={12} lg={8}>
                     <Paper className={classes.paper} elevation={6}>
                         <Typography variant="h5"> Role Types </Typography>
                         <br />
