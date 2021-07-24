@@ -452,7 +452,7 @@ export default function HistoricDemandData() {
             <div>
             <CircularProgress />
             <br /><br /><br />
-            {deleteAndTryAgain("If this is loading for more than 30 seconds, something's not right.")}
+            {deleteAndTryAgain("If this is loading for more than 30 seconds, something's not right. Try refreshing the page, but if that doesn't work, click the button below.")}
             </div>
           );
         }
