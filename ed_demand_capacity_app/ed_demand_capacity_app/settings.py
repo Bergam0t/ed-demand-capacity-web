@@ -60,7 +60,8 @@ INSTALLED_APPS = [
     'frontend.apps.FrontendConfig',
     'corsheaders',
     'background_task',
-    'whitenoise.runserver_nostatic'
+    'whitenoise.runserver_nostatic',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
