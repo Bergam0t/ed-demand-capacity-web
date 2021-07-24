@@ -12,7 +12,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
 class UploadedHistoricDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricData
-        fields = ('uploaded_data', 'upload_time', 'uploader_session', 'uploader_email')
+        fields = ('__all__')
 
 # See https://stackoverflow.com/questions/45532965/django-rest-framework-serializer-without-a-model
 class ColumnSelectSerializer(serializers.Serializer):

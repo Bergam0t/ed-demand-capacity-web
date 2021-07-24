@@ -11,8 +11,7 @@ import {
     Divider,
   } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
-import { useStoreActions } from 'easy-peasy';
-import {useStoreState} from 'easy-peasy';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 
 import Dialog from '@material-ui/core/Dialog';

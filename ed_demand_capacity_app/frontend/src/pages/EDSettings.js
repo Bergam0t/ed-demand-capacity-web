@@ -11,8 +11,7 @@ import {
     Divider,
     Card,
   } from '@material-ui/core';
-import { useStoreActions } from 'easy-peasy';
-import {useStoreState} from 'easy-peasy';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -33,6 +32,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ReactPlayer from "react-player"
+
 
 const useStyles = makeStyles((theme) => ({
 
@@ -41,19 +42,26 @@ const useStyles = makeStyles((theme) => ({
         height: "auto",
       },
 
-      paper: {
-        overflow: "hidden",
-        // margin: "10px",
-        maxHeight: "none",
-        padding: "10px"
-      },
+    paper: {
+    overflow: "hidden",
+    // margin: "10px",
+    maxHeight: "none",
+    padding: "10px"
+    },
 
-      container: {
+    dialogPaper: {
+
+        maxHeight: '80vh',
+        maxWidth: '80vw',
+        overflow: "hidden",
+    },
+
+    container: {
         paddingTop: theme.spacing(4),
         paddingBottom: theme.spacing(4),
         paddingLeft: theme.spacing(4),
         paddingRight: theme.spacing(4),
-      },
+    },
 
     tableHead: {
         background: '#cdcdcd',
@@ -102,6 +110,10 @@ export default function EDSettings() {
     
     const [streams, setStreams] = React.useState(null)
     const [streamsOriginal, setStreamsOriginal] = React.useState(null)
+
+    const [helpVideoBoxStreamsPriorityOpen, setHelpVideoBoxStreamsPriorityOpen] = React.useState(false)
+    const [helpVideoBoxStreamsMinsPerDecisionOpen, setHelpVideoBoxStreamsMinsPerDecisionOpen] = React.useState(false)
+    const [helpVideoBoxRolesOpen, setHelpVideoBoxRolesOpen] = React.useState(false)
 
     const fetchStreams = () => {
         return fetch('api/get-historic-data-streams-from-db')
@@ -555,6 +567,111 @@ export default function EDSettings() {
     }
 }
 
+
+    function helpVideoStreamsPriorityDialog() {
+        return(
+            <Dialog
+            open={helpVideoBoxStreamsPriorityOpen}
+            onClose={() => setHelpVideoBoxStreamsPriorityOpen(false)}
+            disableBackdropClick
+            classes={{
+                root: classes.dialog,
+                paper: classes.dialogPaper
+                
+            }}
+        >
+                <Box>  
+                    <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                        <Grid item xs={8} align="left">
+                            <DialogTitle>
+                                Setting Stream Priorities
+                            </DialogTitle>
+                        </Grid>
+                        
+                        <Grid item xs={4} align="right">
+                            <IconButton onClick={() => setHelpVideoBoxStreamsPriorityOpen(false)} >
+                                <CancelIcon />
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                    <ReactPlayer
+                        url="https://youtu.be/jtgBRd1CqsY"
+                    />
+                </Box>
+            </Dialog>
+        )
+    }
+
+
+    function helpVideoStreamsMinsPerDecisionDialog() {
+        return(
+            <Dialog
+            open={helpVideoBoxStreamsMinsPerDecisionOpen}
+            onClose={() => setHelpVideoBoxStreamsMinsPerDecisionOpen(false)}
+            disableBackdropClick
+            classes={{
+                root: classes.dialog,
+                paper: classes.dialogPaper
+                
+            }}
+        >
+                <Box>  
+                    <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                        <Grid item xs={8} align="left">
+                            <DialogTitle>
+                                Setting Minutes Per Decision
+                            </DialogTitle>
+                        </Grid>
+                        
+                        <Grid item xs={4} align="right">
+                            <IconButton onClick={() => setHelpVideoBoxStreamsMinsPerDecisionOpen(false)} >
+                                <CancelIcon />
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                    <ReactPlayer
+                        url="https://youtu.be/1FB2iGIRR3U"
+                    />
+                </Box>
+            </Dialog>
+        )
+    }
+
+    function helpVideoRolesDialog() {
+        return(
+            <Dialog
+            open={helpVideoBoxRolesOpen}
+            onClose={() => setHelpVideoBoxRolesOpen(false)}
+            disableBackdropClick
+            classes={{
+                root: classes.dialog,
+                paper: classes.dialogPaper
+                
+            }}
+        >
+                <Box>  
+                    <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+                        <Grid item xs={8} align="left">
+                            <DialogTitle>
+                                Role Types
+                            </DialogTitle>
+                        </Grid>
+                        
+                        <Grid item xs={4} align="right">
+                            <IconButton onClick={() => setHelpVideoBoxRolesOpen(false)} >
+                                <CancelIcon />
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                    <ReactPlayer
+                        url="https://youtu.be/bKYVdJaA9wk"
+                    />
+                </Box>
+            </Dialog>
+        )
+    }
+
+
     // Function to handle deletion of role types on click
     const handleDeleteRoleType = (role_id) => {
         fetch('/api/delete-role-type/' + role_id, 
@@ -608,8 +725,8 @@ export default function EDSettings() {
                     <Typography variant="h4"> Emergency Department Settings </Typography>
                 </Grid>
 
-                <Grid item xs={4}>
-                    <Paper className={classes.paper}>
+                <Grid item xs={12} lg={4}>
+                    <Paper className={classes.paper} elevation={6}>
                         <Typography variant="h5"> Stream Settings </Typography>
                         <br />
                         <Typography variant="body1"> 
@@ -619,6 +736,27 @@ export default function EDSettings() {
                         </Typography>
                         <br />
                         
+                        <Grid container spacing={2} align="center">
+                            <Grid item xs={6}>
+                                <Button
+                                    variant="contained"
+                                    style={{backgroundColor: "#006747", color: "#FFFFFF"}}
+                                    onClick={() => setHelpVideoBoxStreamsPriorityOpen(true)}> 
+                                    Stream Priority Help
+                                </Button>
+                                {helpVideoStreamsPriorityDialog()}
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Button
+                                    variant="contained"
+                                    style={{backgroundColor: "#006747", color: "#FFFFFF"}}
+                                    onClick={() => setHelpVideoBoxStreamsMinsPerDecisionOpen(true)}> 
+                                    Minutes per Decision Help
+                                </Button>
+                                {helpVideoStreamsMinsPerDecisionDialog()}
+                            </Grid>
+                        </Grid>
+                        <br /> <br /> 
                         <Grid container align="center">
                             <Grid item xs={12}>
                                 {saveOrDiscardButtons()}
@@ -632,8 +770,8 @@ export default function EDSettings() {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={8}>
-                    <Paper className={classes.paper}>
+                <Grid item xs={12} lg={8}>
+                    <Paper className={classes.paper} elevation={6}>
                         <Typography variant="h5"> Role Types </Typography>
                         <br />
                         <Typography variant="body1"> 
@@ -643,6 +781,14 @@ export default function EDSettings() {
                         
                         </Typography>
                         <br />
+                        <Button
+                                    variant="contained"
+                                    style={{backgroundColor: "#006747", color: "#FFFFFF"}}
+                                    onClick={() => setHelpVideoBoxRolesOpen(true)}> 
+                                    Role Types Help
+                                </Button>
+                        {helpVideoRolesDialog()}
+                        <br /><br />
                         <Button variant="contained" color="primary" onClick={handleOpenCreateRoleTypeDialog}> 
                             Add a new role type 
                         </Button>

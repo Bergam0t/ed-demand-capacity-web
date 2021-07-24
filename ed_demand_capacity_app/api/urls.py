@@ -23,6 +23,10 @@ urlpatterns += [
          SessionHasHistoricData.as_view(), 
          name='session_has_historic_data'),
 
+     path('session-data-processed', 
+         SessionDataProcessed.as_view(), 
+         name='session_data_processed'),
+
      path('delete-session-historic-data', 
          DeleteSessionHistoricData.as_view(),  
          name='delete_session_historic_data'),

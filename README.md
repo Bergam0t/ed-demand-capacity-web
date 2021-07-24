@@ -31,7 +31,7 @@ Then run the following command:
 pip list --format=freeze > requirements.txt
 ```
 
-## Creating a pip venv
+## Creating a new pip venv after updating required packages
 
 If on Windows, while in the root directory of the project (ed-demand-capacity-web):
 
@@ -50,7 +50,7 @@ runtime.txt is used by Heroku to know which version of Python to use.
 However, the app was primarily built and tested with Python 3.8.5
 
 
-# Misc useful things
+# Misc useful things that tripped me up along the way...
 - `package.json` must specify `"@material-ui/lab": "4.0.0-alpha.58",` not `"@material-ui/lab": "*",`
 - npm install updates the package-lock.json file
 
@@ -58,19 +58,37 @@ However, the app was primarily built and tested with Python 3.8.5
 
 # Running the app in a development environment
 
+## Setting up an environment
+If you are running on Windows, you will need to be using conda for environment management as there are issues with installing the Facebook Prophet library with pip. 
+```
+conda env create -f {PATH TO REPO}\ed-demand-capacity-web\environment.yml
+```
+
+If you are on Linux, you could instead use the requirements.txt to create a virtual environment if you prefer, and replace the conda commands below with the commands for activating that environment instead.
+
+
+## Start a development server
 In one VS code cmd terminal (not powershell), run
 ```
-conda activate ./envs
-{PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app> python .\manage.py runserver
+conda activate <ENVIRONMENT FROM ENVIRONMENT.YML>
+python {PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\manage.py runserver
 ```
 
+## Create a process that will manage long-running background tasks
 In another VS code terminal (cmd or powershell), run
 ```
-{PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\frontend> npm run dev
+conda activate <ENVIRONMENT FROM ENVIRONMENT.YML>
+python {PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\manage.py process_tasks
+```
+
+## Transpile the javascript using webpack
+In another VS code terminal (cmd or powershell), run
+```
+{PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\frontend npm run dev
 ```
 
 
-## Alternative 
+## Alternative activation method (quicker to type!)
 
 Open the project in vs code.
 
@@ -83,14 +101,22 @@ e.g. on my machine this is `H:\ed-demand-capacity-web>`
 Terminal 1 (cmd):
 
 ```
-conda activate ./envs
+conda activate <ENVIRONMENT FROM ENVIRONMENT.YML>
 cd ed_demand_capacity_web
-python ./manage.py runserver
+python manage.py runserver
 ```
 
 (hint: after getting as far as `cd ed` you can press tab and it will autocomplete)
 
-Terminal 2 (cmd or powershell):
+Terminal 2 (cmd):
+
+```
+conda activate <ENVIRONMENT FROM ENVIRONMENT.YML>
+cd ed_demand_capacity_web
+python manage.py process_tasks
+```
+
+Terminal 3 (cmd or powershell):
 
 ```
 cd ed_demand_capacity_web

@@ -22,14 +22,24 @@ import WarningIcon from '@material-ui/icons/Warning';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import DateRangeIcon from '@material-ui/icons/DateRange';
 import MultilineChartIcon from '@material-ui/icons/MultilineChart';
+import HelpIcon from '@material-ui/icons/Help';
+
+
 
 // Routing imports
 import { 
     Link, 
 } from "react-router-dom";
 
+
 export const helpListItems = (
     <div>
+      <ListItem button to="/" component = { Link }>
+        <ListItemIcon>
+          <HelpIcon />
+        </ListItemIcon>
+        <ListItemText primary="About" />
+      </ListItem>
       <ListItem button to="/getting-started" component = { Link }>
         <ListItemIcon>
           <EmojiObjectsIcon />
@@ -47,17 +57,22 @@ export const saveLoadItems = (
       </ListItemIcon>
       <ListItemText primary="Load Model" />
     </ListItem>
-    </div>
-);
 
-export const setupItems = (
-  <div>
     <ListItem button to="/notes" component = { Link }>
       <ListItemIcon>
         <NotesIcon />
       </ListItemIcon>
       <ListItemText primary="Notes" />
     </ListItem>
+   
+    </div>
+
+);
+
+export const setupItems = (
+  <div>
+
+    <ListSubheader inset>Demand Setup</ListSubheader>
 
     <ListItem button to="/historic-demand" component = { Link }>
       <ListItemIcon>
@@ -65,16 +80,21 @@ export const setupItems = (
       </ListItemIcon>
       <ListItemText primary="Historic Demand Data" />
     </ListItem>
-    </div>
-);
 
-export const mainListItems = (
+  </div>
+
+)
+
+export const capacityItems = (
   <div>
+
+    <ListSubheader inset>Capacity Setup</ListSubheader>
+
     <ListItem button to="/ed-settings" component = { Link }>
-      <ListItemIcon>
-        <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Emergency Department Settings" />
+    <ListItemIcon>
+      <SettingsIcon />
+    </ListItemIcon>
+    <ListItemText primary="Emergency Department Settings" />
     </ListItem>
 
     <ListItem button to="/shift-types" component = { Link }>
@@ -90,7 +110,15 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Rotas" />
     </ListItem>
-    
+
+    </div>
+);
+
+export const adjustmentItems = (
+  <div>
+
+    <ListSubheader inset>Optional Adjustments</ListSubheader>
+
     <ListItem button disabled>
       <ListItemIcon>
         <GroupIcon />
@@ -115,7 +143,14 @@ export const secondaryListItems = (
       <ListItemIcon>
         <TimelineIcon />
       </ListItemIcon>
-      <ListItemText primary="Historic Data Graphs" />
+      <ListItemText primary="Historic Arrivals Graph" />
+    </ListItem>
+
+    <ListItem button to="/forecast-demand" component = { Link }>
+      <ListItemIcon>
+        <TrendingUpIcon />
+      </ListItemIcon>
+      <ListItemText primary="Forecast Demand per Stream" />
     </ListItem>
     
     <ListItem button disabled>
@@ -125,13 +160,6 @@ export const secondaryListItems = (
       <ListItemText primary="Core-Adhoc Balance" />
     </ListItem>
     
-    <ListItem button to="/forecast-demand" component = { Link }>
-      <ListItemIcon>
-        <TrendingUpIcon />
-      </ListItemIcon>
-      <ListItemText primary="Forecast Demand" />
-    </ListItem>
-
     <ListItem button to="/required-vs-available-capacity" component = { Link } disabled>
       <ListItemIcon>
         <MultilineChartIcon />

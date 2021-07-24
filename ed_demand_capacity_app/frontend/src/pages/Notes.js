@@ -131,6 +131,11 @@ export default function Notes() {
             <Typography variant="h3"> 
                 Notes
             </Typography>
+            <br /> 
+            <Typography variant="h6"> 
+                Here you can record any assumptions you have made when completing this model, or any other things it may be useful to record.
+            </Typography>
+            <br />
         </Grid>
 
 
@@ -150,18 +155,18 @@ export default function Notes() {
             />
             <br /><br />
             <ButtonGroup>
-            <Button 
-                variant="contained" 
-                color="primary"
-                onClick={() => handleSubmit()}> 
-                Submit 
-            </Button>
-            <Button 
-                variant="contained" 
-                color="secondary"
-                onClick={() => handleDiscard()}> 
-                Discard Changes
-            </Button>
+                <Button 
+                    variant="contained" 
+                    color="secondary"
+                    onClick={() => handleDiscard()}> 
+                    Discard Changes
+                </Button>
+                <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={() => handleSubmit()}> 
+                    Submit 
+                </Button>
             </ButtonGroup>
         </Grid>   
         

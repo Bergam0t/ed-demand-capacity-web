@@ -14,6 +14,17 @@ from pathlib import Path
 import os
 from datetime import timedelta
 import django_heroku
+import dj_database_url
+import psycopg2
+from dotenv import load_dotenv, find_dotenv
+
+env_path=find_dotenv()
+
+print(f".env path: {env_path}")
+
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +34,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-f8vd1kj215ie==l@v56tr%(in&b1*o-0_9@@+!#p470d)sl%mr'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 
+                 'localhost', 
+                 '127.0.0.1', 
+                 'https://ed-demand-capacity-api.herokuapp.com/']
 
 
 # Application definition
@@ -45,7 +59,9 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'frontend.apps.FrontendConfig',
     'corsheaders',
-    'background_task'
+    'background_task',
+    'whitenoise.runserver_nostatic',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 # This setting is crucial for allowing the login flow to work
@@ -89,17 +106,43 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ed_demand_capacity_app.wsgi.application'
 
+# Set max attempts for background tasks
+MAX_ATTEMPTS = 3
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# Old database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME':'redb',
+        # 'USER': 'postgres',
+        # 'PASSWORD':'admin',
+        # 'HOST': 'localhost'
     }
 }
 
+# Comment out the next line if running on Heroku
+# I have no idea why this can't be successfully retrieved from
+# the env file when the AWS ones are retrieved successfully!
+# And it does get retrieved - just seemingly not recognised.
+# os.environ['DATABASE_URL'] = "postgres://ozdqiskfjtelee:9cffeb67f7e9331ed83c5c04eb26a327b0bc6ab1e8a6768ee1a3fa164678d740@ec2-54-220-35-19.eu-west-1.compute.amazonaws.com:5432/dokmln8i3j7lk"
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -141,6 +184,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_URL = '/static/'
 
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+
+# location where you will store your static files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'ed_demand_capacity_app/static')
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -151,9 +200,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
-MEDIA_URL = '/uploads/'
+# -------------------------- #
+# Storage of file uploads
+# -------------------------- #
 
+# Following s3 storage instructions from here: 
+# https://blog.theodo.com/2019/07/aws-s3-upload-django/
+
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_URL = '/uploads/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STORAGE_BUCKET_NAME = 'ed-demand-capacity-storage'
+AWS_S3_REGION_NAME = 'eu-west-2'
+
+# ------------------------------------- #
+# REST Framework settings and auth
+# ------------------------------------- #
 
 # Added to deal with authentication
 # See https://medium.com/@dakota.lillie/django-react-jwt-authentication-5015ee00ef9a
@@ -183,7 +245,16 @@ REST_FRAMEWORK = {
 #     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.my_jwt_response_handler'
 # }
 
+# --------------------------- #
+# Sessions
+# --------------------------- #
+
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+
+# ---------------------------- #
+# Auth with jwt
+# ---------------------------- #
 
 # JWT_PAYLOAD_GET_USER_ID_HANDLER: 'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler'
 
@@ -217,6 +288,10 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# ----------------------- #
+# Heroku settings
+# ----------------------- #
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
