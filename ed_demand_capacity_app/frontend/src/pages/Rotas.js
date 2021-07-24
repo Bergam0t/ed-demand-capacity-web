@@ -66,3 +66,15 @@ const useStyles = makeStyles((theme) => ({
     })
 );
 
+export default function Rotas() {
+
+  return (
+    <div>
+        <Grid container style = {{paddingLeft: 30, paddingRight: 30, paddingBottom:10}} spacing={2}>
+            <Grid item xs={12}>
+                <Typography variant="h4"> Rotas </Typography>
+            </Grid>
+        </Grid>
+    </div>
+    )
+}

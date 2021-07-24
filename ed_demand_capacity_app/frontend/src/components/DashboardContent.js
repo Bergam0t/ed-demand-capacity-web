@@ -18,6 +18,7 @@ import PlotForecast from "../pages/RequiredVsAvailableCapacity"
 import Shifts from "../pages/Shifts"
 import EDSettings from "../pages/EDSettings"
 import Welcome from "../pages/Welcome"
+import Rotas from "../pages/Rotas"
 
 export default function DashboardContent() {
     return (
@@ -31,6 +32,7 @@ export default function DashboardContent() {
                 <Route path='/forecast-demand' component={ PlotForecast } />
                 <Route path='/shift-types' component={ Shifts } />
                 <Route path='/ed-settings' component={ EDSettings } />
+                <Route path='/rotas' component={ Rotas } />
                 </div>
     );
 }
