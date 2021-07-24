@@ -423,7 +423,7 @@ class DeleteSessionHistoricData(APIView):
         #             else:
         #                 log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
 
-        deletion_attempt(filepath)
+        # deletion_attempt(filepath)
 
         # Delete stream objects
         Stream.objects.filter(user_session=uploader).delete()
@@ -446,8 +446,8 @@ class DeleteSessionHistoricData(APIView):
         log.info("Prophet forecasts deleted from database")
         
         # Now delete the files
-        for filepath in forecast_filepaths:
-            deletion_attempt(filepath)
+        # for filepath in forecast_filepaths:
+        #     deletion_attempt(filepath)
 
 
 
