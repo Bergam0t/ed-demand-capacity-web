@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.utils.translation import gettext as _
 
 # See accepted answer here for what the different 'on_delete' options do
 # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
@@ -161,45 +162,39 @@ class Stream(models.Model):
 
 
 class RotaEntry(models.Model):
-    # See https://www.merixstudio.com/blog/django-models-declaring-list-available-choices-right-way/
-    CORE = 'core'
-    ADHOC = 'adhoc'
-
-    RESOURCETYPE = [
-        (CORE, _('Core')),
-        (ADHOC, _('Ad-hoc'))
-    ]
+    
+    # See https://docs.djangoproject.com/en/3.2/ref/models/fields/
+    class ResourceType(models.TextChoices):
+        CORE = 'core', _('Core')
+        ADHOC = 'adhoc', _('Ad-hoc')
 
     user_session =  models.CharField(max_length=50, 
                                 default='Not recorded')
 
-    role_type_name = 
-
-    role_type_id = models.IntegerField(default=0)
+    # https://docs.djangoproject.com/en/3.2/topics/db/examples/many_to_one/
+    role_type = models.ForeignKey(Role, on_delete=models.CASCADE)
 
     resource_name = models.CharField(max_length=150,
                               default='')
 
-    week_start = models.CharField(max_length=50,
-                              default='')
+    week_start = models.DateField(blank=True, null=True)
 
-    week_end = models.CharField(max_length=50,
-                              default='')
+    week_end = models.DateField(blank=True, null=True)
 
     resource_type = models.CharField(max_length=10,
-                              choices=RESOURCETYPE,
-                              default=CORE)
+                                     choices=ResourceType.choices,
+                                     default=ResourceType.CORE)
 
-    monday = models.IntegerField(default=0)
+    monday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='monday')
 
-    tuesday = models.IntegerField(default=0)
+    tuesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='tuesday')
 
-    wednesday = models.IntegerField(default=0)
+    wednesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='wednesday')
 
-    thursday = models.IntegerField(default=0)
+    thursday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='thursday')
 
-    friday =  models.IntegerField(default=0)
+    friday =  models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='friday')
 
-    saturday = models.IntegerField(default=0)
+    saturday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='saturday')
 
-    sunday = models.IntegerField(default=0)
+    sunday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='sunday')
