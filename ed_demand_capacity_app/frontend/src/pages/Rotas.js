@@ -47,6 +47,8 @@ import PlotlyPlot from "../components/PlotlyPlot"
 import { v4 as uuidv4 } from 'uuid';
 import {addDays} from 'date-fns';
 import 'date-fns';
+import Tooltip from '@material-ui/core/Tooltip';
+import HelpIcon from '@material-ui/icons/Help';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -65,13 +67,29 @@ const useStyles = makeStyles((theme) => ({
 
      tableHeadCell: {
         fontWeight: 800,
-     }
+     },
+     
+     dialog: {
+      borderRadius: "10px",
+      height: "auto",
+      // justifyContent: "center",
+      // margin: "auto",
+      // width: "auto"
+    },
+
+    paper: {
+      overflow: "hidden",
+      margin: "10px",
+      maxHeight: "none"
+    },
 
     })
 );
 
 
 export default function Rotas() {
+  const classes = useStyles();
+
   // Get Role Types
 
   const [roleTypes, setRoleTypes] = React.useState(null);
@@ -114,15 +132,85 @@ export default function Rotas() {
     setRotaEndDate(addDays(date, 7))
   };
 
-
+  // ---------------------------------------- //
   // Rota entry modal
+  // ---------------------------------------- //
+
+  // Handle resource name
+  const [resourceName, setResourceName] = useState('');
+
+  function handleResourceNameChange(e) {
+      setResourceName(e.target.value);
+  }
+
+
+  // Rendering of the modal
   const [addRotaEntryOpen, setAddRotaEntryOpen] = React.useState(false)
 
+  function rotaEntryModal() {
+    return (
+      <div>
+        <Dialog
+        open={addRotaEntryOpen}
+        onClose={() => setAddRotaEntryOpen(false)}
+        classes={{
+            root: classes.dialog,
+            paper: classes.paper
+        }}
+        >
+          <Box>  
+          <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+            <Grid item xs={6} align="left">
+              <DialogTitle>
+                  Create a new rota entry
+              </DialogTitle>
+            </Grid>
+            <Grid item xs={6} align="right">
+              <IconButton onClick={() => setAddRotaEntryOpen(false)} >
+                  <CancelIcon />
+              </IconButton>
+            </Grid>
+        
+            <Grid item xs={12}>
+              <DialogContentText>
+                  Here you can specify the shifts that an individual resource (i.e. a medic working on triage) will be working in a given week.
+              </DialogContentText>
+            </Grid>
+
+            <Grid item xs={10}>
+                    <TextField
+                        required
+                        fullWidth
+                        margin="dense"
+                        id="resource-name"
+                        label="Resource Name (optional)"
+                        type="text"
+                        onChange={(e) => handleResourceNameChange(e)}
+                    />
+                    <br /><br /><br />
+            </Grid>
+            <Grid item xs={2}>
+            <Tooltip title="If you want to, you can record the name of the resource (e.g. Dr Jones) or use some other identifier.">
+              <IconButton aria-label="delete">
+                <HelpIcon />
+              </IconButton>
+            </Tooltip>
+            </Grid>
+          </Grid>
+          </Box>
+        </Dialog>
+      </div>
+    )
+  }
+
+
+  // Functions to run on page load
   useEffect(() =>
     fetchStreams(), []
   )
   
 
+  // Handle rendering
   return (
     <div>
         <Grid container style = {{paddingLeft: 30, paddingRight: 30, paddingBottom:10}} spacing={2}>
@@ -154,6 +242,7 @@ export default function Rotas() {
             onClick={() => setAddRotaEntryOpen(true)}>
               Create new rota entry
           </Button>
+          {rotaEntryModal()}
 
           
             
