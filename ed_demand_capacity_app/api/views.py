@@ -113,11 +113,7 @@ class HistoricDataView(APIView):
                 # and updates the filetype suffix
                 original_filepath = historic_data_instance.uploaded_data.name
                 
-                filepath =  (
-                    original_filepath
-                    .replace('historic_data/', '', 1)
-                    .replace('csv', 'ftr')
-                )
+                filepath =  (f'{user_session}_historic.ftr')
 
                 source = 'record_csv'
 
@@ -164,11 +160,16 @@ class HistoricDataView(APIView):
 
                 original_filepath = historic_data_instance.uploaded_data.name
                 
-                filepath =  (
-                    original_filepath
-                    .replace('historic_data/', '', 1)
-                    .replace('xlsb', 'ftr')
-                )
+                filepath =  (f'{user_session}_historic.ftr')
+
+                # Tidy up by deleting the originally-uploaded excel file
+                # log.info(f'original filepath: {original_filepath}')
+                # try:
+                #     if os.path.isfile(f'uploads/{original_filepath}'):
+                #         os.remove(f'uploads/{original_filepath}')
+                #         log.info('excel file deleted')
+                # except:
+                #     log.error("Couldn't remove original excel file")
 
                 source = 'excel'
 
@@ -212,14 +213,14 @@ class HistoricDataView(APIView):
                                         data_source=historic_data_instance.source) 
 
             # Tidy up by deleting the originally-uploaded csv
-            if historic_data_instance.source == "record_csv":
-                log.info(f'original filepath: {original_filepath}')
-                try:
-                    if os.path.isfile(f'uploads/{original_filepath}'):
-                        os.remove(f'uploads/{original_filepath}')
-                        log.info('csv file deleted')
-                except:
-                    log.error("Couldn't remove original csv file")
+            # if historic_data_instance.source == "record_csv":
+            #     log.info(f'original filepath: {original_filepath}')
+            #     try:
+            #         if os.path.isfile(f'uploads/{original_filepath}'):
+            #             os.remove(f'uploads/{original_filepath}')
+            #             log.info('csv file deleted')
+            #     except:
+            #         log.error("Couldn't remove original csv file")
 
             return Response(historic_data_serializer.data, 
                             status=status.HTTP_201_CREATED)
@@ -402,20 +403,20 @@ class DeleteSessionHistoricData(APIView):
 
         # Delete the file
 
-        def deletion_attempt(filepath):
-            log.info(f'Filepath: {filepath}')
-            if os.path.isfile(f'uploads/{filepath}'):
-                for i in range(3):
-                    try: 
-                        os.remove(f'uploads/{filepath}')
-                        log.info(f'uploads/{filepath} deleted')
-                    except PermissionError:
-                        log.error(f'Permission error: retrying in 1s')
-                        time.sleep(1)
-                    except FileNotFoundError:
-                        log.error(f'Filepath uploads/{filepath} appears to be invalid. Skipping.')
-                    else:
-                        log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
+        # def deletion_attempt(filepath):
+        #     log.info(f'Filepath: {filepath}')
+        #     if os.path.isfile(f'uploads/{filepath}'):
+        #         for i in range(3):
+        #             try: 
+        #                 os.remove(f'uploads/{filepath}')
+        #                 log.info(f'uploads/{filepath} deleted')
+        #             except PermissionError:
+        #                 log.error(f'Permission error: retrying in 1s')
+        #                 time.sleep(1)
+        #             except FileNotFoundError:
+        #                 log.error(f'Filepath uploads/{filepath} appears to be invalid. Skipping.')
+        #             else:
+        #                 log.info(f'Unable to delete uploads/{filepath} after 3 attempts. Will clear up on next scheduled cleanup cycle.')
 
         deletion_attempt(filepath)
 
