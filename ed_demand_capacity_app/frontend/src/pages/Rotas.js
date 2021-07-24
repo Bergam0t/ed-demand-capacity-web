@@ -13,7 +13,7 @@ import {
 import Card from '@material-ui/core/Card';
 import { useStoreActions } from 'easy-peasy';
 import {useStoreState} from 'easy-peasy';
-import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles} from '@material-ui/core/styles';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -27,6 +27,7 @@ import {
   TimePicker,
   DateTimePicker,
   MuiPickersUtilsProvider,
+  KeyboardDatePicker
 } from '@material-ui/pickers';
 import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -44,6 +45,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
 import PlotlyPlot from "../components/PlotlyPlot" 
 import { v4 as uuidv4 } from 'uuid';
+import {addDays} from 'date-fns';
+import 'date-fns';
+
 
 const useStyles = makeStyles((theme) => ({
 
@@ -66,7 +70,58 @@ const useStyles = makeStyles((theme) => ({
     })
 );
 
+
 export default function Rotas() {
+  // Get Role Types
+
+  const [roleTypes, setRoleTypes] = React.useState(null);
+  const [roleTypesLoaded, setRoleTypesLoaded] = React.useState(null);
+
+
+  const fetchStreams = () => {
+    /**
+     * Fetch a list of streams from the API
+     * Sorts streams by priority
+     * Updates following states: streams, streamsOriginal, streamsLoaded
+     */
+    return fetch('api/own-role-types')
+    // Make sure to not wrap this first then statement in {}
+    // otherwise it returns a promise instead of the json
+    // and then you can't access the email attribute 
+    .then(response => 
+        response.json()
+    )
+    .then((json) => {
+        // Sort the returned states by priority
+        // From https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+        //  const sorted_json = json.sort((a, b) => {
+        //      return a.stream_priority - b.stream_priority
+        //  }).slice()
+        setRoleTypes(json);
+        
+    })
+    .then(() => setRoleTypesLoaded(true))
+    };
+
+
+
+  // Handling rota start day
+  const [rotaStartDate, setRotaStartDate] = React.useState(new Date())
+  const [rotaEndDate, setRotaEndDate] = React.useState(addDays(new Date(), 7))
+
+  const handleDateChangeStart = (date) => {
+    setRotaStartDate(date);
+    setRotaEndDate(addDays(date, 7))
+  };
+
+
+  // Rota entry modal
+  const [addRotaEntryOpen, setAddRotaEntryOpen] = React.useState(false)
+
+  useEffect(() =>
+    fetchStreams(), []
+  )
+  
 
   return (
     <div>
@@ -75,6 +130,34 @@ export default function Rotas() {
                 <Typography variant="h4"> Rotas </Typography>
             </Grid>
         </Grid>
+        <Grid container>
+        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
+          <KeyboardDatePicker
+            disableToolbar
+            variant="inline"
+            format="dd/MM/yyyy"
+            margin="normal"
+            id="date-picker-inline"
+            label="Start date for rota"
+            value={rotaStartDate}
+            onChange={handleDateChangeStart}
+            KeyboardButtonProps={{
+              'aria-label': 'change date',
+            }}
+          />
+          </MuiPickersUtilsProvider>
+        </Grid>
+
+          <Button 
+            variant="contained"
+            color="primary"
+            onClick={() => setAddRotaEntryOpen(true)}>
+              Create new rota entry
+          </Button>
+
+          
+            
+
     </div>
     )
 }
