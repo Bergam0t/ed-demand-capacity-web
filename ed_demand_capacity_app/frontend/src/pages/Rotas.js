@@ -9,6 +9,9 @@ import {
     Modal,
     ButtonGroup,
     Divider,
+    Select,
+    MenuItem,
+    InputLabel
   } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import { useStoreActions } from 'easy-peasy';
@@ -83,6 +86,10 @@ const useStyles = makeStyles((theme) => ({
       maxHeight: "none"
     },
 
+    tooltip: {
+      fontSize: "1em",
+    }
+
     })
 );
 
@@ -96,7 +103,48 @@ export default function Rotas() {
   const [roleTypesLoaded, setRoleTypesLoaded] = React.useState(null);
 
 
-  const fetchStreams = () => {
+  const fetchRoleTypes = () => {
+    /**
+     * Fetch a list of role types from the API
+     * Updates following states: roleTypes, roleTypesLoaded
+     */
+    return fetch('api/own-role-types')
+    // Make sure to not wrap this first then statement in {}
+    // otherwise it returns a promise instead of the json
+    // and then you can't access the email attribute 
+    .then(response => 
+        response.json()
+    )
+    .then((json) => {
+        // Sort the returned states by priority
+        // From https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+         const sorted_json = json.sort((a, b) => {
+
+          let fa = a.role_name.toLowerCase(),
+              fb = b.role_name.toLowerCase();
+
+          if (fa < fb) {
+                return -1;
+            }
+            if (fa > fb) {
+                return 1;
+            }
+            return 0;
+         }).slice()
+        setRoleTypes(sorted_json);
+        
+    })
+    .then(() => setRoleTypesLoaded(true))
+    };
+
+
+    // Get Shift Types
+    
+  const [shiftTypes, setShiftTypes] = React.useState(null);
+  const [shiftTypesLoaded, setShiftTypesLoaded] = React.useState(null);
+
+
+  const fetchShiftTypes = () => {
     /**
      * Fetch a list of streams from the API
      * Sorts streams by priority
@@ -142,6 +190,13 @@ export default function Rotas() {
   function handleResourceNameChange(e) {
       setResourceName(e.target.value);
   }
+
+
+  // Handle role selection
+  const [role, setRole] = useState('');
+
+  // Day entries
+  const [prevWeek, setPrevWeek] = useState(0)
 
 
   // Rendering of the modal
@@ -190,11 +245,72 @@ export default function Rotas() {
                     <br /><br /><br />
             </Grid>
             <Grid item xs={2}>
-            <Tooltip title="If you want to, you can record the name of the resource (e.g. Dr Jones) or use some other identifier.">
+            <Tooltip 
+              title="If you want to, you can record the name of the resource 
+                    (e.g. Dr Jones) or use some other identifier."
+              classes={{tooltip: classes.tooltip}}>
               <IconButton aria-label="delete">
                 <HelpIcon />
               </IconButton>
             </Tooltip>
+            </Grid>
+
+
+
+            <Grid container>
+                <Grid item xs={10}>
+                  <InputLabel id="demo-simple-select-label">Role</InputLabel>
+                  <Select
+                    labelId="select-role"
+                    id="select-role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    fullWidth
+                  >
+                  {(roleTypes || []).map((role) => {
+                    return <MenuItem key={role.id} value={role.id}>{role.role_name}</MenuItem>
+                  })}
+                  </Select>
+                  <br /><br /><br />
+                </Grid>
+                <Grid item xs={2}>
+                  <Tooltip 
+                    title="Select the Role that the resource fills. 
+                          This determines the number of decisions the resource can make per hour 
+                          per stream. These are set in the 'Emergency Department Settings' tab."
+                    classes={{tooltip: classes.tooltip}}>
+                <IconButton aria-label="role-help">
+                  <HelpIcon />
+                </IconButton>
+              </Tooltip>
+              </Grid>
+            </Grid>
+          
+
+            <Grid container>
+            
+              <Grid item xs={4}>
+                <Typography variant="h6">
+                  Previous Week
+                </Typography>
+              </Grid>
+              
+              <Grid item xs={8}>
+                <Select
+                  labelId="select-prev-week-shift"
+                  id="select-date-time-column"
+                  value={prevWeek}
+                  label="Previous Week"
+                  onChange={(e) => setPrevWeek(e.target.value)}
+                  fullWidth
+                >
+
+                  <MenuItem key={0} value={0}>Shift Unfilled</MenuItem>
+                {(roleTypes || []).map((role) => {
+                  return <MenuItem key={role.id} value={role.id}>{role.role_name}</MenuItem>
+                })}
+                </Select>
+              </Grid>
             </Grid>
           </Grid>
           </Box>
@@ -206,7 +322,7 @@ export default function Rotas() {
 
   // Functions to run on page load
   useEffect(() =>
-    fetchStreams(), []
+    fetchRoleTypes(), []
   )
   
 
