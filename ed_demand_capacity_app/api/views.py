@@ -184,8 +184,10 @@ class HistoricDataView(APIView):
             # to a buffer, returning to the beginning of the buffer, and then passing
             # this buffer to the file save. 
 
+            # Set compression to "uncompressed" to avoid a bug relating to lz4 compression
+
             buf = io.BytesIO()
-            df.to_feather(buf)
+            df.to_feather(buf, compression="uncompressed")
             buf.seek(0)
 
             # Note that we have to use buf.read(), not just buf, 
@@ -300,8 +302,11 @@ class FilterByColsAndOverwriteData(APIView):
             # provide this option, so you need to workaround this by writing the dataframe
             # to a buffer, returning to the beginning of the buffer, and then passing
             # this buffer to the file save. 
+
+            # Set compression to "uncompressed" to avoid a bug relating to lz4 compression
+
             buf = io.BytesIO()
-            filtered_df.to_feather(buf)
+            filtered_df.to_feather(buf, compression="uncompressed")
             buf.seek(0)
 
             # Note that we have to use buf.read(), not just buf, 

@@ -31,7 +31,7 @@ Then run the following command:
 pip list --format=freeze > requirements.txt
 ```
 
-## Creating a pip venv
+## Creating a new pip venv after updating required packages
 
 If on Windows, while in the root directory of the project (ed-demand-capacity-web):
 
@@ -50,7 +50,7 @@ runtime.txt is used by Heroku to know which version of Python to use.
 However, the app was primarily built and tested with Python 3.8.5
 
 
-# Misc useful things
+# Misc useful things that tripped me up along the way...
 - `package.json` must specify `"@material-ui/lab": "4.0.0-alpha.58",` not `"@material-ui/lab": "*",`
 - npm install updates the package-lock.json file
 
@@ -88,7 +88,7 @@ In another VS code terminal (cmd or powershell), run
 ```
 
 
-## Alternative activation method 
+## Alternative activation method (quicker to type!)
 
 Open the project in vs code.
 
