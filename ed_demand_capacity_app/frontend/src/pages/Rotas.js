@@ -150,7 +150,7 @@ export default function Rotas() {
      * Sorts streams by priority
      * Updates following states: streams, streamsOriginal, streamsLoaded
      */
-    return fetch('api/own-role-types')
+    return fetch('api/own-shift-types')
     // Make sure to not wrap this first then statement in {}
     // otherwise it returns a promise instead of the json
     // and then you can't access the email attribute 
@@ -163,10 +163,10 @@ export default function Rotas() {
         //  const sorted_json = json.sort((a, b) => {
         //      return a.stream_priority - b.stream_priority
         //  }).slice()
-        setRoleTypes(json);
+        setShiftTypes(json);
         
     })
-    .then(() => setRoleTypesLoaded(true))
+    .then(() => setShiftTypesLoaded(true))
     };
 
 
@@ -191,16 +191,103 @@ export default function Rotas() {
       setResourceName(e.target.value);
   }
 
-
   // Handle role selection
   const [role, setRole] = useState('');
 
-  // Day entries
-  const [prevWeek, setPrevWeek] = useState(0)
+
+  // Deal with shift selection (the 'rota' part)
+  // State variable for managing changes to daily shifts during creation
+  const [rotaData, setRotaData] = React.useState([])
+
+  function initialiseRotaDefaults() {
+    /**
+     * Set state for role type defaults that will be displayed in the dialog box
+     */
+
+    var rota_array_initial = [
+       {day: 'prev_week', shift_type: 0},
+       {day: 'monday', shift_type: 0},
+       {day: 'tuesday', shift_type: 0},
+       {day: 'wednesday', shift_type: 0},
+       {day: 'thursday', shift_type: 0},
+       {day: 'friday', shift_type: 0},
+       {day: 'saturday', shift_type: 0},
+       {day: 'sunday', shift_type: 0}
+      ]
+    
+    setRotaData(rota_array_initial)
+  }
+
+  function handleChangeShift(day, event) {
+      /**
+       * Handle changes to the number of decisions per hour in the dialog box
+       */
+
+      // Create a copy of the rota data (this is syntax for deep copy rather than shallow)
+      const shiftDataItems = JSON.parse(JSON.stringify(rotaData));
+
+      for (const j in roleTypeDataItems) {
+          if (shiftDataItems[j].day == day) {
+              // Update the time for decision value with what has been
+              // entered in the textinput field
+              // Need to parse as float, not int, as want to allow decimal decisions per hour
+              roleTypeDataItems[j].decisions_per_hour = event.target.value
+          }
+      }
+
+    // Update the stream state with the new list
+    setRotaData(roleTypeDataItems);
+}
 
 
-  // Rendering of the modal
+  // Rendering of the rota entry modal
   const [addRotaEntryOpen, setAddRotaEntryOpen] = React.useState(false)
+
+  function displayShiftTypeSelection() {
+    if (roleTypesLoaded && shiftTypesLoaded) {
+      return (
+        <div>
+          <Typography> TESTING </Typography>
+        <Grid container spacing={2} align="center">
+        {rotaData.map((day, index) => {
+          // {console.log(day.day)}
+          <div>
+          <Grid item xs={4}>
+          <Typography variant="h6">
+            {day.day.toUpper()}
+          </Typography>
+        </Grid>
+        
+        {/* <Grid item xs={8}>
+          <Select
+            labelId={"select-" + day.day + "shift-label"}
+            id={"select-" + day.day + "shift"}
+            value={day.shift_type}
+            label={day.day.toUpperCase()}
+            onChange={(e) => handleChangeShift(day.day, e.target.value)}
+            fullWidth
+          >
+
+            <MenuItem key={0} value={0}>Shift Unfilled</MenuItem>
+          {(shiftTypes || []).map((shift) => {
+            return <MenuItem key={shift.id} value={shift.id}>{shift.shift_type_name}</MenuItem>
+          })}
+          </Select>
+        </Grid> */}
+      </div>
+        }
+        )}
+        </Grid>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+            <CircularProgress />
+        </div>
+        )
+    }
+  }
 
   function rotaEntryModal() {
     return (
@@ -286,8 +373,9 @@ export default function Rotas() {
               </Grid>
             </Grid>
           
+    
 
-            <Grid container>
+            {/* <Grid container>
             
               <Grid item xs={4}>
                 <Typography variant="h6">
@@ -311,20 +399,31 @@ export default function Rotas() {
                 })}
                 </Select>
               </Grid>
-            </Grid>
+            </Grid>*/}
+            {displayShiftTypeSelection()}
           </Grid>
           </Box>
-        </Dialog>
+        </Dialog> 
       </div>
     )
   }
 
 
   // Functions to run on page load
-  useEffect(() =>
-    fetchRoleTypes(), []
-  )
+  useEffect(() => {
+    fetchRoleTypes()
+    fetchShiftTypes()
+  }, []
+  );
   
+      // Initialise a second useEffect call that will run on page load
+      useEffect(() => {
+        if (shiftTypesLoaded) {
+            initialiseRotaDefaults()
+        }
+        // Have to include the value in brackets to avoid infinite loop
+        // Means will only run the setState call when addRotaEntryOpen changes
+    }, [addRotaEntryOpen])
 
   // Handle rendering
   return (
