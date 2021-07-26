@@ -766,7 +766,7 @@ export default function HistoricDemandData() {
                             You can download a template below and fill it in using Excel or another spreadsheet software.
                             <br/><br/>
                         </Typography>
-                        <Button color="primary" variant="contained" component="label" download target='_blank' href=''>
+                        <Button color="primary" variant="contained" component="label" disabled={true}>
                             Download Template
                             <input
                                 type="file"

@@ -141,7 +141,7 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 # https://devcenter.heroku.com/articles/python-concurrency-and-database-connections#persistent-connections
-db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=False)
+db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
 DATABASES['default'].update(db_from_env)
 
 # Password validation

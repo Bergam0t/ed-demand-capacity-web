@@ -8,9 +8,7 @@ To run the app on Windows, you need to use a conda environment because there is 
 
 However, when deploying to Heroku, it is better to use a pip requirements.txt file because this is required by Python and avoids the complication of needing additional buildpacks. 
 
-If you modify the 
-
-## Creating a new environment.yml file after updating packages 
+## Creating an environment.yml file 
 To create an environment.yml file that Windows users can use to run the app locally, first activate the conda environment from the root directory of the project (ed-demand-capacity-web):
 
 ```
