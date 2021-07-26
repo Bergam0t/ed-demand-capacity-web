@@ -177,14 +177,16 @@ class RotaEntry(models.Model):
     resource_name = models.CharField(max_length=150,
                               default='')
 
-    week_start = models.DateField(blank=True, null=True)
+    # week_start = models.DateField(blank=True, null=True)
 
-    week_end = models.DateField(blank=True, null=True)
+    # week_end = models.DateField(blank=True, null=True)
 
     resource_type = models.CharField(max_length=10,
                                      choices=ResourceType.choices,
                                      default=ResourceType.CORE)
 
+    prev_week = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='prev_week'),
+    
     monday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='monday')
 
     tuesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='tuesday')
