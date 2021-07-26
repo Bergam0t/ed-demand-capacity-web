@@ -184,6 +184,10 @@ urlpatterns += [
      path('own-rota-entries', 
          ViewOwnRotaEntries.as_view(), 
          name='view_own_rota_entries'),
+
+     path('own-rota-entries-detailed', 
+         ViewOwnRotaEntriesDetailed.as_view(), 
+         name='view_own_rota_entries'),
     
     path('individual-rota-entry-own/<str:pk>', 
          ViewIndividualRotaEntryOwn.as_view(), 

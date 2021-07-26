@@ -58,6 +58,11 @@ class StreamSerializer(serializers.ModelSerializer):
 
 
 class RotaEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RotaEntry
+        fields = '__all__'
+
+class RotaEntrySerializerView(serializers.ModelSerializer):
     prev_week = ShiftSerializer()
     monday = ShiftSerializer()
     tuesday = ShiftSerializer()

@@ -22,13 +22,21 @@ log = logging.getLogger(__name__)
 
 # Inspired by https://www.youtube.com/watch?v=TmsD8QExZ84
 
+class ViewOwnRotaEntriesDetailed(APIView):
+    def get(self, request, *args, **kwargs):
+        user_session_key = request.session.session_key
+        queryset = RotaEntry.objects.filter(user_session=user_session_key)
+        serializer = RotaEntrySerializerView(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 class ViewOwnRotaEntries(APIView):
     def get(self, request, *args, **kwargs):
         user_session_key = request.session.session_key
         queryset = RotaEntry.objects.filter(user_session=user_session_key)
         serializer = RotaEntrySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class ViewIndividualRotaEntryOwn(APIView):
     def get(self, request, pk, *args, **kwargs):
@@ -38,7 +46,7 @@ class ViewIndividualRotaEntryOwn(APIView):
         user_session_key = request.session.session_key
         queryset = RotaEntry.objects.filter(user_session=user_session_key)
         single_role = queryset.objects.get(id=pk)
-        serializer = RotaEntrySerializer(single_role, many=False)
+        serializer = RotaEntrySerializerView(single_role, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
