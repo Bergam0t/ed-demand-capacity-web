@@ -205,17 +205,18 @@ export default function Rotas() {
      */
 
     var rota_array_initial = [
-       {day: 'prev_week', shift_type: 0},
-       {day: 'monday', shift_type: 0},
-       {day: 'tuesday', shift_type: 0},
-       {day: 'wednesday', shift_type: 0},
-       {day: 'thursday', shift_type: 0},
-       {day: 'friday', shift_type: 0},
-       {day: 'saturday', shift_type: 0},
-       {day: 'sunday', shift_type: 0}
+       {day: 'Previous Week', shift_type: 0},
+       {day: 'Monday', shift_type: 0},
+       {day: 'Tuesday', shift_type: 0},
+       {day: 'Wednesday', shift_type: 0},
+       {day: 'Thursday', shift_type: 0},
+       {day: 'Friday', shift_type: 0},
+       {day: 'Saturday', shift_type: 0},
+       {day: 'Sunday', shift_type: 0}
       ]
     
     setRotaData(rota_array_initial)
+    console.log(rotaData)
   }
 
   function handleChangeShift(day, event) {
@@ -226,17 +227,17 @@ export default function Rotas() {
       // Create a copy of the rota data (this is syntax for deep copy rather than shallow)
       const shiftDataItems = JSON.parse(JSON.stringify(rotaData));
 
-      for (const j in roleTypeDataItems) {
+      for (const j in shiftDataItems) {
           if (shiftDataItems[j].day == day) {
               // Update the time for decision value with what has been
               // entered in the textinput field
               // Need to parse as float, not int, as want to allow decimal decisions per hour
-              roleTypeDataItems[j].decisions_per_hour = event.target.value
+              shiftDataItems[j].shift_type = event
           }
       }
 
     // Update the stream state with the new list
-    setRotaData(roleTypeDataItems);
+    setRotaData(shiftDataItems);
 }
 
 
@@ -246,38 +247,36 @@ export default function Rotas() {
   function displayShiftTypeSelection() {
     if (roleTypesLoaded && shiftTypesLoaded) {
       return (
-        <div>
-          <Typography> TESTING </Typography>
-        <Grid container spacing={2} align="center">
-        {rotaData.map((day, index) => {
-          // {console.log(day.day)}
-          <div>
-          <Grid item xs={4}>
-          <Typography variant="h6">
-            {day.day.toUpper()}
-          </Typography>
-        </Grid>
-        
-        {/* <Grid item xs={8}>
-          <Select
-            labelId={"select-" + day.day + "shift-label"}
-            id={"select-" + day.day + "shift"}
-            value={day.shift_type}
-            label={day.day.toUpperCase()}
-            onChange={(e) => handleChangeShift(day.day, e.target.value)}
-            fullWidth
-          >
-
-            <MenuItem key={0} value={0}>Shift Unfilled</MenuItem>
-          {(shiftTypes || []).map((shift) => {
-            return <MenuItem key={shift.id} value={shift.id}>{shift.shift_type_name}</MenuItem>
-          })}
-          </Select>
-        </Grid> */}
-      </div>
+        <div>      
+        {rotaData.map((day) => {
+          return(
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography variant="h6">      
+                {day.day}
+              </Typography>
+            </Grid>
+          
+            <Grid item xs={6}>
+              <Select
+                labelId={"select-" + day.day + "shift-label"}
+                id={"select-" + day.day + "shift"}
+                value={day.shift_type}
+                label={day.day}
+                onChange={(e) => handleChangeShift(day.day, e.target.value)}
+                fullWidth
+              >
+                <MenuItem key={0} value={0}>Shift Unfilled</MenuItem>
+              {(shiftTypes || []).map((shift) => {
+                return <MenuItem key={shift.id} value={shift.id}>{shift.shift_type_name}</MenuItem>
+              })}
+              </Select>
+            </Grid> 
+          </Grid>
+          )
         }
         )}
-        </Grid>
+        
         </div>
       )
     } else {
@@ -373,34 +372,8 @@ export default function Rotas() {
               </Grid>
             </Grid>
           
-    
-
-            {/* <Grid container>
-            
-              <Grid item xs={4}>
-                <Typography variant="h6">
-                  Previous Week
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={8}>
-                <Select
-                  labelId="select-prev-week-shift"
-                  id="select-date-time-column"
-                  value={prevWeek}
-                  label="Previous Week"
-                  onChange={(e) => setPrevWeek(e.target.value)}
-                  fullWidth
-                >
-
-                  <MenuItem key={0} value={0}>Shift Unfilled</MenuItem>
-                {(roleTypes || []).map((role) => {
-                  return <MenuItem key={role.id} value={role.id}>{role.role_name}</MenuItem>
-                })}
-                </Select>
-              </Grid>
-            </Grid>*/}
             {displayShiftTypeSelection()}
+
           </Grid>
           </Box>
         </Dialog> 
@@ -418,9 +391,8 @@ export default function Rotas() {
   
       // Initialise a second useEffect call that will run on page load
       useEffect(() => {
-        if (shiftTypesLoaded) {
             initialiseRotaDefaults()
-        }
+        
         // Have to include the value in brackets to avoid infinite loop
         // Means will only run the setState call when addRotaEntryOpen changes
     }, [addRotaEntryOpen])
@@ -458,8 +430,6 @@ export default function Rotas() {
               Create new rota entry
           </Button>
           {rotaEntryModal()}
-
-          
             
 
     </div>
