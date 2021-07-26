@@ -247,17 +247,18 @@ export default function Rotas() {
   function displayShiftTypeSelection() {
     if (roleTypesLoaded && shiftTypesLoaded) {
       return (
-        <div>      
+         
+          <Grid container spacing={2} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>     
         {rotaData.map((day) => {
           return(
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid container spacing={2}>  
+            <Grid item xs={4}>
               <Typography variant="h6">      
                 {day.day}
               </Typography>
             </Grid>
           
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Select
                 labelId={"select-" + day.day + "shift-label"}
                 id={"select-" + day.day + "shift"}
@@ -271,13 +272,15 @@ export default function Rotas() {
                 return <MenuItem key={shift.id} value={shift.id}>{shift.shift_type_name}</MenuItem>
               })}
               </Select>
+              <br /> <br /> 
+            </Grid>
+            
             </Grid> 
-          </Grid>
           )
         }
         )}
+        </Grid>
         
-        </div>
       )
     } else {
       return (
@@ -331,19 +334,19 @@ export default function Rotas() {
                     <br /><br /><br />
             </Grid>
             <Grid item xs={2}>
-            <Tooltip 
-              title="If you want to, you can record the name of the resource 
-                    (e.g. Dr Jones) or use some other identifier."
-              classes={{tooltip: classes.tooltip}}>
-              <IconButton aria-label="delete">
-                <HelpIcon />
-              </IconButton>
-            </Tooltip>
+              <Tooltip 
+                title="If you want to, you can record the name of the resource 
+                      (e.g. Dr Jones) or use some other identifier."
+                classes={{tooltip: classes.tooltip}}>
+                <IconButton aria-label="delete">
+                  <HelpIcon />
+                </IconButton>
+              </Tooltip>
             </Grid>
 
 
 
-            <Grid container>
+            {/* <Grid container> */}
                 <Grid item xs={10}>
                   <InputLabel id="demo-simple-select-label">Role</InputLabel>
                   <Select
@@ -365,13 +368,14 @@ export default function Rotas() {
                           This determines the number of decisions the resource can make per hour 
                           per stream. These are set in the 'Emergency Department Settings' tab."
                     classes={{tooltip: classes.tooltip}}>
-                <IconButton aria-label="role-help">
-                  <HelpIcon />
-                </IconButton>
-              </Tooltip>
-              </Grid>
-            </Grid>
-          
+                    <IconButton aria-label="role-help">
+                      <HelpIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+              {/* </Grid> */}
+            
+
             {displayShiftTypeSelection()}
 
           </Grid>
