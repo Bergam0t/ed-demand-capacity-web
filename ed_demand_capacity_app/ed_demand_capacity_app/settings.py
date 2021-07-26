@@ -295,3 +295,6 @@ SIMPLE_JWT = {
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
+# https://forum.djangoproject.com/t/ssl-operationalerror-programmingerror-configuring-postgres-on-heroku/6464
+# To resolve 'django.db.utils.OperationalError: server does not support SSL, but SSL was required' error
+del DATABASES['default']['OPTIONS']['sslmode']
