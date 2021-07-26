@@ -3,6 +3,7 @@ from .views import *
 from .views_forecasting import *
 from .views_shift_types import *
 from .views_role_types import *
+from .views_rotas import *
 
 urlpatterns = []
 
@@ -172,6 +173,33 @@ urlpatterns += [
     path('delete-role-type/<str:pk>', 
          DeleteRoleType.as_view(), 
          name='delete_role_type'),
+
+]
+
+# --- Rota entries --- #
+
+# Following https://www.youtube.com/watch?v=TmsD8QExZ84
+
+urlpatterns += [
+     path('own-rota-entries', 
+         ViewOwnRotaEntries.as_view(), 
+         name='view_own_rota_entries'),
+    
+    path('individual-rota-entry-own/<str:pk>', 
+         ViewIndividualRotaEntryOwn.as_view(), 
+         name='view_individual_rota_entry_own'),
+    
+    path('create-rota-entry', 
+         CreateRotaEntry.as_view(), 
+         name='create_rota_entry'),
+
+#     path('update-shift-type/<str:pk>', 
+#          UpdateShiftType.as_view(), 
+#          name='update_shift_type'),
+
+    path('delete-rota-entry/<str:pk>', 
+         DeleteRotaEntry.as_view(), 
+         name='delete_rota_entry'),
 
 ]
 

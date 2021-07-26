@@ -54,3 +54,8 @@ class StreamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stream
         fields = '__all__'
+
+class RotaEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RotaEntry
+        field = '__all__'
