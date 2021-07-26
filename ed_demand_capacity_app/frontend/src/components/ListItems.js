@@ -104,7 +104,7 @@ export const capacityItems = (
       <ListItemText primary="Shift Types" />
     </ListItem>
     
-    <ListItem button disabled>
+    <ListItem button to="/rotas" component = { Link }>
       <ListItemIcon>
         <DateRangeIcon />
       </ListItemIcon>

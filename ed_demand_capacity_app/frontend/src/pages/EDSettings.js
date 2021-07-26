@@ -115,7 +115,14 @@ export default function EDSettings() {
     const [helpVideoBoxStreamsMinsPerDecisionOpen, setHelpVideoBoxStreamsMinsPerDecisionOpen] = React.useState(false)
     const [helpVideoBoxRolesOpen, setHelpVideoBoxRolesOpen] = React.useState(false)
 
+
+
     const fetchStreams = () => {
+        /**
+         * Fetch a list of streams from the API
+         * Sorts streams by priority
+         * Updates following states: streams, streamsOriginal, streamsLoaded
+         */
         return fetch('api/get-historic-data-streams-from-db')
             // Make sure to not wrap this first then statement in {}
             // otherwise it returns a promise instead of the json
@@ -141,14 +148,20 @@ export default function EDSettings() {
             .then(() => setStreamsLoaded(true))
       };
 
-    // Function to render the buttons to save or discard
-    // changes to the ordering and timing of streams
 
-    // Would be nice to add a check for the updated array being the same as the original
-    // array and disabling the buttons in that case as well, but it's not entirely simple
-    // to check arrays are equal in js (can't use == or ===) and it's only a minor QOL improvement
-    // so not implementing now
+
+
     const saveOrDiscardButtons = () => {
+        /**
+         * Function to render the buttons to save or discard
+         * changes to the ordering and timing of streams
+         * 
+         * TODO:
+         * Would be nice to add a check for the updated array being the same as the original
+         * array and disabling the buttons in that case as well, but it's not entirely simple
+         * to check arrays are equal in js (can't use == or ===) and it's only a minor QOL improvement
+         * so not implementing now
+         */
         if (!streamValuesChanged) {
             return (
             <ButtonGroup>
@@ -181,12 +194,16 @@ export default function EDSettings() {
         }
     }
 
-    // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
-    // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
     function handleOnDragEnd(result) {
+        /**
+         * Handle a draggable/droppable item being dropped
+         * 
+         * From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
+         * https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
+         */
+        
         // Prevent errors being fired if drop is out of bounds
         if (!result.destination) return;
-        // console.log(result)
 
         // Persist ordering after dropping        
         const items = JSON.parse(JSON.stringify(streams));
@@ -207,6 +224,11 @@ export default function EDSettings() {
     }
 
     function handleChangeMinutesPerDecision(id, event) {
+        /**
+         * Handle a change to the number of minutes taken per decision
+         * numeric entry field
+         */
+
         // Take a deep copy of the streams state variable
         const items = JSON.parse(JSON.stringify(streams));
 
@@ -227,14 +249,17 @@ export default function EDSettings() {
     }
 
     function handleDiscardChanges() {
+        /**
+         * Handle discarding changes to stream priorities and/or minutes
+         * per decision for streams
+         * 
+         * Will revert streams state to streamsOriginal
+         */
+
         // Remove the 'edited' status so the buttons get disabled
         setstreamValuesChanged(false);
         // Set the streams back 
-
-        // console.log("Original streams array: ", streamsOriginal)
-        // console.log("Edited streams array: ", streams)
         setStreams(streamsOriginal)
-        // console.log("Updated streams array: ", streams)
     }
 
     // Toast notification for successful changes to streams
@@ -248,7 +273,12 @@ export default function EDSettings() {
         progress: undefined,
     });
 
+
     function handleSaveChanges() {
+        /**
+         * Send an API POST request to the server to save changes
+         * to streams data to the database
+         */
 
         let headers = getHeaders()
 
@@ -259,7 +289,6 @@ export default function EDSettings() {
                 streams: streams
             })
         };
-        console.log(requestOptions)
 
         // Update the streams on the server
         fetch('/api/update-stream-details', requestOptions)
@@ -280,13 +309,16 @@ export default function EDSettings() {
                 // the one we have stored as an 'original' array, which is not desirable behaviour.
                 setStreamsOriginal(JSON.parse(JSON.stringify(streams)));
             })
+        }
         
-            }
-        
-    
-    // From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
-    // https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
+
     function displayStreams() {
+        /**
+         * Display streams in a draggable/droppable list
+         * 
+         * From https://github.com/colbyfayock/my-final-space-characters/blob/master/src/App.js
+         * https://www.freecodecamp.org/news/how-to-add-drag-and-drop-in-react-with-react-beautiful-dnd
+         */
         if (streamsLoaded) {
             return (
             <div>
@@ -294,58 +326,58 @@ export default function EDSettings() {
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="streams-list">
                     {(provided) => (
-              <ul style={{listStyle:'none'}} className="streams-list" {...provided.droppableProps} ref={provided.innerRef}>
-                {streams.map((stream, index) => {
-                    // console.log(index)
-                  return (
-                    <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
-                      
-                      {(provided) => (
-                        <li  ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <br />
-                            <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
-                                <Grid container spacing={1}>
-                                    <Grid item xs={12} align="left">
-                                        <Typography variant="h5"> {stream.stream_name} </Typography> 
-                                    </Grid>
-                                        
-                                        <Grid item xs={9} align="left">
-                                            <TextField 
-                                                value={stream.time_for_decision} 
-                                                label='Minutes per Decision'
-                                                inputProps={{size: 20}} 
-                                                onChange={(e) => handleChangeMinutesPerDecision(stream.id, e)}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={3} align="right">
-                                            <TextField 
-                                                disabled 
-                                                value={stream.stream_priority} 
-                                                label='Priority'
-                                                inputProps={{size: 5}} 
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Paper>
-                            <br />
-                        </li>
-                      )}
+                        <ul style={{listStyle:'none'}} className="streams-list" {...provided.droppableProps} ref={provided.innerRef}>
+                            
+                            {streams.map((stream, index) => {
+                            return (
+                                <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
+                                
+                                {(provided) => (
+                                    <li  ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                        <br />
+                                        <Paper elevation={3} style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20, paddingTop:20}}>
+                                            <Grid container spacing={1}>
+                                                <Grid item xs={12} align="left">
+                                                    <Typography variant="h5"> {stream.stream_name} </Typography> 
+                                                </Grid>
+                                                    
+                                                <Grid item xs={9} align="left">
+                                                    <TextField 
+                                                        value={stream.time_for_decision} 
+                                                        label='Minutes per Decision'
+                                                        inputProps={{size: 20}} 
+                                                        onChange={(e) => handleChangeMinutesPerDecision(stream.id, e)}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={3} align="right">
+                                                    <TextField 
+                                                        disabled 
+                                                        value={stream.stream_priority} 
+                                                        label='Priority'
+                                                        inputProps={{size: 5}} 
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Paper>
+                                        <br />
+                                    </li>
+                                )}
 
-                    </Draggable>
-                  );
-                })}
-                {provided.placeholder}
-              </ul>
-            )}
-          </Droppable>
+                                </Draggable>
+                            );
+                            })}
+                            {provided.placeholder}
+                        </ul>
+                        )}
+                    </Droppable>
                 </DragDropContext>
                 </Grid>
             </div>)
         } else {
             return (
-            <div>
-            <CircularProgress />
-            </div>
+                <div>
+                    <CircularProgress />
+                </div>
             )
         }
     }
@@ -360,9 +392,23 @@ export default function EDSettings() {
     // State variable for managing changes to individual states during creation
     const [roleTypeData, setRoleTypeData] = React.useState([])
 
-    // Add function for retrieving role types from the server
-    // for this user session
+    // State for name of role
+    const [roleTypeName, setRoleTypeName] = useState('');
+
+    function handleRoleTypeNameChange(e) {
+        /**
+         * Handles updates to role types by updating the state 'roleTypeName'
+         * Intended for use with <TextField>
+         */
+        setRoleTypeName(e.target.value);
+    }
+
     const fetchRoleTypes = () => {
+        /**
+         * Function for retrieving role types from the server for this user session
+         * 
+         * Updates the states 'roleTypes' and 'roleTypesLoaded'
+         */
         return fetch('api/own-role-types')
             // Make sure to not wrap this first then statement in {}
             // otherwise it returns a promise instead of the json
@@ -378,9 +424,11 @@ export default function EDSettings() {
             .then(() => setRoleTypesLoaded(true));
       };
 
-    // Function to display role types with editable fields
-    // in a dialog box
+
     function displayStreamFieldsRoleType() {
+        /**
+         * Display role types with editable fields in a dialog box
+         */
         if (streamsLoaded && roleTypesLoaded) {
           
             return (
@@ -424,36 +472,33 @@ export default function EDSettings() {
         setCreateRoleTypeModalOpen(false);
     })
 
-    const [roleTypeName, setRoleTypeName] = useState('');
 
-    function handleRoleTypeNameChange(e) {
-        setRoleTypeName(e.target.value);
-    }
-
-    // Function to set staate for role type defaults that will be displayed in the dialog box
     function initialiseRoleTypeDefaults() {
-        console.log(streams)
+        /**
+         * Set state for role type defaults that will be displayed in the dialog box
+         */
+        // console.log(streams)
 
         var decision_array_initial = streams.map((stream) => ({
-            stream_object_id: stream.id, stream_name: stream.stream_name, decisions_per_hour: 0})
-        )
+            stream_object_id: stream.id, 
+            stream_name: stream.stream_name, 
+            decisions_per_hour: 0
+        }))
         
         console.log("Initial decision array", decision_array_initial)
         setRoleTypeData(decision_array_initial)
     }
 
-    // Function to handle changes to the number of decisions per hour in the dialog box
+
     function handleChangeDecisionsPerHour(id, event) {
-        // console.log("handleChangeDecisionsPerHour activated")
+        /**
+         * Handle changes to the number of decisions per hour in the dialog box
+         */
         const roleTypeDataItems = JSON.parse(JSON.stringify(roleTypeData));
 
-        // Update the priority field on the stream to reflect its new 
-        // position in the list
         for (const j in roleTypeDataItems) {
-            // console.log(j)
             if (roleTypeDataItems[j].stream_object_id == id) {
-                // console.log(roleTypeDataItems[j])
-                // If so, update the time for decision value with what has been
+                // Update the time for decision value with what has been
                 // entered in the textinput field
                 // Need to parse as float, not int, as want to allow decimal decisions per hour
                 roleTypeDataItems[j].decisions_per_hour = event.target.value
@@ -464,9 +509,14 @@ export default function EDSettings() {
         setRoleTypeData(roleTypeDataItems);
     }
 
-    // Handle Submit
-    // TODO: Set all form values back to defaults
+
     function handleConfirmCreateRoleType(e) {
+        /**
+         * Handle Submit
+         * 
+         * TODO: 
+         * Set all form values back to default
+         */
         let headers = getHeaders()
 
         // Need to convert any null time values to string
@@ -483,7 +533,7 @@ export default function EDSettings() {
                 decisions_per_hour_per_stream: JSON.parse(JSON.stringify({roleTypeData}))['roleTypeData'],
             })
         };
-        // console.log('Request being sent: ', requestOptions)
+
         fetch('/api/create-role-type', requestOptions).then((response) => {
             if (response.ok) {
                 console.log("Role type created successfully")
@@ -498,38 +548,41 @@ export default function EDSettings() {
         });
     }
 
-
-    // Function to display a table of existing role types
     function displayExistingRoleTypes() {
+        /**
+         * Display a table of existing role types
+         */
         if (roleTypesLoaded && streamsLoaded) {
         return (
             <div>
-            <TableContainer component={Paper}>
-            <Table className={classes.table} aria-label="simple table">
-            <TableHead className={classes.tableHead}>
-                <TableRow className={classes.tableHeadCell}>
-                <TableCell className={classes.tableHeadCell}>Role Type</TableCell>
+                <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
                 
-                {streams.map((stream) => (
+                    <TableHead className={classes.tableHead}>
+                        <TableRow className={classes.tableHeadCell}>
+                        <TableCell className={classes.tableHeadCell}>Role Type</TableCell>
+                        
+                        {streams.map((stream) => (
 
-                    <TableCell className={classes.tableHeadCell}>{stream.stream_name}</TableCell>
-                ))}
+                            <TableCell className={classes.tableHeadCell}>{stream.stream_name}</TableCell>
+                        ))}
+                        
+                            <TableCell className={classes.tableHeadCell}>Delete</TableCell>
+                        
+                        </TableRow>
+                    </TableHead>
                 
-                    <TableCell className={classes.tableHeadCell}>Delete</TableCell>
-                
-                </TableRow>
-            </TableHead>
-            <TableBody>
+                <TableBody>
 
                     {/* // Note that the usage of curly brackets vs brackets are important here!
                     // If you replace the outer two sets of brackets with curly brackets, no values return.  */}
-                {roleTypes.map((roleType) => (
-                    <TableRow key={roleType.id}> 
-                    <TableCell>{roleType.role_name}</TableCell> 
+                    {roleTypes.map((roleType) => (
+                        <TableRow key={roleType.id}> 
+                        <TableCell>{roleType.role_name}</TableCell> 
 
-                     {(roleType['decisions_per_hour_per_stream']).map((decisions) => (
-                        
-                        streams.map((stream) => {
+                        {(roleType['decisions_per_hour_per_stream']).map((decisions) => (
+                            
+                            streams.map((stream) => {
 
                                 // Check whether the item is the one we're looking for
                                 // This is to ensure the stream values never become decoupled from the relevant
@@ -537,30 +590,28 @@ export default function EDSettings() {
                                 if (decisions['stream_name'] == stream['stream_name']) {
                                     return (<TableCell align="left">{decisions['decisions_per_hour']}</TableCell>)
                                     }
-                                
-                                })
-                            
-                                ))
-                        }
-                        <TableCell align="left">
-                        <IconButton onClick={() => handleDeleteRoleType(roleType.id)}> 
-                            <DeleteIcon />
-                        </ IconButton>
+                            })
+                        ))}
+                        
+                    <TableCell align="left">
+                    <IconButton onClick={() => handleDeleteRoleType(roleType.id)}> 
+                        <DeleteIcon />
+                    </ IconButton>
                     </TableCell>
 
-                        </TableRow>
-        ))}
+                </TableRow>
+            ))}
 
-                
-            </TableBody>
+                    
+                </TableBody>
             </Table>
-        </TableContainer>
+            </TableContainer>
         </div>
         )
     } else {
         return (
             <div>
-            <CircularProgress />
+                <CircularProgress />
             </div>
         )
 
@@ -569,6 +620,9 @@ export default function EDSettings() {
 
 
     function helpVideoStreamsPriorityDialog() {
+        /**
+         * Return a dialog box that displays a Youtube video relating to stream priority  
+         */
         return(
             <Dialog
             open={helpVideoBoxStreamsPriorityOpen}
@@ -604,6 +658,10 @@ export default function EDSettings() {
 
 
     function helpVideoStreamsMinsPerDecisionDialog() {
+                /**
+         * Return a dialog box that displays a Youtube video relating to 
+         * minutes per decision for streams  
+         */
         return(
             <Dialog
             open={helpVideoBoxStreamsMinsPerDecisionOpen}
@@ -638,6 +696,10 @@ export default function EDSettings() {
     }
 
     function helpVideoRolesDialog() {
+         /**
+         * Return a dialog box that displays a Youtube video relating to 
+         * decisions per hour for roles 
+         */
         return(
             <Dialog
             open={helpVideoBoxRolesOpen}
@@ -708,6 +770,7 @@ export default function EDSettings() {
         fetchRoleTypes()      
     }, []);
 
+    // Initialise a second useEffect call that will run on page load
     useEffect(() => {
         if (streamsLoaded) {
             initialiseRoleTypeDefaults()

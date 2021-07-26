@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.utils.translation import gettext as _
 
 # See accepted answer here for what the different 'on_delete' options do
 # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
@@ -158,3 +159,44 @@ class Stream(models.Model):
     stream_priority = models.IntegerField(default=1)
 
     time_for_decision = models.IntegerField(default=30)
+
+
+class RotaEntry(models.Model):
+    
+    # See https://docs.djangoproject.com/en/3.2/ref/models/fields/
+    class ResourceType(models.TextChoices):
+        CORE = 'core', _('Core')
+        ADHOC = 'ad hoc', _('Ad hoc')
+
+    user_session =  models.CharField(max_length=50, 
+                                default='Not recorded')
+
+    # https://docs.djangoproject.com/en/3.2/topics/db/examples/many_to_one/
+    role_type = models.ForeignKey(Role, on_delete=models.CASCADE)
+
+    resource_name = models.CharField(max_length=150,
+                              default='')
+
+    # week_start = models.DateField(blank=True, null=True)
+
+    # week_end = models.DateField(blank=True, null=True)
+
+    resource_type = models.CharField(max_length=10,
+                                     choices=ResourceType.choices,
+                                     default=ResourceType.CORE)
+
+    prev_week = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='prev_week', null=True)
+    
+    monday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='monday', null=True)
+
+    tuesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='tuesday', null=True)
+
+    wednesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='wednesday', null=True)
+
+    thursday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='thursday', null=True)
+
+    friday =  models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='friday', null=True)
+
+    saturday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='saturday', null=True)
+
+    sunday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='sunday', null=True)
