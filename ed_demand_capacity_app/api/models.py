@@ -185,18 +185,18 @@ class RotaEntry(models.Model):
                                      choices=ResourceType.choices,
                                      default=ResourceType.CORE)
 
-    prev_week = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='prev_week'),
+    prev_week = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='prev_week', null=True),
     
-    monday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='monday')
+    monday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='monday', null=True)
 
-    tuesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='tuesday')
+    tuesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='tuesday', null=True)
 
-    wednesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='wednesday')
+    wednesday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='wednesday', null=True)
 
-    thursday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='thursday')
+    thursday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='thursday', null=True)
 
-    friday =  models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='friday')
+    friday =  models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='friday', null=True)
 
-    saturday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='saturday')
+    saturday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='saturday', null=True)
 
-    sunday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='sunday')
+    sunday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='sunday', null=True)
