@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
 
     tooltip: {
       fontSize: "1em",
-    }
+    },
 
     })
 );
@@ -97,10 +97,25 @@ const useStyles = makeStyles((theme) => ({
 export default function Rotas() {
   const classes = useStyles();
 
+  const loggedIn = useStoreState(state => state.loggedIn)
+
+  function getHeaders() {
+    if (loggedIn) {
+        return  {
+            'content-type': 'application/json',
+            'authorization': `JWT ${localStorage.getItem('access_token')}`
+          }
+    } else {
+        return  {
+            'content-type': 'application/json'
+          }
+    }};
+
   // Get Role Types
 
   const [roleTypes, setRoleTypes] = React.useState(null);
   const [roleTypesLoaded, setRoleTypesLoaded] = React.useState(null);
+  
 
 
   const fetchRoleTypes = () => {
@@ -169,6 +184,30 @@ export default function Rotas() {
     .then(() => setShiftTypesLoaded(true))
     };
 
+    // Get rota entries
+
+    const [rotaEntries, setRotaEntries] = React.useState(null);
+    const [rotaEntriesLoaded, setRotaEntriesLoaded] = React.useState(null);
+
+    const fetchRotaEntries = () => {
+      /**
+       * Fetch a list of streams from the API
+       * Sorts streams by priority
+       * Updates following states: streams, streamsOriginal, streamsLoaded
+       */
+      return fetch('api/own-rota-entries')
+      // Make sure to not wrap this first then statement in {}
+      // otherwise it returns a promise instead of the json
+      // and then you can't access the email attribute 
+      .then(response => 
+          response.json()
+      )
+      .then((json) => {
+          setRotaEntries(json);
+          
+      })
+      .then(() => setRotaEntriesLoaded(true))
+      };
 
 
   // Handling rota start day
@@ -193,6 +232,10 @@ export default function Rotas() {
 
   // Handle role selection
   const [role, setRole] = useState('');
+
+  // Handle resource type
+  const [resourceType, setResourceType] = useState('core');
+
 
 
   // Deal with shift selection (the 'rota' part)
@@ -291,6 +334,65 @@ export default function Rotas() {
     }
   }
 
+  function getDayValue(day) {
+    for (const i in rotaData) {
+      if (rotaData[i].day == day) {
+      return (
+        rotaData[i].shift_type
+    )
+      }
+    }
+  }
+
+  function handleConfirmCreateRotaEntry(e) {
+    /**
+     * Handle Submit
+     * 
+     * TODO: 
+     * Set all form values back to default
+     */
+    let headers = getHeaders()
+
+    // Need to convert any null time values to string
+    // They need to be null for the frontend so the time picker can work with the defaults
+    // while still being easily identifiable as unset, but the POST request is expecting
+    // all of the datetimes to be returned as strings, so provide a blank string if no
+    // time selected 
+
+    const requestOptions = {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({
+            role_type: role,
+            resource_name: resourceName,
+            resource_type: resourceType,
+            prev_week: getDayValue("Previous Week"),
+            monday: getDayValue("Monday"),
+            tuesday: getDayValue("Tuesday"),
+            wednesday: getDayValue("Wednesday"),
+            thursday: getDayValue("Thursday"),
+            friday: getDayValue("Friday"),
+            saturday: getDayValue("Saturday"),
+            sunday: getDayValue("Sunday"),
+        })
+    };
+
+    console.log(requestOptions)
+
+    fetch('/api/create-rota-entry', requestOptions).then((response) => {
+        if (response.ok) {
+            console.log("Rota Entry created successfully")
+            setAddRotaEntryOpen(false)
+            fetchRotaEntries()
+        } else {
+            console.log("Error creating rota entry")
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
   function rotaEntryModal() {
     return (
       <div>
@@ -323,7 +425,6 @@ export default function Rotas() {
 
             <Grid item xs={10}>
                     <TextField
-                        required
                         fullWidth
                         margin="dense"
                         id="resource-name"
@@ -348,8 +449,9 @@ export default function Rotas() {
 
             {/* <Grid container> */}
                 <Grid item xs={10}>
-                  <InputLabel id="demo-simple-select-label">Role</InputLabel>
+                  <InputLabel id="select-label">Role</InputLabel>
                   <Select
+                    required
                     labelId="select-role"
                     id="select-role"
                     value={role}
@@ -374,9 +476,57 @@ export default function Rotas() {
                   </Tooltip>
                 </Grid>
               {/* </Grid> */}
+
+              <Grid item xs={10}>
+                  <InputLabel id="select-label">Resource Type</InputLabel>
+                  <Select
+                    labelId="select-resource-type"
+                    id="select-resource-type"
+                    value={resourceType}
+                    onChange={(e) => setResourceType(e.target.value)}
+                    fullWidth
+                  >
+                  <MenuItem key="core" value="core">Core</MenuItem>
+                  <MenuItem key="ad-hoc" value="ad-hoc">Ad-Hoc</MenuItem>
+                  </Select>
+                  <br /><br /><br />
+                </Grid>
+                <Grid item xs={2}>
+                  <Tooltip 
+                    title="Select the Role that the resource fills. 
+                          This determines the number of decisions the resource can make per hour 
+                          per stream. These are set in the 'Emergency Department Settings' tab."
+                    classes={{tooltip: classes.tooltip}}>
+                    <IconButton aria-label="role-help">
+                      <HelpIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
             
 
             {displayShiftTypeSelection()}
+
+            <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+              <Grid item xs={12}>
+                  <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
+                      <Button 
+                          variant="contained" 
+                          color="secondary" 
+                          onClick={() => setAddRotaEntryOpen(false)}
+                      >
+                          Discard
+                      </Button>
+
+                      <Button 
+                          variant="contained" 
+                          color="primary"
+                          onClick={handleConfirmCreateRotaEntry}
+                      >
+                          Confirm
+                      </Button>
+                  </ButtonGroup>
+              </Grid>
+          </Grid>
 
           </Grid>
           </Box>
@@ -390,6 +540,7 @@ export default function Rotas() {
   useEffect(() => {
     fetchRoleTypes()
     fetchShiftTypes()
+    fetchRotaEntries()
   }, []
   );
   
