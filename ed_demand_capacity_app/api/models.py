@@ -166,7 +166,7 @@ class RotaEntry(models.Model):
     # See https://docs.djangoproject.com/en/3.2/ref/models/fields/
     class ResourceType(models.TextChoices):
         CORE = 'core', _('Core')
-        ADHOC = 'adhoc', _('Ad-hoc')
+        ADHOC = 'ad hoc', _('Ad hoc')
 
     user_session =  models.CharField(max_length=50, 
                                 default='Not recorded')
@@ -185,7 +185,7 @@ class RotaEntry(models.Model):
                                      choices=ResourceType.choices,
                                      default=ResourceType.CORE)
 
-    prev_week = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='prev_week', null=True),
+    prev_week = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='prev_week', null=True)
     
     monday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='monday', null=True)
 

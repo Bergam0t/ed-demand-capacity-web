@@ -248,7 +248,7 @@ export default function Rotas() {
      */
 
     var rota_array_initial = [
-       {day: 'Previous Week', shift_type: 0},
+       {day: 'Previous', shift_type: 0},
        {day: 'Monday', shift_type: 0},
        {day: 'Tuesday', shift_type: 0},
        {day: 'Wednesday', shift_type: 0},
@@ -495,7 +495,7 @@ export default function Rotas() {
                     fullWidth
                   >
                   <MenuItem key="core" value="core">Core</MenuItem>
-                  <MenuItem key="ad-hoc" value="ad-hoc">Ad-Hoc</MenuItem>
+                  <MenuItem key="ad hoc" value="ad hoc">Ad-Hoc</MenuItem>
                   </Select>
                   <br /><br /><br />
                 </Grid>
