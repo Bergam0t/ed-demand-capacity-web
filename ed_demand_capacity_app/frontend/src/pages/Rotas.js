@@ -665,6 +665,11 @@ export default function Rotas() {
         // Means will only run the setState call when addRotaEntryOpen changes
     }, [addRotaEntryOpen])
 
+    // https://stackoverflow.com/questions/49491569/disable-specific-days-in-material-ui-calendar-in-react
+    function disableAllBarMonday(date) {
+      return date.getDay() === 0 || date.getDay() === 6 || date.getDay() === 2 || date.getDay() === 3 || date.getDay() === 4 || date.getDay() === 5;
+    }
+
   // Handle rendering
   return (
     <div>
@@ -687,6 +692,9 @@ export default function Rotas() {
             KeyboardButtonProps={{
               'aria-label': 'change date',
             }}
+            shouldDisableDate={disableAllBarMonday}
+
+
           />
           </MuiPickersUtilsProvider>
         </Grid>
