@@ -50,12 +50,25 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = '__all__'
 
+
 class StreamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stream
         fields = '__all__'
 
+
 class RotaEntrySerializer(serializers.ModelSerializer):
+    prev_week = ShiftSerializer()
+    monday = ShiftSerializer()
+    tuesday = ShiftSerializer()
+    wednesday = ShiftSerializer()
+    thursday = ShiftSerializer()
+    friday = ShiftSerializer()
+    saturday = ShiftSerializer()
+    sunday = ShiftSerializer()
+
+    role_type = RoleSerializer()
+
     class Meta:
         model = RotaEntry
-        field = '__all__'
+        fields = '__all__'
