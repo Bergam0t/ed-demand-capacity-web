@@ -337,9 +337,13 @@ export default function Rotas() {
   function getDayValue(day) {
     for (const i in rotaData) {
       if (rotaData[i].day == day) {
-      return (
-        rotaData[i].shift_type
-    )
+        if (rotaData[i].shift_type != 0) {
+          return (
+            rotaData[i].shift_type
+          )
+          } else {
+            return null
+          }
       }
     }
   }
