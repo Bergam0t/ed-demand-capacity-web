@@ -195,7 +195,7 @@ export default function Rotas() {
        * Sorts streams by priority
        * Updates following states: streams, streamsOriginal, streamsLoaded
        */
-      return fetch('api/own-rota-entries')
+      return fetch('api/own-rota-entries-detailed')
       // Make sure to not wrap this first then statement in {}
       // otherwise it returns a promise instead of the json
       // and then you can't access the email attribute 
@@ -370,7 +370,7 @@ export default function Rotas() {
             role_type: role,
             resource_name: resourceName,
             resource_type: resourceType,
-            prev_week: getDayValue("Previous Week"),
+            prev_week: getDayValue("Previous"),
             monday: getDayValue("Monday"),
             tuesday: getDayValue("Tuesday"),
             wednesday: getDayValue("Wednesday"),
@@ -388,6 +388,10 @@ export default function Rotas() {
             console.log("Rota Entry created successfully")
             setAddRotaEntryOpen(false)
             fetchRotaEntries()
+            // Clear out modal data
+            setRota([])
+            setRole('')
+            setResourceName('')
         } else {
             console.log("Error creating rota entry")
         }
@@ -540,6 +544,111 @@ export default function Rotas() {
   }
 
 
+  const handleDeleteRotaEntry = (rota_entry_id) => {
+    fetch('/api/delete-rota-entry/' + rota_entry_id, 
+        {method: 'POST'})
+        .then(() => {
+            fetchRotaEntries()
+            })
+        .then(() => {
+            notifyDelete()
+        });
+
+};
+
+    // Function to create toast notification when role type successfully deleted
+    const notifyDelete = () => toast.success('Rota Entry Deleted', {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+  });
+
+  function tryGetShift(shiftEntryRota) {
+    try {
+      return (shiftEntryRota.shift_type_name)
+    } 
+    catch(err) {
+      return ("None")
+    }
+  }
+
+  function displayRotaEntries() {
+    if (rotaEntriesLoaded && shiftTypesLoaded && roleTypesLoaded) {
+
+      var rotaDays = ["Previous", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+      return (
+        <div>
+            <TableContainer component={Paper}>
+            <Table className={classes.table} aria-label="simple table">
+            
+                <TableHead className={classes.tableHead}>
+                    <TableRow className={classes.tableHeadCell}>
+                    <TableCell className={classes.tableHeadCell}>Role</TableCell>
+                    <TableCell className={classes.tableHeadCell}>Resource Name</TableCell>
+                    <TableCell className={classes.tableHeadCell}>Type</TableCell>
+                    {rotaDays.map((day) => (
+
+                        <TableCell className={classes.tableHeadCell}>{day}</TableCell>
+                    ))}
+                    
+                        <TableCell className={classes.tableHeadCell}>Delete</TableCell>
+                    
+                    </TableRow>
+                </TableHead>
+            
+            <TableBody>
+                
+                
+                {/* // Note that the usage of curly brackets vs brackets are important here!
+                // If you replace the outer two sets of brackets with curly brackets, no values return.   */}
+                {rotaEntries.map((rotaEntry) => (
+                    <TableRow key={rotaEntry.id}> 
+                    <TableCell>{rotaEntry.role_type.role_name}</TableCell> 
+                    <TableCell>{rotaEntry.resource_name}</TableCell> 
+                    <TableCell>{rotaEntry.resource_type.toUpperCase()}</TableCell> 
+                    {/* This doesn't appear to work if passing week days programatically so 
+                    have passed manually */}
+                    <TableCell>{tryGetShift(rotaEntry.prev_week)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.monday)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.tuesday)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.wednesday)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.thursday)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.friday)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.saturday)}</TableCell>
+                    <TableCell>{tryGetShift(rotaEntry.sunday)}</TableCell>
+
+
+                <TableCell align="left">
+                <IconButton onClick={() => handleDeleteRotaEntry(rotaEntry.id)}> 
+                    <DeleteIcon />
+                </ IconButton>
+                </TableCell> 
+
+            </TableRow>
+        ))} 
+
+                
+            </TableBody>
+        </Table>
+        </TableContainer>
+    </div>
+    )
+} else {
+    return (
+        <div>
+            <CircularProgress />
+        </div>
+    )
+
+}
+}
+
+
   // Functions to run on page load
   useEffect(() => {
     fetchRoleTypes()
@@ -590,6 +699,9 @@ export default function Rotas() {
           </Button>
           {rotaEntryModal()}
             
+          <br /> <br />
+
+          {displayRotaEntries()}
 
     </div>
     )
