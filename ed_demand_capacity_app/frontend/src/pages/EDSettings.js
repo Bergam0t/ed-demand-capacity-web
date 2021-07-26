@@ -392,6 +392,17 @@ export default function EDSettings() {
     // State variable for managing changes to individual states during creation
     const [roleTypeData, setRoleTypeData] = React.useState([])
 
+    // State for name of role
+    const [roleTypeName, setRoleTypeName] = useState('');
+
+    function handleRoleTypeNameChange(e) {
+        /**
+         * Handles updates to role types by updating the state 'roleTypeName'
+         * Intended for use with <TextField>
+         */
+        setRoleTypeName(e.target.value);
+    }
+
     const fetchRoleTypes = () => {
         /**
          * Function for retrieving role types from the server for this user session
@@ -461,29 +472,23 @@ export default function EDSettings() {
         setCreateRoleTypeModalOpen(false);
     })
 
-    const [roleTypeName, setRoleTypeName] = useState('');
-
-    function handleRoleTypeNameChange(e) {
-        /**
-         * Handles updates to role types by updating the state 'roleTypeName'
-         * Intended for use with <TextField>
-         */
-        setRoleTypeName(e.target.value);
-    }
 
     function initialiseRoleTypeDefaults() {
         /**
          * Set state for role type defaults that will be displayed in the dialog box
          */
-        console.log(streams)
+        // console.log(streams)
 
         var decision_array_initial = streams.map((stream) => ({
-            stream_object_id: stream.id, stream_name: stream.stream_name, decisions_per_hour: 0})
-        )
+            stream_object_id: stream.id, 
+            stream_name: stream.stream_name, 
+            decisions_per_hour: 0
+        }))
         
         console.log("Initial decision array", decision_array_initial)
         setRoleTypeData(decision_array_initial)
     }
+
 
     function handleChangeDecisionsPerHour(id, event) {
         /**
@@ -491,11 +496,9 @@ export default function EDSettings() {
          */
         const roleTypeDataItems = JSON.parse(JSON.stringify(roleTypeData));
 
-        // Update the priority field on the stream to reflect its new 
-        // position in the list
         for (const j in roleTypeDataItems) {
             if (roleTypeDataItems[j].stream_object_id == id) {
-                // If so, update the time for decision value with what has been
+                // Update the time for decision value with what has been
                 // entered in the textinput field
                 // Need to parse as float, not int, as want to allow decimal decisions per hour
                 roleTypeDataItems[j].decisions_per_hour = event.target.value
