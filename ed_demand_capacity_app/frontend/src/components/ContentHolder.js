@@ -86,6 +86,7 @@ const useStyles = makeStyles((theme) => ({
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
+      overflowY: 'auto',
     },
     drawerPaperClose: {
       overflowX: 'hidden',
@@ -144,7 +145,7 @@ const useStyles = makeStyles((theme) => ({
     
   }));
 
-const drawerWidth = 320;
+const drawerWidth = 330;
 
 
 
@@ -280,10 +281,6 @@ export default function ContentHolder() {
             <List>{adjustmentItems}</List>
             <Divider />
             <List>{secondaryListItems}</List>
-            <List> " " </List>
-            <List> " " </List>
-            <List> " " </List>
-            <List> " " </List>
           </div>
             )
       }
@@ -361,12 +358,14 @@ export default function ContentHolder() {
             paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
             }}
             open={open}
+            style={{ overflowY: 'scroll', height: '100vh' , overflow: "hidden", overflowX: "hidden"}}
         >
             <div className={classes.toolbarIcon}>
             <IconButton onClick={handleDrawerClose}>
                 <ChevronLeftIcon />
             </IconButton>
             </div>
+
             {userEmail && <DisplayUserWelcome />}
             <Divider />
             <List>{helpListItems}</List>
@@ -390,7 +389,9 @@ export default function ContentHolder() {
             <List> " " </List> */}
 
             {renderDependentMenuItems()}
+            
         </Drawer>
+        
         
         <main className={classes.content}>
             <div className={classes.appBarSpacer} />
