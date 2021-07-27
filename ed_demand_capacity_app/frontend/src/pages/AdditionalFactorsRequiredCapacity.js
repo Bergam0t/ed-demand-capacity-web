@@ -116,6 +116,35 @@ export default function AdditionalFactorsRequiredCapacity() {
               }
         }};
 
+
+
+    // ---------------- //
+    // Load factors
+    // -=-------------- //
+
+    const [factors, setFactors] = React.useState([])
+
+    const fetchFactors = () => {
+        /**
+         * Fetch a list of factirs from the API
+         * Updates following states: rotaEntries, rotaEntriesLoaded
+         */
+        return fetch('api/own-rota-entries-detailed')
+        // Make sure to not wrap this first then statement in {}
+        // otherwise it returns a promise instead of the json
+        // and then you can't access the email attribute 
+        .then(response => 
+            response.json()
+        )
+        .then((json) => {
+            setFactors(json);
+            
+        })
+        .then(() => setFactorsLoaded(true))
+        };
+
+
+
     // ----------------- //
     // Streams 
     // ----------------- //
@@ -153,6 +182,9 @@ export default function AdditionalFactorsRequiredCapacity() {
     // ------------------------- //
 
 
+    // Handle dialog open/close
+    const [addFactorOpen, setAddFactorOpen] = React.useState(false);
+
     // Handle factor description
 
     const startDatePeriodOfInterest = useStoreState(state => state.startDatePeriodOfInterest)
@@ -164,16 +196,68 @@ export default function AdditionalFactorsRequiredCapacity() {
 
     const [increaseOrDecrease, setIncreaseOrDecrease] = useState('increase');
 
-    const [addFactorOpen, setAddFactorOpen] = React.useState(false)
+    const [startDateFactor, setStartDateFactor] = React.useState(startDatePeriodOfInterest);
 
-    const [startDateFactor, setStartDateFactor] = React.useState(startDatePeriodOfInterest)
-
-
+    const [endDateFactor, setEndDateFactor] = React.useState(endDatePeriodOfInterest);
 
     function disableDatesOutsideInterest(date) {
-        return date < startDatePeriodOfInterest || date > endDatePeriodOfInterest;
+        return date < startDatePeriodOfInterest || date > endDatePeriodOfInterest ;
       }
 
+
+    function handleDiscard() {
+        // Reset all values to defaults
+        setFactorDescription('');
+        setPercentageChange(0);
+        setIncreaseOrDecrease('increase');
+        setStartDateFactor(startDatePeriodOfInterest);
+        setEndDateFactor(endDatePeriodOfInterest)
+
+        // Close the dialog box
+        setAddFactorOpen(false)
+    }
+
+    function handleConfirmCreateFactor() {
+        let headers = getHeaders()
+   
+        const requestOptions = {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+                factor_description: factorDescription,
+
+                percentage_change: percentageChange,
+                increase_or_decrease: increaseOrDecrease,
+                // factor_type:
+                start_date: startDateFactor,
+                // start_time:
+                end_date: endDateFactor,
+                // end_time:
+
+                // all_streams: 
+                // stream:
+            })
+        };
+    
+        console.log(requestOptions)
+    
+        fetch('/api/create-required-capacity-factor', requestOptions).then((response) => {
+            if (response.ok) {
+                console.log("Required capacity factor created successfully")
+                fetchFactors()
+                handleDiscard()
+            } else {
+                console.log("Error creating rota entry")
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+
+
+
+        handleDiscard()
+    }
 
     function factorEntryModal() {
         return (
@@ -267,7 +351,7 @@ export default function AdditionalFactorsRequiredCapacity() {
                                 variant="inline"
                                 format="dd/MM/yyyy"
                                 margin="normal"
-                                id="date-picker-inline"
+                                id="date-picker-start-date-factor"
                                 label="Start date for factor"
                                 value={startDateFactor}
                                 onChange={(e) => setStartDateFactor(e)}
@@ -298,6 +382,67 @@ export default function AdditionalFactorsRequiredCapacity() {
                     </Grid> */}
                 </Grid>
 
+                <Grid container>
+                    <Grid item xs={6}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
+                            <KeyboardDatePicker
+                                disableToolbar
+                                variant="inline"
+                                format="dd/MM/yyyy"
+                                margin="normal"
+                                id="date-picker-end-date-factor"
+                                label="End date for factor"
+                                value={endDateFactor}
+                                onChange={(e) => setEndDateFactor(e)}
+                                KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                                }}
+                                shouldDisableDate={disableDatesOutsideInterest}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid>
+                    {/* <Grid item xs={6}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
+                            <KeyboardDatePicker
+                                disableToolbar
+                                variant="inline"
+                                format="dd/MM/yyyy"
+                                margin="normal"
+                                id="date-picker-inline"
+                                label="Start date for rota"
+                                value={rotaStartDate}
+                                onChange={handleDateChangeStart}
+                                KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                                }}
+                                shouldDisableDate={disableAllBarMonday}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid> */}
+                </Grid>
+
+
+              <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
+              <Grid item xs={12}>
+                  <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
+                      <Button 
+                          variant="contained" 
+                          color="secondary" 
+                          onClick={handleDiscard}
+                      >
+                          Discard
+                      </Button>
+
+                      <Button 
+                          variant="contained" 
+                          color="primary"
+                          onClick={handleConfirmCreateFactor}
+                      >
+                          Confirm
+                      </Button>
+                  </ButtonGroup>
+              </Grid>
+          </Grid>
 
                 </Grid>
                 </Box>
@@ -360,7 +505,8 @@ export default function AdditionalFactorsRequiredCapacity() {
     // when the dialog box gets opened (as the request should have)
     // completed by this point
     useEffect(() => {
-        setStartDateFactor(startDatePeriodOfInterest)     
+        setStartDateFactor(startDatePeriodOfInterest)
+        setEndDateFactor(endDatePeriodOfInterest)         
     }, [addFactorOpen]);
 
 
