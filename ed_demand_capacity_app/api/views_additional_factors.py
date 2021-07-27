@@ -19,14 +19,14 @@ logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 
 
-# ------------------------ #
-# Capacity Factors
-# ------------------------ #
+# --------------------------- #
+# Required Capacity Factors
+# --------------------------- #
 
-class CreateCapacityFactor(APIView):
+class CreateRequiredCapacityFactor(APIView):
     def post(self, request, *args, **kwargs):
         log.info(request.data)
-        serializer = AdditionalFactorCapacitySerializer(data=request.data)
+        serializer = AdditionalFactorRequiredCapacitySerializer(data=request.data)
 
         if serializer.is_valid():
             log.info('Serializer valid for submitted capacity factor')
@@ -45,20 +45,20 @@ class CreateCapacityFactor(APIView):
             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ViewOwnAdditionalFactorsCapacity(APIView):
+class ViewOwnAdditionalFactorsRequiredCapacity(APIView):
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
-        queryset = AdditionalFactorCapacity.objects.filter(user_session=uploader)
-        serializer = AdditionalFactorCapacitySerializer(queryset, many=True)
+        queryset = AdditionalFactorRequiredCapacity.objects.filter(user_session=uploader)
+        serializer = AdditionalFactorRequiredCapacitySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class DeleteAdditionalFactorCapacity(APIView):
+class DeleteAdditionalFactorRequiredCapacity(APIView):
     def post(self, request, pk, *args, **kwargs):
         # First reduce queryset to only factors owned by the session
         # as don't want users to be able to delete other user's  factors
         uploader = request.session.session_key
-        queryset = AdditionalFactorCapacity.objects.filter(user_session=uploader)
+        queryset = AdditionalFactorRequiredCapacity.objects.filter(user_session=uploader)
         single_factor = queryset.get(id=pk)
 
         # TODO: Separate these into two different error messages
@@ -70,14 +70,14 @@ class DeleteAdditionalFactorCapacity(APIView):
 
         return Response({'Message': 'Capacity factor Deleted'}, status=status.HTTP_200_OK)
 
-# ----------------------- # 
-# Demand Factors
-# ----------------------- # 
+# --------------------------- # 
+# Available Capacity Factors
+# --------------------------- # 
 
-class CreateDemandFactor(APIView):
+class CreateAvailableCapacityFactor(APIView):
     def post(self, request, *args, **kwargs):
         log.info(request.data)
-        serializer = AdditionalFactorDemandSerializer(data=request.data)
+        serializer = AdditionalFactorAvailableCapacitySerializer(data=request.data)
 
         if serializer.is_valid():
             log.info('Serializer valid for submitted demand factor')
@@ -95,20 +95,20 @@ class CreateDemandFactor(APIView):
             log.error('Serializer not valid for submitted demand factor')
             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 
-class ViewOwnAdditionalFactorsDemand(APIView):
+class ViewOwnAdditionalFactorsAvailableCapacity(APIView):
     def get(self, request, *args, **kwargs):
         uploader = request.session.session_key
-        queryset = AdditionalFactorDemand.objects.filter(user_session=uploader)
-        serializer = AdditionalFactorDemandSerializer(queryset, many=True)
+        queryset = AdditionalFactorAvailableCapacity.objects.filter(user_session=uploader)
+        serializer = AdditionalFactorAvailableCapacitySerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class DeleteAdditionalFactorDemand(APIView):
+class DeleteAdditionalFactorAvailableCapacity(APIView):
     def post(self, request, pk, *args, **kwargs):
         # First reduce queryset to only factors owned by the session
         # as don't want users to be able to delete other user's  factors
         uploader = request.session.session_key
-        queryset = AdditionalFactorDemand.objects.filter(user_session=uploader)
+        queryset = AdditionalFactorAvailableCapacity.objects.filter(user_session=uploader)
         single_factor = queryset.get(id=pk)
 
         # TODO: Separate these into two different error messages
@@ -124,3 +124,4 @@ class DeleteAdditionalFactorDemand(APIView):
 # ----------------------- # 
 # Plotting
 # ----------------------- #
+

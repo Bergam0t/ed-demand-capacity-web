@@ -9,9 +9,6 @@ from .views_additional_factors import *
 
 urlpatterns = []
 
-urlpatterns += [
-
-]
 
 # ------------------------ #
 # Historic Data 
@@ -221,15 +218,15 @@ urlpatterns+= [
 
 urlpatterns += [
      path('own-capacity-factors', 
-         ViewOwnAdditionalFactorsCapacity.as_view(), 
+         ViewOwnAdditionalFactorsRequiredCapacity.as_view(), 
          name='view_own_capacity_factors'),
     
     path('create-capacity-factor', 
-         CreateCapacityFactor.as_view(), 
+         CreateRequiredCapacityFactor.as_view(), 
          name='create_capacity_factor'),
 
     path('delete-capacity-factor/<str:pk>', 
-         DeleteAdditionalFactorCapacity.as_view(), 
+         DeleteAdditionalFactorRequiredCapacity.as_view(), 
          name='delete_capacity_factor'),
 
 ]
@@ -240,17 +237,17 @@ urlpatterns += [
 # --------------------------- #
 
 urlpatterns += [
-     path('own-demand-factors', 
-         ViewOwnAdditionalFactorsDemand.as_view(), 
-         name='view_own_demand_factors'),
+     path('own-available-capacity-factors', 
+         ViewOwnAdditionalFactorsAvailableCapacity.as_view(), 
+         name='view_own_available_capacity_factors'),
     
-    path('create-demand-factor', 
-         CreateDemandFactor.as_view(), 
-         name='create_demand_factor'),
+    path('create-available-capacity-factor', 
+         CreateAvailableCapacityFactor.as_view(), 
+         name='create_available_capacity_factor'),
 
-    path('delete-demand-factor/<str:pk>', 
-         DeleteAdditionalFactorDemand.as_view(), 
-         name='delete_demand_factor'),
+    path('delete-available-capacity-factor/<str:pk>', 
+         DeleteAdditionalFactorAvailableCapacity.as_view(), 
+         name='delete_available_capacity_factor'),
 
 ]
 
