@@ -177,10 +177,6 @@ class RotaEntry(models.Model):
     resource_name = models.CharField(max_length=150,
                               default='')
 
-    # week_start = models.DateField(blank=True, null=True)
-
-    # week_end = models.DateField(blank=True, null=True)
-
     resource_type = models.CharField(max_length=10,
                                      choices=ResourceType.choices,
                                      default=ResourceType.CORE)
@@ -239,3 +235,11 @@ class AdditionalFactorAvailableCapacity(models.Model):
     percentage_change = models.FloatField()
 
     increase_or_decrease = models.CharField(max_length = 10)
+
+
+class Scenario(models.Model):
+    user_session =  models.CharField(max_length=50, 
+                                     default='Not recorded')
+                                     
+    start_date = models.CharField(max_length=50,
+                                        default='')

@@ -3,7 +3,8 @@
 import { stringToArray } from 'ag-grid-community';
 import { action, computed, thunk } from 'easy-peasy';
 import { toast } from 'react-toastify';
-
+import {addDays} from 'date-fns';
+import moment from 'moment'
 
 // Notifications
 const notifyLogout = () => toast.warn('Logged Out Successfully', {
@@ -102,6 +103,10 @@ export default {
 
     allDataframeColumnsList: null,
 
+    startDatePeriodOfInterest: new Date(),
+
+    endDatePeriodOfInterest: addDays(new Date(), 6),
+
     // ---- Actions ---- //
 
     // Setting initial user email
@@ -119,6 +124,12 @@ export default {
         actions.setInitialStateEmail(data);      
       }),
 
+
+    // Period of Interest
+    setStartDatePeriodOfInterest: action((state, payload) => {
+        state.startDatePeriodOfInterest = payload;
+        state.endDatePeriodOfInterest = addDays(payload, 6)
+      }),
 
     // Check whether session has historic data
     setInitialStateSessionHasHistoric: action((state, payload) => {

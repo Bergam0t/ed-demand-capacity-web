@@ -14,8 +14,7 @@ import {
     InputLabel
   } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
-import { useStoreActions } from 'easy-peasy';
-import {useStoreState} from 'easy-peasy';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 import { makeStyles} from '@material-ui/core/styles';
 
 import Dialog from '@material-ui/core/Dialog';
@@ -161,9 +160,8 @@ export default function Rotas() {
 
   const fetchShiftTypes = () => {
     /**
-     * Fetch a list of streams from the API
-     * Sorts streams by priority
-     * Updates following states: streams, streamsOriginal, streamsLoaded
+     * Fetch a list of shift types from the API
+     * Updates following states: shiftTypes, shiftTypesLoaded
      */
     return fetch('api/own-shift-types')
     // Make sure to not wrap this first then statement in {}
@@ -173,13 +171,7 @@ export default function Rotas() {
         response.json()
     )
     .then((json) => {
-        // Sort the returned states by priority
-        // From https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
-        //  const sorted_json = json.sort((a, b) => {
-        //      return a.stream_priority - b.stream_priority
-        //  }).slice()
-        setShiftTypes(json);
-        
+        setShiftTypes(json);     
     })
     .then(() => setShiftTypesLoaded(true))
     };
@@ -191,9 +183,8 @@ export default function Rotas() {
 
     const fetchRotaEntries = () => {
       /**
-       * Fetch a list of streams from the API
-       * Sorts streams by priority
-       * Updates following states: streams, streamsOriginal, streamsLoaded
+       * Fetch a list of rota entries from the API
+       * Updates following states: rotaEntries, rotaEntriesLoaded
        */
       return fetch('api/own-rota-entries-detailed')
       // Make sure to not wrap this first then statement in {}
@@ -211,12 +202,38 @@ export default function Rotas() {
 
 
   // Handling rota start day
-  const [rotaStartDate, setRotaStartDate] = React.useState(new Date())
-  const [rotaEndDate, setRotaEndDate] = React.useState(addDays(new Date(), 7))
+  // const [rotaStartDate, setRotaStartDate] = React.useState(new Date())
+  // const [rotaEndDate, setRotaEndDate] = React.useState(addDays(new Date(), 7))
+
+  const rotaStartDate = useStoreState(state => state.startDatePeriodOfInterest)
+  const setStartDatePeriodOfInterest = useStoreActions((actions) => actions.setStartDatePeriodOfInterest);
 
   const handleDateChangeStart = (date) => {
-    setRotaStartDate(date);
-    setRotaEndDate(addDays(date, 7))
+    
+    let headers = getHeaders()
+
+    const requestOptions = {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        start_date: date
+      })
+  };
+
+  console.log(requestOptions)
+
+  fetch('/api/view-or-update-scenarios', requestOptions).then((response) => {
+      if (response.ok) {
+          console.log("Start date of period of interest set")
+          setStartDatePeriodOfInterest(date.toDateString());
+      } else {
+          console.log("Error updating date of interest for scenario")
+      }
+  })
+  .catch((error) => {
+      console.log(error);
+  });
+
   };
 
   // ---------------------------------------- //
@@ -572,7 +589,7 @@ export default function Rotas() {
       return (shiftEntryRota.shift_type_name)
     } 
     catch(err) {
-      return ("None")
+      return ("-")
     }
   }
 
@@ -693,8 +710,6 @@ export default function Rotas() {
               'aria-label': 'change date',
             }}
             shouldDisableDate={disableAllBarMonday}
-
-
           />
           </MuiPickersUtilsProvider>
         </Grid>
