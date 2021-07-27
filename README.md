@@ -3,6 +3,9 @@
 
 
 
+If you have any questions about the development of the app, please get in touch with Sammi Rosser ([Bergam0t](https://github.com/Bergam0t)) via [Twitter](https://twitter.com/sammi_rosser), or open an issue on the respository. 
+
+
 # Virtual environments
 To run the app on Windows, you need to use a conda environment because there is an issue with installing Prophet using pip. 
 
@@ -122,4 +125,104 @@ Terminal 3 (cmd or powershell):
 cd ed_demand_capacity_web
 cd frontend
 npm run dev
+```
+
+
+
+# Basic steps for adding a new feature
+
+## Backend
+
+1. Add your database models to ed_demand_capacity_app/api/models.py
+
+2. Perform database migrations using 
+```
+manage.py makemigrations
+manage.py migrate
+```
+3. Write your API views, either in ed_demand_capacity_app/api/views.py or by creating a file called ed_demand_capacity_app/api/views_{what_your_views_relate_to}.py
+
+4. Create endpoints for your API views in ed_demand_capacity_app/api/urls.py
+
+
+## Frontend
+
+1. Create a page that will use the data from your views in ed_demand_capacity_app/frontend/src/pages
+
+2. Add frontend urls by adding a line to ed_demand_capacity_app/frontend/src/components/DashboardContent.js
+e.g. 
+```
+import { The page you just created } from "../pages/[Filename of the page you just created]"
+<Route path='/{the-url-you-want-users-to-see}' component={ The page you just created } />
+```
+
+3. Add navigation to the new page by adding a list item to ed_demand_capacity_app/frontend/src/components/ListItems.js
+```
+<ListItem button to="/[THE URL YOU DEFINED IN STEP 3]" component = { Link }>
+    <ListItemIcon>
+        <[ICON OF YOUR CHOICE] />
+    </ListItemIcon>
+    <ListItemText primary=[TEXT YOU WANT USER TO SEE IN MENU BAR] />
+</ListItem>
+```
+
+You can choose an icon from any of the ones here: https://material-ui.com/components/material-icons/ 
+Make sure to import it and put the import at the top of the file.
+You can see the code needed for the import by clicking on the icons on the webpage.
+
+
+Note that for some reason the menu items are particularly stubborn about not refreshing after you have made changes to them. In addition to using the 'empty cache and hard reload' option, you may need to restart the development server and also stop and restart the `npm run dev` script. 
+
+
+
+# Tracking problems
+
+If you need finer-grained tracking of problems than the basic dev tools can provide, you can create additional log statements.
+
+## Frontend
+
+In any javascript (.js) files, use
+
+```
+console.log('Your message or output')
+```
+
+If you need this to happen during a return statement, you will need to wrap it in curly braces, i.e.
+```
+{console.log('Your message or output')}
+```
+
+These error messages will then appear in the web console. In Chrome, you view this by right clicking on the page and choosing 'inspect'. In the box that then appears, choose 'Console' from the list of tabs at the top. 
+
+## Backend
+
+In Python (.py) files, use 
+
+```
+log.info('Your message or output')
+```
+
+or 
+
+```
+log.error('Your message or output')
+```
+
+In most existing files, logging will have already been imported. If you need to set it up in a new file you have created, add the following to the top of the file.
+
+```
+import logging
+# Ensure all log messages of INFO level and above get shown
+logging.basicConfig(level = logging.INFO)
+# Create the logger
+log = logging.getLogger(__name__)
+```
+
+These error messages will then appear in the terminal you are using to 
+
+
+If you are trying to debug on Heroku, you can access these Python logs using
+
+```
+heroku logs --tail -a ed-demand-capacity-app
 ```

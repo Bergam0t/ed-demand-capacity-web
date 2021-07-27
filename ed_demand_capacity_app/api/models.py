@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils.translation import gettext as _
+from django.contrib.postgres.fields import ArrayField
+
 
 # See accepted answer here for what the different 'on_delete' options do
 # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
@@ -177,10 +179,6 @@ class RotaEntry(models.Model):
     resource_name = models.CharField(max_length=150,
                               default='')
 
-    # week_start = models.DateField(blank=True, null=True)
-
-    # week_end = models.DateField(blank=True, null=True)
-
     resource_type = models.CharField(max_length=10,
                                      choices=ResourceType.choices,
                                      default=ResourceType.CORE)
@@ -200,3 +198,62 @@ class RotaEntry(models.Model):
     saturday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='saturday', null=True)
 
     sunday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='sunday', null=True)
+
+class AdditionalFactorRequiredCapacity(models.Model):
+    user_session =  models.CharField(max_length=50, 
+                                     default='Not recorded')
+
+    factor_name = models.CharField(max_length = 200)
+    
+    percentage_change = models.FloatField()
+
+    increase_or_decrease = models.CharField(max_length = 10)
+
+    # TODO: Should try to update to be a many-to-many relationship
+    # It's not possible to use a foreign key as the base field for an array field
+    # https://stackoverflow.com/questions/35957837/trying-to-make-a-postgresql-field-with-a-list-of-foreign-keys-in-django
+    streams =  ArrayField(
+        models.CharField(max_length=150, blank=True, null=True),
+        null=True
+        )
+
+    factor_type = models.CharField(max_length = 200)
+
+    start_date = models.CharField(max_length=50,
+                                        default='')
+
+    start_time = models.CharField(max_length=50,
+                                        default='')
+
+    end_date = models.CharField(max_length=50,
+                                        default='')
+
+    end_time = models.CharField(max_length=50,
+                                        default='')
+
+
+class AdditionalFactorAvailableCapacity(models.Model):
+    user_session =  models.CharField(max_length=50, 
+                                     default='Not recorded')
+
+    factor_description = models.CharField(max_length = 200)
+
+     # TODO: Should try to update to be a many-to-many relationship
+    # It's not possible to use a foreign key as the base field for an array field
+    # https://stackoverflow.com/questions/35957837/trying-to-make-a-postgresql-field-with-a-list-of-foreign-keys-in-django
+    streams =  ArrayField(
+        models.CharField(max_length=150, blank=True, null=True),
+        null=True
+        )
+
+    percentage_change = models.FloatField()
+
+    increase_or_decrease = models.CharField(max_length = 10)
+
+
+class Scenario(models.Model):
+    user_session =  models.CharField(max_length=50, 
+                                     default='Not recorded')
+                                     
+    start_date = models.CharField(max_length=50,
+                                        default='')

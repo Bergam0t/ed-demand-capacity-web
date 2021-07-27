@@ -21,9 +21,10 @@ logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 
 
-class ShiftType:
+class ShiftTypeClass:
     def __init__(self,
                  name,
+                 id,
                  start_time,
                  end_time,
                  unavailability_1_start=None,
@@ -75,6 +76,7 @@ class ShiftType:
         '''
 
         self.name = name
+        self.id = id
         self.name_plottable = name.replace('_', ' ').title()
 
         self.start_time = self.try_datetime_parse(start_time)
@@ -119,6 +121,30 @@ class ShiftType:
             orient='index', 
             columns = [self.name]
             ) 
+
+
+def create_shift_objects(user_session):
+    queryset = Shift.objects.filter(user_session=user_session)
+
+    shift_type_list = []
+
+    for shift_object in queryset:
+        shift_type_list.append(
+            ShiftTypeClass(
+                name = shift_object.shift_type_name,
+                id = shift_object.id,
+                start_time = shift_object.shift_start_time,
+                end_time = shift_object.shift_end_time,
+                unavailability_1_start = shift_object.break_1_start,
+                unavailability_1_end = shift_object.break_1_end,
+                unavailability_2_start = shift_object.break_2_start,
+                unavailability_2_end = shift_object.break_2_end,
+                unavailability_3_start = shift_object.break_3_start,
+                unavailability_3_end = shift_object.break_3_end
+            )
+        )
+
+    return shift_type_list
 
 
 # Inspired by https://www.youtube.com/watch?v=TmsD8QExZ84
@@ -183,37 +209,33 @@ class CreateShiftType(APIView):
             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateShiftType(APIView):
-    def post(self, request, pk, *args, **kwargs):
-        # First reduce queryset to only shifts owned by the session
-        # as don't want users to be able to update other user's shift types
+# class UpdateShiftType(APIView):
+#     def post(self, request, pk, *args, **kwargs):
+#         # First reduce queryset to only shifts owned by the session
+#         # as don't want users to be able to update other user's shift types
 
-        uploader = request.session.session_key
-        queryset = Shift.objects.filter(user_session=uploader)
-        single_shift = queryset.objects.get(id=pk)
+#         uploader = request.session.session_key
+#         queryset = Shift.objects.filter(user_session=uploader)
+#         single_shift = queryset.objects.get(id=pk)
 
-        # TODO: Separate these into two different error messages
-        if len(single_shift < 1):
-            return Response({'Message': 'This shift does not exist or does not belong to your session'}, 
-                            status=status.HTTP_400_BAD_REQUEST)
+#         # TODO: Separate these into two different error messages
+#         if len(single_shift < 1):
+#             return Response({'Message': 'This shift does not exist or does not belong to your session'}, 
+#                             status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ShiftSerializer(instance=single_shift, data=request.data)
+#         serializer = ShiftSerializer(instance=single_shift, data=request.data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         else:
+#             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteShiftType(APIView):
     def post(self, request, pk, *args, **kwargs):
         # First reduce queryset to only shifts owned by the session
         # as don't want users to be able to delete other user's shift types
-
-        # First reduce queryset to only shifts owned by the session
-        # as don't want users to be able to find other user's shift types
-        # (or at least not the full details)
         uploader = request.session.session_key
         queryset = Shift.objects.filter(user_session=uploader)
         single_shift = queryset.get(id=pk)
@@ -228,31 +250,11 @@ class DeleteShiftType(APIView):
         return Response({'Message': 'Shift Deleted'}, status=status.HTTP_200_OK)
 
 
-
-
-
-
 class PlotShiftTypes(APIView):
     def get(self, request, *args, **kwargs):
-        uploader = request.session.session_key
-        queryset = Shift.objects.filter(user_session=uploader)
+        user_session = request.session.session_key
 
-        shift_type_list = []
-
-        for shift_object in queryset:
-            shift_type_list.append(
-                ShiftType(
-                    name = shift_object.shift_type_name,
-                    start_time = shift_object.shift_start_time,
-                    end_time = shift_object.shift_end_time,
-                    unavailability_1_start = shift_object.break_1_start,
-                    unavailability_1_end = shift_object.break_1_end,
-                    unavailability_2_start = shift_object.break_2_start,
-                    unavailability_2_end = shift_object.break_2_end,
-                    unavailability_3_start = shift_object.break_3_start,
-                    unavailability_3_end = shift_object.break_3_end
-                )
-            )
+        shift_type_list = create_shift_objects(user_session)
 
         fig = go.Figure()
 

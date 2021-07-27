@@ -20,6 +20,60 @@ logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 
 
+class RoleClass:
+    def __init__(self,
+                role_name,
+                id,
+                decisions_per_hour_per_stream):
+
+        '''
+        The role defines the decision-making capabilities of a 
+        particular class of decision maker
+
+        e.g. a Role could be 'Consultant majors'
+
+        You may have >1 individual with the same role in an ED
+        
+
+        Params:
+        -------
+
+        role_name: str
+            Name of role
+            Examples: Cons Resus, Cons Majors, Cons Minors
+
+        decisions_per_hour_per_stream: list of dicts
+            List of dicts in the following format
+            {'stream': str, 'decisions_per_hour': float}
+            Where stream is the stream name
+            Decisions per hour is 
+
+            If a resource is able to make decisions for multiple streams,
+            then the list should contain multiple dictionaries
+
+        '''
+    
+        self.role_name = role_name
+        self.id = id
+        self.decisions_per_hour_per_stream = decisions_per_hour_per_stream 
+
+
+def create_role_objects(user_session):
+    queryset = Role.objects.filter(user_session=user_session)
+
+    role_list = []
+
+    for role_object in queryset:
+        role_list.append(
+            RoleClass(
+                role_name = role_object.role_name,
+                id = role_object.id,
+                decisions_per_hour_per_stream = role_object.decisions_per_hour_per_stream
+            )
+        )
+
+    return role_list
+
 # Inspired by https://www.youtube.com/watch?v=TmsD8QExZ84
 
 class ViewOwnRoleTypes(APIView):

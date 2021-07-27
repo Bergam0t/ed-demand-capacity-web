@@ -55,7 +55,7 @@ export const saveLoadItems = (
       <ListItemIcon>
         <FolderOpenIcon />
       </ListItemIcon>
-      <ListItemText primary="Load Model" />
+      <ListItemText primary="Load Model (COMING SOON)" />
     </ListItem>
 
     <ListItem button to="/notes" component = { Link }>
@@ -119,18 +119,19 @@ export const adjustmentItems = (
 
     <ListSubheader inset>Optional Adjustments</ListSubheader>
 
-    <ListItem button disabled>
+    <ListItem button to="/additional-factors-required-capacity" component = { Link }>
       <ListItemIcon>
         <GroupIcon />
       </ListItemIcon>
-      <ListItemText primary="Factors Affecting Demand" />
+      <ListItemText primary="Required Capacity" />
     </ListItem>
     
-    <ListItem button disabled>
+    {/* <ListItem button to="/additional-factors-available-capacity" component = { Link }> */}
+  <ListItem button disabled>
       <ListItemIcon>
         <Battery60Icon />
       </ListItemIcon>
-      <ListItemText primary="Factors Affecting Capacity" />
+      <ListItemText primary="Available Capacity (COMING SOON)" />
     </ListItem>
   </div>
 );

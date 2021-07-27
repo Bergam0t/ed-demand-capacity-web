@@ -286,6 +286,9 @@ export default function ContentHolder() {
       }
     }
 
+  // Check for period of interest
+  const fetchInitialPeriodOfInterest = useStoreActions((actions) => actions.fetchInitialPeriodOfInterest);
+
 
     // On loading, run the followwing
 
@@ -293,6 +296,7 @@ export default function ContentHolder() {
       fetchInitialStateEmail(); 
       fetchInitialStateSessionHistoric();
       fetchInitialStateDataProcessed();
+      fetchInitialPeriodOfInterest();
   }, [])
     
 
@@ -304,6 +308,7 @@ export default function ContentHolder() {
         
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
             <Toolbar className={classes.toolbar}>
+              
               <IconButton
                   edge="start"
                   color="inherit"
@@ -313,19 +318,23 @@ export default function ContentHolder() {
               >
                   <MenuIcon />
               </IconButton>
+              
               <Typography component="h1" variant="h5" color="inherit" noWrap className={classes.title}>
                   NHS Demand and Capacity - Emergency Department Model
               </Typography>
+              
               <Button onClick={handleOpenGlossary} 
               className={classes.muiButtonLabelWhite}>
                 <MenuBookIcon className={classes.menuBookIcon}/>  Glossary  
               </Button>
+              
               <Modal
                 open={openGlossary}
                 onClose={handleCloseGlossary}
                 className={classes.modal}
                >
                       <div>
+                        <Box style={{backgroundColor: "white"}}>
                         <Grid container justify="space-between" style={{paddingTop: 10, paddingLeft: 10, paddingRight: 10, paddingBottom:10}}>
                           <Grid item>
                             <Typography variant="h4"> 
@@ -341,6 +350,7 @@ export default function ContentHolder() {
                           <Card bordered="false" style={{overflow: 'auto', height: '50vh'}}>
                             <Glossary />
                           </Card>
+                          </Box>
                         
                   </ div>
               </Modal>

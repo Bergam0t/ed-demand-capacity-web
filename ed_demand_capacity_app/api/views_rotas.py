@@ -19,6 +19,114 @@ logging.basicConfig(level = logging.INFO)
 # Create the logger
 log = logging.getLogger(__name__)
 
+from .views_shift_types import ShiftTypeClass, create_shift_objects
+from .views_role_types import RoleClass, create_role_objects
+
+class RotaEntryClass:
+    '''
+    Object defining a week's worth of rota for a single
+    individual
+    '''
+
+    def __init__(self,
+                 id,
+                 role,
+                 core=True,
+                 name=None,
+                 prev_week=None,
+                 monday=None,
+                 tuesday=None,
+                 wednesday=None,
+                 thursday=None,
+                 friday=None,
+                 saturday=None,
+                 sunday=None):
+        '''
+        role: RoleType object
+            What role the rota entry relates to. 
+            RoleType objects determine decisions per hour.
+
+        core: boolean
+            Whether a resource should be considered as core.
+            False = resource is ad-hoc.
+
+
+        name: str
+            String giving name of resource e.g. if preferring to 
+            work with actual names of individuals
+
+        prev_week: ShiftType object 
+
+        monday: ShiftType object
+
+        tuesday: ShiftType object
+
+        wednesday: ShiftType object
+
+        thursday: ShiftType object
+
+        friday: ShiftType object
+        
+        saturday: ShiftType object
+        
+        sunday: ShiftType object
+        '''
+        self.role = role
+        self.core = core
+        self.name = name
+        self.id = id
+
+        self.prev_week = prev_week
+        self.monday = monday
+        self.tuesday = tuesday
+        self.wednesday = wednesday
+        self.thursday = thursday
+        self.friday = friday
+        self.saturday = saturday
+        self.sunday = sunday
+
+
+def create_rota_objects(user_session):
+
+    role_list = create_role_objects(user_session)
+    shift_list = create_shift_objects(user_session)
+
+    queryset = RotaEntry.objects.filter(user_session=user_session)
+
+    def find_role_by_id(id):
+        for role_object in role_list:
+            if role_object.id == id:
+                return role_object
+    
+    def find_shift_by_id(id):
+        for shift_object in shift_list:
+            if shift_object.id == id:
+                return shift_object
+
+
+    rota_entry_list = []
+
+    for rota_object in queryset:
+        rota_entry_list.append(
+            RotaEntryClass(
+                role = find_role_by_id(rota_object.role_type),
+                core = rota_object.resource_type,
+                name = rota_object.resource_name,
+                id = rota_object.id,
+
+                prev_week = find_shift_by_id(id),
+                monday = find_shift_by_id(id),
+                tuesday = find_shift_by_id(id),
+                wednesday = find_shift_by_id(id),
+                thursday = find_shift_by_id(id),
+                friday = find_shift_by_id(id),
+                saturday = find_shift_by_id(id),
+                sunday = find_shift_by_id(id),
+            )
+        )
+
+    return role_list, shift_list, rota_entry_list
+
 
 # Inspired by https://www.youtube.com/watch?v=TmsD8QExZ84
 

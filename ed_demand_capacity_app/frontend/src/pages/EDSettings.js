@@ -764,7 +764,7 @@ export default function EDSettings() {
     // ------------------------------------------------ //
 
     // Determine what will run on page load
-    // Get notes from server
+    // Get streams and role types from server
     useEffect(() => {
         fetchStreams()
         fetchRoleTypes()      
