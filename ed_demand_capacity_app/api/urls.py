@@ -218,17 +218,17 @@ urlpatterns+= [
 # --------------------------- #
 
 urlpatterns += [
-     path('own-capacity-factors', 
+     path('own-required-capacity-factors', 
          ViewOwnAdditionalFactorsRequiredCapacity.as_view(), 
-         name='view_own_capacity_factors'),
+         name='view_own_required_capacity_factors'),
     
-    path('create-capacity-factor', 
+    path('create-required-capacity-factor', 
          CreateRequiredCapacityFactor.as_view(), 
-         name='create_capacity_factor'),
+         name='create_required_capacity_factor'),
 
-    path('delete-capacity-factor/<str:pk>', 
+    path('delete-required-capacity-factor/<str:pk>', 
          DeleteAdditionalFactorRequiredCapacity.as_view(), 
-         name='delete_capacity_factor'),
+         name='delete_required_capacity_factor'),
 
 ]
 

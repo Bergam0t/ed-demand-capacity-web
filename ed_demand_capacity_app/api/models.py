@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils.translation import gettext as _
+from django.contrib.postgres.fields import ArrayField
+
 
 # See accepted answer here for what the different 'on_delete' options do
 # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
@@ -207,19 +209,27 @@ class AdditionalFactorRequiredCapacity(models.Model):
 
     increase_or_decrease = models.CharField(max_length = 10)
 
-    all_streams = models.BooleanField()
-
-    stream = models.ForeignKey(Stream, on_delete=models.CASCADE, null=True)
+    # TODO: Should try to update to be a many-to-many relationship
+    # It's not possible to use a foreign key as the base field for an array field
+    # https://stackoverflow.com/questions/35957837/trying-to-make-a-postgresql-field-with-a-list-of-foreign-keys-in-django
+    streams =  ArrayField(
+        models.CharField(max_length=150, blank=True, null=True),
+        null=True
+        )
 
     factor_type = models.CharField(max_length = 200)
 
-    start_date = models.DateField()
+    start_date = models.CharField(max_length=50,
+                                        default='')
 
-    start_time = models.TimeField()
+    start_time = models.CharField(max_length=50,
+                                        default='')
 
-    end_date = models.DateField()
+    end_date = models.CharField(max_length=50,
+                                        default='')
 
-    end_time = models.TimeField()
+    end_time = models.CharField(max_length=50,
+                                        default='')
 
 
 class AdditionalFactorAvailableCapacity(models.Model):
@@ -228,9 +238,13 @@ class AdditionalFactorAvailableCapacity(models.Model):
 
     factor_description = models.CharField(max_length = 200)
 
-    all_streams = models.BooleanField()
-
-    stream = models.ForeignKey(Stream, on_delete=models.CASCADE, null=True)
+     # TODO: Should try to update to be a many-to-many relationship
+    # It's not possible to use a foreign key as the base field for an array field
+    # https://stackoverflow.com/questions/35957837/trying-to-make-a-postgresql-field-with-a-list-of-foreign-keys-in-django
+    streams =  ArrayField(
+        models.CharField(max_length=150, blank=True, null=True),
+        null=True
+        )
 
     percentage_change = models.FloatField()
 

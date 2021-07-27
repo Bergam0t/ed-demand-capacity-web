@@ -41,6 +41,7 @@ class CreateRequiredCapacityFactor(APIView):
             
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
+            log.error(serializer.errors)
             log.error('Serializer not valid for submitted capacity factor')
             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -92,6 +93,7 @@ class CreateAvailableCapacityFactor(APIView):
             
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
+            log.error(serializer.errors)
             log.error('Serializer not valid for submitted demand factor')
             return Response({'Message': 'Invalid data passed'}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -34,6 +34,7 @@ import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import HelpIcon from '@material-ui/icons/Help';
 import DateFnsUtils from '@date-io/date-fns'; 
+import moment from 'moment'
 
 
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -129,18 +130,19 @@ export default function AdditionalFactorsRequiredCapacity() {
          * Fetch a list of factirs from the API
          * Updates following states: rotaEntries, rotaEntriesLoaded
          */
-        return fetch('api/own-rota-entries-detailed')
+        return fetch('api/own-required-capacity-factors')
         // Make sure to not wrap this first then statement in {}
         // otherwise it returns a promise instead of the json
         // and then you can't access the email attribute 
         .then(response => 
             response.json()
         )
-        .then((json) => {
-            setFactors(json);
-            
-        })
-        .then(() => setFactorsLoaded(true))
+        .then((json) => 
+            setFactors(json)
+        )
+        .then(() => 
+            setFactorsLoaded(true)
+        )
         };
 
 
@@ -198,6 +200,8 @@ export default function AdditionalFactorsRequiredCapacity() {
 
     const [factorType, setFactorType] = useState('')
 
+    const [streamsSelected, setStreamsSelected] = useState([])
+
     const DefaultTime = new Date("January 1 2021 12:00");
 
     const [startDateFactor, setStartDateFactor] = React.useState(startDatePeriodOfInterest);
@@ -207,9 +211,10 @@ export default function AdditionalFactorsRequiredCapacity() {
     const [endDateFactor, setEndDateFactor] = React.useState(endDatePeriodOfInterest);
 
     const [endTimeFactor, setEndTimeFactor] = React.useState(DefaultTime);
+    
 
     function disableDatesOutsideInterest(date) {
-        return date < startDatePeriodOfInterest || date > endDatePeriodOfInterest ;
+        return (date < startDatePeriodOfInterest || date > endDatePeriodOfInterest) ;
       }
 
 
@@ -218,8 +223,13 @@ export default function AdditionalFactorsRequiredCapacity() {
         setFactorDescription('');
         setPercentageChange(0);
         setIncreaseOrDecrease('increase');
+        setFactorType('')
+        setStreamsSelected([])
         setStartDateFactor(startDatePeriodOfInterest);
+        setStartTimeFactor(DefaultTime);
         setEndDateFactor(endDatePeriodOfInterest)
+        setEndTimeFactor(DefaultTime);
+        
 
         // Close the dialog box
         setAddFactorOpen(false)
@@ -232,18 +242,22 @@ export default function AdditionalFactorsRequiredCapacity() {
             method: "POST",
             headers: headers,
             body: JSON.stringify({
-                factor_description: factorDescription,
+                factor_name: factorDescription,
 
                 percentage_change: percentageChange,
                 increase_or_decrease: increaseOrDecrease,
-                // factor_type:
+                
+                streams: streamsSelected,
+
+                factor_type: factorType,
+                
                 start_date: startDateFactor,
                 start_time: startTimeFactor,
+                
                 end_date: endDateFactor,
                 end_time: endTimeFactor,
 
-                // all_streams: 
-                // stream:
+                
             })
         };
     
@@ -255,7 +269,7 @@ export default function AdditionalFactorsRequiredCapacity() {
                 fetchFactors()
                 handleDiscard()
             } else {
-                console.log("Error creating rota entry")
+                console.log("Error creating required capacity factor")
             }
         })
         .catch((error) => {
@@ -268,6 +282,7 @@ export default function AdditionalFactorsRequiredCapacity() {
     }
 
     function factorEntryModal() {
+        if (streamsLoaded) {
         return (
           <div>
             <Dialog
@@ -321,6 +336,56 @@ export default function AdditionalFactorsRequiredCapacity() {
                   </Tooltip>
                 </Grid>
                 
+                <Grid container spacing={2}>
+                <Grid item xs={4}>
+                    <Typography variant="h6">
+                        Factor Type
+                    </Typography>
+                </Grid>
+                <Grid item xs={8}>
+                        <Select
+                            labelId="factor-type-label"
+                            id="factor-type"
+                            value={factorType}
+                            label="Select Factor Type"
+                            placeholder="Select Factor Type"
+                            onChange={(e) => setFactorType(e.target.value)}
+                            fullWidth
+                        >
+                            <MenuItem key="attendances" value="attendances">Attendances</MenuItem>
+                            <MenuItem key="decision-time" value="required-decision-making-time">Required Decision Making Time</MenuItem>
+                        </Select>
+                        <br /> <br /> <br /> 
+                    </Grid>
+                </Grid>
+
+                <Grid container spacing={2}>
+                <Grid item xs={4}>
+                    <Typography variant="h6">
+                        Streams Affected
+                    </Typography>
+                </Grid>
+                <Grid item xs={8}>
+                        <Select
+                            labelId="stream-select-label"
+                            id="stream-select"
+                            value={streamsSelected}
+                            label="Select Streams Affected"
+                            onChange={(e) => setStreamsSelected(e.target.value)}
+                            fullWidth
+                            multiple
+                        >
+                            {streams.map((stream) =>(
+                                <MenuItem key={stream.id} value={stream.id}>{stream.stream_name}</MenuItem>
+
+                            ))}
+                        </Select>
+                        <br /> <br /> <br /> 
+                    </Grid>
+                </Grid>
+
+               
+
                 <Grid container spacing={4}>
                     <Grid item xs={4}>
                             <Input
@@ -416,6 +481,7 @@ export default function AdditionalFactorsRequiredCapacity() {
 
               <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
               <Grid item xs={12}>
+                  <br /> <br />
                   <ButtonGroup disableElevation variant="contained" color="primary" fullWidth>
                       <Button 
                           variant="contained" 
@@ -440,13 +506,58 @@ export default function AdditionalFactorsRequiredCapacity() {
                 </Box>
                 </Dialog> 
                 </div>
-                )  
+                ) } else {
+                    return (
+                        <div>
+                        <CircularProgress />
+                    </div>
+                    ) 
+                } 
         }
 
+    // ----------------------- //
+    // Deletion of factors
+    // ----------------------- //
+
+    // Add function to handle deletion of shift types on click
+    const handleDeleteFactor = (factor_id) => {
+    fetch('/api/delete-required-capacity-factor/' + factor_id, 
+            {method: 'POST'})
+            .then(() => {
+            fetchFactors()
+            })
+            .then(() => {
+                notifyDelete()
+            });
+    };
+
+    const notifyDelete = () => toast.success('Factor Deleted', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
 
     // -------------------- //
     // Display of factors
     // -------------------- //
+
+    function formatTime(time) {
+        var dt = new Date(time)
+        return (
+            !dt.getTime() > 0 ? " " : moment(time).format('HH:mm')
+        )
+    }
+
+    function formatDate(time) {
+        var dt = new Date(time)
+        return (
+            !dt.getTime() > 0 ? " " : moment(time).format('dddd Do MMMM YYYY')
+        )
+    }
 
     function displayFactors() {
         if (factorsLoaded && streamsLoaded) {
@@ -469,9 +580,32 @@ export default function AdditionalFactorsRequiredCapacity() {
                             
                             <TableCell className={classes.tableHeadCell}>End Date</TableCell>
                             <TableCell className={classes.tableHeadCell}>End Time</TableCell>
+
+                            <TableCell className={classes.tableHeadCell}>Delete</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
+                        
+                            {factors.map((factor) =>
+                            <TableRow>
+                                <TableCell>{factor.factor_name}</TableCell>
+                                <TableCell>{factor.percentage_change}%</TableCell>
+                                <TableCell>{factor.increase_or_decrease}</TableCell>
+                                <TableCell>{factor.streams}</TableCell>
+                                <TableCell>{factor.factor_type}</TableCell>
+                                <TableCell>{formatDate(factor.start_date)}</TableCell>
+                                <TableCell>{formatTime(factor.start_time)}</TableCell>
+                                <TableCell>{formatDate(factor.end_date)}</TableCell>
+                                <TableCell>{formatTime(factor.end_time)}</TableCell>
+
+                                <TableCell align="left">
+                                    <IconButton onClick={() => handleDeleteFactor(factor.id)}> 
+                                        <DeleteIcon />
+                                    </ IconButton>
+                                </TableCell>
+                            </TableRow>
+                            )}
+                        
 
                     </TableBody>
                 </Table>
@@ -489,7 +623,8 @@ export default function AdditionalFactorsRequiredCapacity() {
     // Determine what will run on page load
     // Get streams from server
     useEffect(() => {
-        fetchStreams()     
+        fetchStreams()
+        fetchFactors()     
     }, []);
 
     // As startDatePeriodOfInterest may have not been initialised by
@@ -498,7 +633,8 @@ export default function AdditionalFactorsRequiredCapacity() {
     // completed by this point
     useEffect(() => {
         setStartDateFactor(startDatePeriodOfInterest)
-        setEndDateFactor(endDatePeriodOfInterest)         
+        setEndDateFactor(endDatePeriodOfInterest) 
+        setStreams(streams)        
     }, [addFactorOpen]);
 
 
