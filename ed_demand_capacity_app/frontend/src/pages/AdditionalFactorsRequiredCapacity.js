@@ -196,9 +196,17 @@ export default function AdditionalFactorsRequiredCapacity() {
 
     const [increaseOrDecrease, setIncreaseOrDecrease] = useState('increase');
 
+    const [factorType, setFactorType] = useState('')
+
+    const DefaultTime = new Date("January 1 2021 12:00");
+
     const [startDateFactor, setStartDateFactor] = React.useState(startDatePeriodOfInterest);
 
+    const [startTimeFactor, setStartTimeFactor] = React.useState(DefaultTime);
+
     const [endDateFactor, setEndDateFactor] = React.useState(endDatePeriodOfInterest);
+
+    const [endTimeFactor, setEndTimeFactor] = React.useState(DefaultTime);
 
     function disableDatesOutsideInterest(date) {
         return date < startDatePeriodOfInterest || date > endDatePeriodOfInterest ;
@@ -230,9 +238,9 @@ export default function AdditionalFactorsRequiredCapacity() {
                 increase_or_decrease: increaseOrDecrease,
                 // factor_type:
                 start_date: startDateFactor,
-                // start_time:
+                start_time: startTimeFactor,
                 end_date: endDateFactor,
-                // end_time:
+                end_time: endTimeFactor,
 
                 // all_streams: 
                 // stream:
@@ -362,24 +370,16 @@ export default function AdditionalFactorsRequiredCapacity() {
                             />
                         </MuiPickersUtilsProvider>
                     </Grid>
-                    {/* <Grid item xs={6}>
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
-                            <KeyboardDatePicker
-                                disableToolbar
-                                variant="inline"
-                                format="dd/MM/yyyy"
-                                margin="normal"
-                                id="date-picker-inline"
-                                label="Start date for rota"
-                                value={rotaStartDate}
-                                onChange={handleDateChangeStart}
-                                KeyboardButtonProps={{
-                                'aria-label': 'change date',
-                                }}
-                                shouldDisableDate={disableAllBarMonday}
-                            />
-                        </MuiPickersUtilsProvider>
-                    </Grid> */}
+                    <Grid item xs={6}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    required
+                                    label="Factor Start Time" 
+                                    value={startTimeFactor} 
+                                    onChange={setStartTimeFactor} 
+                                />
+                            </MuiPickersUtilsProvider>
+                    </Grid>
                 </Grid>
 
                 <Grid container>
@@ -401,24 +401,16 @@ export default function AdditionalFactorsRequiredCapacity() {
                             />
                         </MuiPickersUtilsProvider>
                     </Grid>
-                    {/* <Grid item xs={6}>
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
-                            <KeyboardDatePicker
-                                disableToolbar
-                                variant="inline"
-                                format="dd/MM/yyyy"
-                                margin="normal"
-                                id="date-picker-inline"
-                                label="Start date for rota"
-                                value={rotaStartDate}
-                                onChange={handleDateChangeStart}
-                                KeyboardButtonProps={{
-                                'aria-label': 'change date',
-                                }}
-                                shouldDisableDate={disableAllBarMonday}
-                            />
-                        </MuiPickersUtilsProvider>
-                    </Grid> */}
+                    <Grid item xs={6}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker 
+                                    required
+                                    label="Factor End Time" 
+                                    value={endTimeFactor} 
+                                    onChange={setEndTimeFactor} 
+                                />
+                            </MuiPickersUtilsProvider>
+                    </Grid>
                 </Grid>
 
 
