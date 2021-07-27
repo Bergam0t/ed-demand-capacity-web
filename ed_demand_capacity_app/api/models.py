@@ -201,22 +201,40 @@ class RotaEntry(models.Model):
 
     sunday = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='sunday', null=True)
 
-class AdditionalFactorCapacity(models.Model):
+class AdditionalFactorRequiredCapacity(models.Model):
     user_session =  models.CharField(max_length=50, 
                                      default='Not recorded')
 
-    factor_description = models.CharField(max_length = 200)
-
+    factor_name = models.CharField(max_length = 200)
+    
     percentage_change = models.FloatField()
 
     increase_or_decrease = models.CharField(max_length = 10)
 
+    all_streams = models.BooleanField()
 
-class AdditionalFactorDemand(models.Model):
+    stream = models.ForeignKey(Stream, on_delete=models.CASCADE, null=True)
+
+    factor_type = models.CharField(max_length = 200)
+
+    start_date = models.DateField()
+
+    start_time = models.TimeField()
+
+    end_date = models.DateField()
+
+    end_time = models.TimeField()
+
+
+class AdditionalFactorAvailableCapacity(models.Model):
     user_session =  models.CharField(max_length=50, 
                                      default='Not recorded')
 
     factor_description = models.CharField(max_length = 200)
+
+    all_streams = models.BooleanField()
+
+    stream = models.ForeignKey(Stream, on_delete=models.CASCADE, null=True)
 
     percentage_change = models.FloatField()
 

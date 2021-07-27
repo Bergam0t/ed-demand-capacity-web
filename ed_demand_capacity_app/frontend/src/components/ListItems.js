@@ -119,18 +119,18 @@ export const adjustmentItems = (
 
     <ListSubheader inset>Optional Adjustments</ListSubheader>
 
-    <ListItem button disabled>
+    <ListItem button to="/additional-factors-required-capacity" component = { Link }>
       <ListItemIcon>
         <GroupIcon />
       </ListItemIcon>
-      <ListItemText primary="Factors Affecting Demand" />
+      <ListItemText primary="Required Capacity" />
     </ListItem>
     
-    <ListItem button disabled>
+    <ListItem button to="/additional-factors-available-capacity" component = { Link }>
       <ListItemIcon>
         <Battery60Icon />
       </ListItemIcon>
-      <ListItemText primary="Factors Affecting Capacity" />
+      <ListItemText primary="Available Capacity" />
     </ListItem>
   </div>
 );
