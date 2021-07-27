@@ -292,6 +292,10 @@ export default function ShiftPage() {
     const [selectedTimeStart, handleTimeStartChange] = useState(DefaultTime);
     const [selectedTimeEnd, handleTimeEndChange] = useState(DefaultTime);  
 
+    // TODO: Now that there is a state variable for tracking the number of breaks
+    // it may be possible to replace the blow with DefaultTime as well instead of
+    // null, which slightly improves the user experience of the time picker 
+
     // Break 1
     const [break1TimeStart, handleBreak1StartChange] = useState(null);
     const [break1TimeEnd, handleBreak1EndChange] = useState(null);
