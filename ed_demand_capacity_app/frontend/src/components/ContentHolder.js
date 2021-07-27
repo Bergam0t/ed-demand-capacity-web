@@ -286,6 +286,9 @@ export default function ContentHolder() {
       }
     }
 
+  // Check for period of interest
+  const fetchInitialPeriodOfInterest = useStoreActions((actions) => actions.fetchInitialPeriodOfInterest);
+
 
     // On loading, run the followwing
 
@@ -293,6 +296,7 @@ export default function ContentHolder() {
       fetchInitialStateEmail(); 
       fetchInitialStateSessionHistoric();
       fetchInitialStateDataProcessed();
+      fetchInitialPeriodOfInterest();
   }, [])
     
 
