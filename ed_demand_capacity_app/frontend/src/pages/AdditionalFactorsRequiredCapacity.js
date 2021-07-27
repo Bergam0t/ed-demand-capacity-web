@@ -33,6 +33,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import HelpIcon from '@material-ui/icons/Help';
+import DateFnsUtils from '@date-io/date-fns'; 
+
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
@@ -40,6 +42,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ReactPlayer from "react-player"
 
+import {
+    DatePicker,
+    TimePicker,
+    DateTimePicker,
+    MuiPickersUtilsProvider,
+    KeyboardDatePicker
+  } from '@material-ui/pickers';
+
+  import 'date-fns';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -142,7 +153,11 @@ export default function AdditionalFactorsRequiredCapacity() {
     // ------------------------- //
 
 
-      // Handle factor description
+    // Handle factor description
+
+    const startDatePeriodOfInterest = useStoreState(state => state.startDatePeriodOfInterest)
+    const endDatePeriodOfInterest = useStoreState(state => state.endDatePeriodOfInterest)
+
     const [factorDescription, setFactorDescription] = useState('');
 
     const [percentageChange, setPercentageChange] = useState(0);
@@ -151,7 +166,13 @@ export default function AdditionalFactorsRequiredCapacity() {
 
     const [addFactorOpen, setAddFactorOpen] = React.useState(false)
 
+    const [startDateFactor, setStartDateFactor] = React.useState(startDatePeriodOfInterest)
 
+
+
+    function disableDatesOutsideInterest(date) {
+        return date < startDatePeriodOfInterest || date > endDatePeriodOfInterest;
+      }
 
 
     function factorEntryModal() {
@@ -238,8 +259,45 @@ export default function AdditionalFactorsRequiredCapacity() {
                     </Grid>
                 </Grid>
 
+                <Grid container>
+                    <Grid item xs={6}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
+                            <KeyboardDatePicker
+                                disableToolbar
+                                variant="inline"
+                                format="dd/MM/yyyy"
+                                margin="normal"
+                                id="date-picker-inline"
+                                label="Start date for factor"
+                                value={startDateFactor}
+                                onChange={(e) => setStartDateFactor(e)}
+                                KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                                }}
+                                shouldDisableDate={disableDatesOutsideInterest}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid>
+                    {/* <Grid item xs={6}>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}> 
+                            <KeyboardDatePicker
+                                disableToolbar
+                                variant="inline"
+                                format="dd/MM/yyyy"
+                                margin="normal"
+                                id="date-picker-inline"
+                                label="Start date for rota"
+                                value={rotaStartDate}
+                                onChange={handleDateChangeStart}
+                                KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                                }}
+                                shouldDisableDate={disableAllBarMonday}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid> */}
+                </Grid>
 
-                
 
                 </Grid>
                 </Box>
@@ -296,6 +354,14 @@ export default function AdditionalFactorsRequiredCapacity() {
     useEffect(() => {
         fetchStreams()     
     }, []);
+
+    // As startDatePeriodOfInterest may have not been initialised by
+    // the time it first attempts to be set, try and update it
+    // when the dialog box gets opened (as the request should have)
+    // completed by this point
+    useEffect(() => {
+        setStartDateFactor(startDatePeriodOfInterest)     
+    }, [addFactorOpen]);
 
 
     return (
