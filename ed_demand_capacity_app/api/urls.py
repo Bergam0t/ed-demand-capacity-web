@@ -6,6 +6,7 @@ from .views_role_types import *
 from .views_rotas import *
 from .views_calculate_capacity import *
 from .views_additional_factors import *
+from .views_scenarios import *
 
 urlpatterns = []
 
@@ -251,7 +252,14 @@ urlpatterns += [
 
 ]
 
+# ----------------------- #
+# Scenarios
+# ----------------------- #
 
+urlpatterns+= [
+    path('view-or-update-scenarios', 
+         ViewCreateOrUpdateScenario.as_view()),
+         ]
 
 # ----------------------- #
 # Capacity Calculations 
