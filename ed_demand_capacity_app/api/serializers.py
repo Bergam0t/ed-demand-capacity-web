@@ -87,3 +87,8 @@ class AdditionalFactorAvailableCapacitySerializer(serializers.ModelSerializer):
     class Meta:
         model = AdditionalFactorAvailableCapacity
         fields = '__all__'
+
+class ScenarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scenario
+        fields = '__all__'

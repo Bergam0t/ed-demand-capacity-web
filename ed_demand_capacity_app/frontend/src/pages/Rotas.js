@@ -47,7 +47,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { toast } from 'react-toastify';
 import PlotlyPlot from "../components/PlotlyPlot" 
 import { v4 as uuidv4 } from 'uuid';
-import {addDays} from 'date-fns';
 import 'date-fns';
 import Tooltip from '@material-ui/core/Tooltip';
 import HelpIcon from '@material-ui/icons/Help';
@@ -201,12 +200,15 @@ export default function Rotas() {
       };
 
 
+  // --------------------------- //
   // Handling rota start day
+  // --------------------------- //
   // const [rotaStartDate, setRotaStartDate] = React.useState(new Date())
   // const [rotaEndDate, setRotaEndDate] = React.useState(addDays(new Date(), 7))
 
   const rotaStartDate = useStoreState(state => state.startDatePeriodOfInterest)
   const setStartDatePeriodOfInterest = useStoreActions((actions) => actions.setStartDatePeriodOfInterest);
+  const fetchInitialPeriodOfInterest = useStoreActions((actions) => actions.fetchInitialPeriodOfInterest);
 
   const handleDateChangeStart = (date) => {
     
@@ -218,20 +220,20 @@ export default function Rotas() {
       body: JSON.stringify({
         start_date: date
       })
-  };
+    };
 
-  console.log(requestOptions)
+    console.log(requestOptions)
 
-  fetch('/api/view-or-update-scenarios', requestOptions).then((response) => {
-      if (response.ok) {
-          console.log("Start date of period of interest set")
-          setStartDatePeriodOfInterest(date.toDateString());
-      } else {
-          console.log("Error updating date of interest for scenario")
-      }
-  })
-  .catch((error) => {
-      console.log(error);
+    fetch('/api/view-or-update-scenarios', requestOptions).then((response) => {
+        if (response.ok) {
+            console.log("Start date of period of interest set")
+            setStartDatePeriodOfInterest(date.toDateString());
+        } else {
+            console.log("Error updating date of interest for scenario")
+        }
+    })
+    .catch((error) => {
+        console.log(error);
   });
 
   };
@@ -671,21 +673,22 @@ export default function Rotas() {
     fetchRoleTypes()
     fetchShiftTypes()
     fetchRotaEntries()
-  }, []
+    fetchInitialPeriodOfInterest()
+    }, []
   );
   
-      // Initialise a second useEffect call that will run on page load
-      useEffect(() => {
-            initialiseRotaDefaults()
-        
-        // Have to include the value in brackets to avoid infinite loop
-        // Means will only run the setState call when addRotaEntryOpen changes
-    }, [addRotaEntryOpen])
+  // Initialise a second useEffect call that will run on page load
+  useEffect(() => {
+        initialiseRotaDefaults()
+    // Have to include the value in brackets to avoid infinite loop
+    // Means will only run the setState call when addRotaEntryOpen changes
+    }, [addRotaEntryOpen]
+  );
 
-    // https://stackoverflow.com/questions/49491569/disable-specific-days-in-material-ui-calendar-in-react
-    function disableAllBarMonday(date) {
-      return date.getDay() === 0 || date.getDay() === 6 || date.getDay() === 2 || date.getDay() === 3 || date.getDay() === 4 || date.getDay() === 5;
-    }
+  // https://stackoverflow.com/questions/49491569/disable-specific-days-in-material-ui-calendar-in-react
+  function disableAllBarMonday(date) {
+    return date.getDay() === 0 || date.getDay() === 6 || date.getDay() === 2 || date.getDay() === 3 || date.getDay() === 4 || date.getDay() === 5;
+  }
 
   // Handle rendering
   return (

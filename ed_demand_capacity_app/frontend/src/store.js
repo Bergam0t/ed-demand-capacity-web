@@ -3,7 +3,7 @@
 import { stringToArray } from 'ag-grid-community';
 import { action, computed, thunk } from 'easy-peasy';
 import { toast } from 'react-toastify';
-import {addDays} from 'date-fns';
+import { addDays, parseISO } from 'date-fns';
 import moment from 'moment'
 
 // Notifications
@@ -79,6 +79,24 @@ function FetchDataProcessed() {
         }
 
 
+        function fetchPeriodOfInterest() {
+            return fetch('api/view-or-update-scenarios')
+                // Make sure to not wrap this first then statement in {}
+                // otherwise it returns a promise instead of the json
+                // and then you can't access the email attribute 
+                .then(response => 
+                        response.json()
+                )
+                        .then((json) => {
+        
+                            if (json) {
+                                return json["start_date"];
+                            } else {
+                                return null
+                            }
+                        })
+                }
+
 // function FetchShiftTypes() {
 //     return fetch('api/'
 //     )
@@ -105,7 +123,7 @@ export default {
 
     startDatePeriodOfInterest: new Date(),
 
-    endDatePeriodOfInterest: addDays(new Date(), 6),
+    endDatePeriodOfInterest: addDays(parseISO(new Date()), 6),
 
     // ---- Actions ---- //
 
@@ -128,8 +146,14 @@ export default {
     // Period of Interest
     setStartDatePeriodOfInterest: action((state, payload) => {
         state.startDatePeriodOfInterest = payload;
-        state.endDatePeriodOfInterest = addDays(payload, 6)
+        state.endDatePeriodOfInterest = addDays(parseISO(payload), 6);
       }),
+
+    fetchInitialPeriodOfInterest: thunk(async (actions) => {
+        const data = await fetchPeriodOfInterest()
+        console.log("Period of interest start: ", data)
+        actions.setStartDatePeriodOfInterest(data);    
+    }),
 
     // Check whether session has historic data
     setInitialStateSessionHasHistoric: action((state, payload) => {
