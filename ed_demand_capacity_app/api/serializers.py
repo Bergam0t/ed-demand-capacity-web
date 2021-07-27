@@ -77,3 +77,13 @@ class RotaEntrySerializerView(serializers.ModelSerializer):
     class Meta:
         model = RotaEntry
         fields = '__all__'
+
+class AdditionalFactorCapacitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdditionalFactorCapacity
+        fields = '__all__'
+
+class AdditionalFactorDemandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdditionalFactorDemand
+        fields = '__all__'

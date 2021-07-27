@@ -4,6 +4,8 @@ from .views_forecasting import *
 from .views_shift_types import *
 from .views_role_types import *
 from .views_rotas import *
+from .views_calculate_capacity import *
+from .views_additional_factors import *
 
 urlpatterns = []
 
@@ -11,7 +13,9 @@ urlpatterns += [
 
 ]
 
-# --- Historic Data --- #
+# ------------------------ #
+# Historic Data 
+# ------------------------ #
 
 # Historic data upload
 urlpatterns += [
@@ -60,17 +64,7 @@ urlpatterns += [
          name='most_recent_hist_pandas'),
 ]
 
-# Streams
-urlpatterns += [
-     path('get-historic-data-streams-from-db', 
-        GetSessionStreamsFromDatabase.as_view(),  
-        name='get_historic_data_streams_from_db'),
 
-     path('update-stream-details',
-          StreamUpdate.as_view(),
-          name='update_stream_details')    
-
-]
 
 # Paths for historic data plots
 urlpatterns += [
@@ -93,24 +87,26 @@ urlpatterns += [
 ]
 
 
-# --- Forecasting --- #
-
-# Forecasting plots
-     
-# urlpatterns += [
-#      path('most-recently-uploaded-data-forecast', 
-#          ProphetForecastOneWeekMajors.as_view(), 
-#          name='most_recent_forecast'),
-# ]
-
-# urlpatterns += [
-#      path('most-recently-uploaded-data-forecast', 
-#          ProphetForecastOneWeekMajors.as_view(), 
-#          name='most_recent_forecast'),
-# ]
 
 
-# --- Shifts --- #
+# ---------------- #
+# Streams
+# ---------------- #
+urlpatterns += [
+     path('get-historic-data-streams-from-db', 
+        GetSessionStreamsFromDatabase.as_view(),  
+        name='get_historic_data_streams_from_db'),
+
+     path('update-stream-details',
+          StreamUpdate.as_view(),
+          name='update_stream_details')    
+
+]
+
+
+# ------------------- #
+# Shifts 
+# ------------------- #
 
 # Following https://www.youtube.com/watch?v=TmsD8QExZ84
 
@@ -135,9 +131,9 @@ urlpatterns += [
          CreateShiftType.as_view(), 
          name='create_shift_type'),
 
-    path('update-shift-type/<str:pk>', 
-         UpdateShiftType.as_view(), 
-         name='update_shift_type'),
+#     path('update-shift-type/<str:pk>', 
+#          UpdateShiftType.as_view(), 
+#          name='update_shift_type'),
 
     path('delete-shift-type/<str:pk>', 
          DeleteShiftType.as_view(), 
@@ -148,8 +144,9 @@ urlpatterns += [
          name='own_shift_types_plot'),
 ]
 
-
-# --- Roles --- #
+# ------------------- #
+# Roles 
+# ------------------- #
 
 # Following https://www.youtube.com/watch?v=TmsD8QExZ84
 
@@ -176,7 +173,9 @@ urlpatterns += [
 
 ]
 
-# --- Rota entries --- #
+# ------------------- #
+# Rota entries 
+# ------------------- #
 
 # Following https://www.youtube.com/watch?v=TmsD8QExZ84
 
@@ -207,7 +206,74 @@ urlpatterns += [
 
 ]
 
-# --- Authentication --- #
+# ------------------- #
+# Notes
+# ------------------- #
+urlpatterns+= [
+    path('notes', 
+         NotesView.as_view()),
+         ]
+
+
+# --------------------------- #
+# Additional Factors: Capacity
+# --------------------------- #
+
+urlpatterns += [
+     path('own-capacity-factors', 
+         ViewOwnAdditionalFactorsCapacity.as_view(), 
+         name='view_own_capacity_factors'),
+    
+    path('create-capacity-factor', 
+         CreateCapacityFactor.as_view(), 
+         name='create_capacity_factor'),
+
+    path('delete-capacity-factor/<str:pk>', 
+         DeleteAdditionalFactorCapacity.as_view(), 
+         name='delete_capacity_factor'),
+
+]
+
+
+# --------------------------- #
+# Additional Factors: Demand
+# --------------------------- #
+
+urlpatterns += [
+     path('own-demand-factors', 
+         ViewOwnAdditionalFactorsDemand.as_view(), 
+         name='view_own_demand_factors'),
+    
+    path('create-demand-factor', 
+         CreateDemandFactor.as_view(), 
+         name='create_demand_factor'),
+
+    path('delete-demand-factor/<str:pk>', 
+         DeleteAdditionalFactorDemand.as_view(), 
+         name='delete_demand_factor'),
+
+]
+
+
+
+# ----------------------- #
+# Capacity Calculations 
+# ----------------------- #
+
+urlpatterns+= [
+    path('available-capacity-as-resources-week', 
+         GetAvailableCapacityAsResourcesWeek.as_view()),
+         ]
+         
+
+
+
+
+
+
+# ------------------- #
+# Authentication 
+# ------------------- #
 
 # *TODO* Check whether I actually used this in the end!
 urlpatterns += [
@@ -216,17 +282,11 @@ urlpatterns += [
          ),
 ]
 
+# ------------------- #
+# Misc
+# ------------------- #
 
-# --- Notes --- #
-urlpatterns+= [
-    path('notes', 
-         NotesView.as_view()),
-         ]
-
-# --- Misc --- #
-
-urlpatterns+= [
-    path('organisation', 
-         OrganisationView.as_view()),
-         ]
-         
+# urlpatterns+= [
+#     path('organisation', 
+#          OrganisationView.as_view()),
+#          ]
