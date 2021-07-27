@@ -254,6 +254,29 @@ export default function ShiftPage() {
         setCreateShiftTypeModalOpen(true);
     })
 
+    const handleDiscardShiftTypeDialog = (() => {
+        setCreateShiftTypeModalOpen(false);
+        
+        // If discard button is clicked, return all state variables to their defaults
+
+        setShiftTypeName('');
+
+        handleTimeStartChange(DefaultTime);
+        handleTimeEndChange(DefaultTime);
+
+        handleBreak1StartChange(null);
+        handleBreak2StartChange(null);
+        handleBreak3StartChange(null);
+        handleBreak1EndChange(null);
+        handleBreak2EndChange(null);
+        handleBreak3EndChange(null);
+
+        // TODO: Make number of breaks switch back to 0 on discard
+        // This is harder to reset than the others because of the 
+        // use of the reducer!
+
+    })
+
     const handleCloseCreateShiftTypeDialog = (() => {
         setCreateShiftTypeModalOpen(false);
     })
@@ -293,6 +316,19 @@ export default function ShiftPage() {
           case 'increment':
             return {numberOfBreaks: state.numberOfBreaks + 1};
           case 'decrement':
+              if (state.numberOfBreaks == 1){
+                handleBreak1StartChange(null);
+                handleBreak1EndChange(null);
+              }
+              if (state.numberOfBreaks == 2){
+                handleBreak2StartChange(null);
+                handleBreak2EndChange(null);
+              }
+              if (state.numberOfBreaks == 3){
+                handleBreak3StartChange(null);
+                handleBreak3EndChange(null);
+              }
+
             return {numberOfBreaks: state.numberOfBreaks - 1};
           default:
             throw new Error();
@@ -335,7 +371,24 @@ export default function ShiftPage() {
                 console.log("Shift type created successfully")
                 setCreateShiftTypeModalOpen(false)
                 fetchShiftTypes()
-                setPlotUUID(uuidv4())  
+                setPlotUUID(uuidv4()) 
+                
+                // Reset Defaults for create shift type modal
+                setShiftTypeName('');
+
+                handleTimeStartChange(DefaultTime);
+                handleTimeEndChange(DefaultTime);
+        
+                handleBreak1StartChange(null);
+                handleBreak2StartChange(null);
+                handleBreak3StartChange(null);
+                handleBreak1EndChange(null);
+                handleBreak2EndChange(null);
+                handleBreak3EndChange(null);
+
+                // TO DO: Also reset number of breaks
+                // This is harder because of the use of the reducer
+        
 
             } else {
                 console.log("Error creating shift type")
@@ -376,6 +429,7 @@ export default function ShiftPage() {
                         root: classes.dialog,
                         paper: classes.paper
                     }}
+                    disableBackdropClick
                 >
                 <Box>  
                 <Grid container style={{paddingLeft: 20, paddingRight: 20, paddingBottom:20}}>
@@ -581,7 +635,7 @@ export default function ShiftPage() {
                             <Button 
                                 variant="contained" 
                                 color="secondary" 
-                                onClick={handleCloseCreateShiftTypeDialog}
+                                onClick={handleDiscardShiftTypeDialog}
                             >
                                 Discard
                             </Button>
