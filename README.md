@@ -3,6 +3,9 @@
 
 
 
+If you have any questions about the development of the app, please get in touch with Sammi Rosser ([Bergam0t](https://github.com/Bergam0t)) via [Twitter](https://twitter.com/sammi_rosser), or open an issue on the respository. 
+
+
 # Virtual environments
 To run the app on Windows, you need to use a conda environment because there is an issue with installing Prophet using pip. 
 
@@ -189,6 +192,7 @@ If you need this to happen during a return statement, you will need to wrap it i
 {console.log('Your message or output')}
 ```
 
+These error messages will then appear in the web console. In Chrome, you view this by right clicking on the page and choosing 'inspect'. In the box that then appears, choose 'Console' from the list of tabs at the top. 
 
 ## Backend
 
@@ -214,3 +218,11 @@ logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 ```
 
+These error messages will then appear in the terminal you are using to 
+
+
+If you are trying to debug on Heroku, you can access these Python logs using
+
+```
+heroku logs --tail -a ed-demand-capacity-app
+```
