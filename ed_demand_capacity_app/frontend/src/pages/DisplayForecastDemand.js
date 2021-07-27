@@ -1,9 +1,12 @@
 import React, { Component} from "react";
 import PlotlyPlot from "../components/PlotlyPlot" 
 // import DisplayExistingData from "../components/LoadedExistingDataset"
-import Typography from '@material-ui/core/Typography';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+
+import { Typography, Select, MenuItem, Grid } from '@material-ui/core';
+
+// import Typography from '@material-ui/core/Typography';
+// import Select from '@material-ui/core/Select';
+// import MenuItem from '@material-ui/core/MenuItem';
 
 
 export default class PlotForecast extends Component {
@@ -56,7 +59,12 @@ export default class PlotForecast extends Component {
     renderPlotly() {
         if (this.state.apiRequestURL === '') {
                 return (
-                    <Typography variant="h6"> Select a stream to display the forecast</Typography>
+                    <Typography variant="h6"> 
+                        Select a stream from the dropdown above to display the forecast.
+                        <br /><br />
+                        Please be patient: it may take up to 15 seconds to load the first graph. 
+                        If it has not loaded after this time, please refresh the page.
+                        </Typography>
                 )
             } else {
                 return (
@@ -88,17 +96,33 @@ export default class PlotForecast extends Component {
         return (
         <div>
         <Typography variant="h4"> Predicted Demand: Arrivals Per Hour for Next 8 Weeks</Typography>
-        <br /> <br />  
+        <br />  
+        <Typography variant="h6"> 
+            Here you can view the forecast demand for each stream, and the historical data for the previous year. 
+            <br />
+            If you put your mouse over the graph, you will see additional controls that will allow you to zoom in.
+            <br />  <br />
+            The black dots show the historic data points for each hour. <br />
+            The dark blue line is the predicted attendances.<br />
+            The light blue shading shows the interval the attendances are expected to fall within.
+            <br />  <br />        
+        </Typography>
+        <br /> <br />
+        <Grid container>
+            <Grid item xs={10} med={6} lg={4}>
         <Select
             labelId="select-stream-label"
             id="select-stream"
             value={this.state.streamSelected}
             onChange={this.handleChangeSelectedStream}
+            fullWidth
         >
         {(this.state.streamList || []).map((streamName) => {
          return <MenuItem key={streamName.value} value={streamName.value}>{streamName.label}</MenuItem>
       })}
       </Select>
+      </Grid>
+      </Grid>  
       <br /> <br />  
       
       {this.renderPlotly()}
