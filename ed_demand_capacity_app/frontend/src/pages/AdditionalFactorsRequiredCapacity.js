@@ -559,6 +559,34 @@ export default function AdditionalFactorsRequiredCapacity() {
         )
     }
 
+    function capitalise(string) {
+        /** Capitalise the first letter of a string
+        // From https://flexiple.com/javascript-capitalize-first-letter/
+        */
+        return (
+            string.charAt(0).toUpperCase() + string.slice(1)
+        )
+    }
+
+    function returnStreams(array_of_streams) {
+        /**
+         * Iterate through list of stream ids and return 
+         * the stream names
+         * 
+         * TODO: return 'All' if array_of_streams contains all streams
+         * that exist in the database for this user
+         */
+        const output_array = array_of_streams.map((stream) => {
+            for (var i in streams) {
+                console.log(i)
+                if (streams[i].id == stream) {
+                return streams[i].stream_name 
+            }
+        }
+    })
+    return output_array.join(', ')
+}
+
     function displayFactors() {
         if (factorsLoaded && streamsLoaded) {
     
@@ -590,9 +618,9 @@ export default function AdditionalFactorsRequiredCapacity() {
                             <TableRow>
                                 <TableCell>{factor.factor_name}</TableCell>
                                 <TableCell>{factor.percentage_change}%</TableCell>
-                                <TableCell>{factor.increase_or_decrease}</TableCell>
-                                <TableCell>{factor.streams}</TableCell>
-                                <TableCell>{factor.factor_type}</TableCell>
+                                <TableCell>{capitalise(factor.increase_or_decrease)}</TableCell>
+                                <TableCell>{returnStreams(factor.streams)}</TableCell>
+                                <TableCell>{capitalise(factor.factor_type)}</TableCell>
                                 <TableCell>{formatDate(factor.start_date)}</TableCell>
                                 <TableCell>{formatTime(factor.start_time)}</TableCell>
                                 <TableCell>{formatDate(factor.end_date)}</TableCell>
