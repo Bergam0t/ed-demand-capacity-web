@@ -104,7 +104,7 @@ export default class PlotForecast extends Component {
             <br />  <br />
             The black dots show the historic data points for each hour. <br />
             The dark blue line is the predicted attendances.<br />
-            The light blue shading shows the interval the attendances are expected to fall within.
+            The light blue shading shows the uncertainty - the attendances are expected to be within this range.
             <br />  <br />        
         </Typography>
         <br /> <br />
