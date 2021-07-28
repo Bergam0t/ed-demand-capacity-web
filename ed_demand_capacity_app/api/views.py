@@ -22,7 +22,7 @@ import logging
 import pandas as pd
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
+from datetime import datetime, timedelta
 import tempfile
 import os
 import io
@@ -381,8 +381,8 @@ class SessionDataProcessed(APIView):
                              "data_source": historic_data.source }, 
                             status=status.HTTP_200_OK)
         else:
-            return Response({'result': False,
-                            'data_source': "unknown"}, 
+            return Response({'result': "no data found",
+                            'data_source': "no data found"}, 
                             status=status.HTTP_200_OK)
 
 class DeleteSessionHistoricData(APIView):
@@ -521,20 +521,7 @@ class GetSessionStreamsFromDatabase(APIView):
         serializer = StreamSerializer(queryset, many=True)
         return Response(serializer.data, 
                         status=status.HTTP_200_OK)
-
-class DisplayMostRecentlyUploadedRawData(APIView):
-    '''
-    Testing class for showing last uploaded data regardless
-    of who uploaded it
-    '''
-    def get(self, request, *args, **kwargs):
-        queryset = HistoricData.objects
-        historic_data = queryset.last()
-
-        return Response(
-            UploadedHistoricDataSerializer(historic_data, many=False).data, 
-            status=status.HTTP_200_OK
-            )
+                        
 
 class DisplayMostRecentlyUploadedOwnRawData(APIView):
     def get(self, request, *args, **kwargs):

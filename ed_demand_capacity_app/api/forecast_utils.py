@@ -45,8 +45,47 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
     # find the most recent
     historic_data = queryset.last()
 
+    historic_data.processing_complete = 'Started'
+    historic_data.save(update_fields=['processing_complete'])
+
     historic_df = pd.read_feather(historic_data.uploaded_data)
 
+
+    # --------------------------
+    # Create scenario entry
+    # -------------------------
+
+    # Get last date
+    latest_date_in_df = historic_df['date'].max()
+
+    # Create scenario objects with an initial rota date/start date of interest
+    queryset = Scenario.objects.filter(user_session=session_id)
+    if len(queryset) == 0:
+        scenario_serializer = ScenarioSerializer(data={
+        'user_session': session_id,
+        # Want the start date to be the next Monday after the last day in the data
+        # https://stackoverflow.com/questions/6558535/find-the-date-for-the-first-monday-after-a-given-date
+        'start_date': latest_date_in_df + timedelta(days=(7 - latest_date_in_df.weekday()))
+        })
+        if scenario_serializer.is_valid():
+            scenario_serializer.save()
+            log.info("Scenario object created")
+        else:
+            log.error("Scenario object could not be created")
+    else:
+        # Should only be one scenario object per session, but take
+        # last one just in case
+        scenario_object = queryset.last()
+        scenario_object.start_date = latest_date_in_df + timedelta(days=(7 - latest_date_in_df.weekday()))
+        scenario_object.save(update_fields=['start_date'])
+        log.info("Existing scenario object updated")
+
+
+    # ----------------- #
+    # Forecasting
+    # ----------------- #
+
+    # Begin reshaping into required format for prophet
     if data_source == "record_csv":
         grouped = (
             historic_df.groupby(['date', 'hour', 'stream'])
@@ -76,6 +115,22 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
                             format='%Y-%m-%d:%H')
         )
 
+    def should_models_be_generated():
+        if len(existing_models) == 0:
+            return True
+        if len(existing_models) > 0:
+            # If time request was originally triggered at is after the time the model
+            # we are looking at was created, this suggests that the new request should
+            # take precendence and overwrite the models and forecasts
+            log.info(f"Existing models created at {existing_models.created_at}")
+            log.info(f"Processing initialised at {historic_data.processing_initialised_at}")
+            if existing_models.created_at < historic_data.processing_initialised_at:
+                return True
+            else:
+                return False
+
+    log.info(f"Streams found: {grouped.stream.unique()}")
+    
     # Begin iterating through streams
     for stream in grouped.stream.unique():
 
@@ -86,18 +141,6 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
         existing_models = ProphetModel.objects.filter(user_session=session_id, stream=stream)
 
         log.info(f"Existing models: {existing_models}")
-
-        def should_models_be_generated():
-            if len(existing_models) == 0:
-                return True
-            if len(existing_models) > 0:
-                # If time request was originally triggered at is after the time the model
-                # we are looking at was created, this suggests that the new request should
-                # take precendence and overwrite the models and forecasts
-                if existing_models.created_at < historic_data.processing_initialised_at:
-                    return True
-                else:
-                    return False
 
         generate = should_models_be_generated()
         log.info(f"Should models be generated?: {generate}")
@@ -171,28 +214,35 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
                 log.info(f'Forecast dataframe saved to database for stream {stream}')
             else:
                 log.error(f'Forecast serializer not valid for stream {stream}')
+
+            log.info("All model and forecast generation complete")
         
+        else:
+            # If the request was triggered before the existing models were
+            # created, this suggests that it's an old request that's hanging
+            # around because e.g. the user deleted the dataset and uploaded another
+            # one before the initial round of processing was complete. In that case,
+            # we will want to delete any remaining background tasks associated with the user
+            log.info(
+                f"Request for stream {stream} was triggered before the existing models were created. " 
+                  + "This suggests it's an old request. Skipping model generation and "
+                  + "clearing out requests."
+                    )
+            background_tasks = BackgroundTasks.objects.all()
+            my_tasks = []
+            for task in background_tasks:
+                try:
+                    if task.task_params[1]['session_id'] == session_id:
+                        my_tasks.append(task.id)
+                except:
+                    pass
+            for id in my_tasks:
+                BackgroundTasks.objects.delete(id=id)
 
-        historic_data.processing_complete = True
-        historic_data.save(update_fields=['processing_complete'])
 
-        log.info("All model and forecast generation complete")
-    else:
-        # If the request was triggered before the existing models were
-        # created, this suggests that it's an old request that's hanging
-        # around because e.g. the user deleted the dataset and uploaded another
-        # one before the initial round of processing was complete. In that case,
-        # we will want to delete any remaining background tasks associated with the user
-        background_tasks = BackgroundTasks.objects.all()
-        my_tasks = []
-        for task in background_tasks:
-            try:
-                if task.task_params[1]['session_id'] == session_id:
-                    my_tasks.append(task.id)
-            except:
-                pass
-        for id in my_tasks:
-            BackgroundTasks.objects.delete(id=id)
+    historic_data.processing_complete = 'Complete'
+    historic_data.save(update_fields=['processing_complete'])
+            
 
 
 
