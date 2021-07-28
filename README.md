@@ -5,6 +5,7 @@
 
 If you have any questions about the development of the app, please get in touch with Sammi Rosser ([Bergam0t](https://github.com/Bergam0t)) via [Twitter](https://twitter.com/sammi_rosser), or open an issue on the respository. 
 
+---
 
 # Virtual environments
 To run the app on Windows, you need to use a conda environment because there is an issue with installing Prophet using pip. 
@@ -44,7 +45,7 @@ env_ed_app_pip\scripts\activate
 pip install -r requirements.txt 
 ```
 
-
+---
 # Python version
 Using python 3.7.11 leads to a much quicker build time on Heroku because pystan (which is needed for Propht) already has wheels built whereas for python 3.8+ it has to build them from scratch (or something along those lines). 
 
@@ -52,14 +53,15 @@ runtime.txt is used by Heroku to know which version of Python to use.
 
 However, the app was primarily built and tested with Python 3.8.5
 
-
+---
 # Javascript packages
 - When updating the packages.json and package-lock.json files, you need to then copy the updated files from ed-demand-capacity-web/ed_demand_capacity_app/frontend to the root (ed-demand-capacity-web). This is because Heroku looks for these files in the root.
 
-# Misc useful things relating to environments and package management that tripped me up along the way...
+# Misc useful things relating to npm package management that tripped me up along the way...
 - `package.json` must specify `"@material-ui/lab": "4.0.0-alpha.58",` not `"@material-ui/lab": "*",`
 - npm install updates the package-lock.json file
 
+---
 
 # Running the app in a development environment
 
@@ -84,7 +86,9 @@ entry: '/ed_demand_capacity_app/frontend/src/index.js',
 ```
 
 ### A note on database connections
-In 
+In the development server, connection pooling does not occur, so you may reach the 20 connection limit on the Heroku database. 
+
+Once deployed, the use of connection pooling should mean that this does not happen.
 
 
 ## Start a development server
@@ -144,7 +148,7 @@ cd frontend
 npm run dev
 ```
 
-
+---
 
 # Basic steps for adding a new feature
 
@@ -190,7 +194,7 @@ You can see the code needed for the import by clicking on the icons on the webpa
 
 Note that for some reason the menu items are particularly stubborn about not refreshing after you have made changes to them. In addition to using the 'empty cache and hard reload' option, you may need to restart the development server and also stop and restart the `npm run dev` script. 
 
-
+---
 
 # Tracking problems
 
@@ -244,6 +248,7 @@ If you are trying to debug on Heroku, you can access these Python logs using
 heroku logs --tail -a ed-demand-capacity-app
 ```
 
+---
 
 # Heroku deployment troubleshooting
 
