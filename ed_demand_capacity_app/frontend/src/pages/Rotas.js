@@ -208,7 +208,7 @@ export default function Rotas() {
 
   const rotaStartDate = useStoreState(state => state.startDatePeriodOfInterest)
   const setStartDatePeriodOfInterest = useStoreActions((actions) => actions.setStartDatePeriodOfInterest);
-  // const fetchInitialPeriodOfInterest = useStoreActions((actions) => actions.fetchInitialPeriodOfInterest);
+  const fetchInitialPeriodOfInterest = useStoreActions((actions) => actions.fetchInitialPeriodOfInterest);
 
   const handleDateChangeStart = (date) => {
     
@@ -673,7 +673,7 @@ export default function Rotas() {
     fetchRoleTypes()
     fetchShiftTypes()
     fetchRotaEntries()
-    // fetchInitialPeriodOfInterest()
+    fetchInitialPeriodOfInterest()
     }, []
   );
   
