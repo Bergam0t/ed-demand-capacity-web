@@ -521,20 +521,7 @@ class GetSessionStreamsFromDatabase(APIView):
         serializer = StreamSerializer(queryset, many=True)
         return Response(serializer.data, 
                         status=status.HTTP_200_OK)
-
-class DisplayMostRecentlyUploadedRawData(APIView):
-    '''
-    Testing class for showing last uploaded data regardless
-    of who uploaded it
-    '''
-    def get(self, request, *args, **kwargs):
-        queryset = HistoricData.objects
-        historic_data = queryset.last()
-
-        return Response(
-            UploadedHistoricDataSerializer(historic_data, many=False).data, 
-            status=status.HTTP_200_OK
-            )
+                        
 
 class DisplayMostRecentlyUploadedOwnRawData(APIView):
     def get(self, request, *args, **kwargs):
