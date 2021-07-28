@@ -53,10 +53,12 @@ runtime.txt is used by Heroku to know which version of Python to use.
 However, the app was primarily built and tested with Python 3.8.5
 
 
-# Misc useful things that tripped me up along the way...
+# Javascript packages
+- When updating the packages.json and package-lock.json files, you need to then copy the updated files from ed-demand-capacity-web/ed_demand_capacity_app/frontend to the root (ed-demand-capacity-web). This is because Heroku looks for these files in the root.
+
+# Misc useful things relating to environments and package management that tripped me up along the way...
 - `package.json` must specify `"@material-ui/lab": "4.0.0-alpha.58",` not `"@material-ui/lab": "*",`
 - npm install updates the package-lock.json file
-
 
 
 # Running the app in a development environment
@@ -68,6 +70,21 @@ conda env create -f {PATH TO REPO}\ed-demand-capacity-web\environment.yml
 ```
 
 If you are on Linux, you could instead use the requirements.txt to create a virtual environment if you prefer, and replace the conda commands below with the commands for activating that environment instead.
+
+
+## Changes to make to files before running development server
+In ed_demand_capacity_app/ed_demand_capacity_app/settings.py, uncomment the following line:
+```
+os.environ['DATABASE_URL'] = "postgres://ozdqiskfjtelee:9cffeb67f7e9331ed83c5c04eb26a327b0bc6ab1e8a6768ee1a3fa164678d740@ec2-54-220-35-19.eu-west-1.compute.amazonaws.com:5432/dokmln8i3j7lk"
+```
+
+In ed_demand_capacity_app/frontend/webpack.config.js, comment out the following line:
+```
+entry: '/ed_demand_capacity_app/frontend/src/index.js',
+```
+
+### A note on database connections
+In 
 
 
 ## Start a development server
@@ -225,4 +242,12 @@ If you are trying to debug on Heroku, you can access these Python logs using
 
 ```
 heroku logs --tail -a ed-demand-capacity-app
+```
+
+
+# Heroku deployment troubleshooting
+
+1. Check that the following line in ed_demand_capacity_app/frontend/webpack.config.js is NOT commented out:
+```
+entry: '/ed_demand_capacity_app/frontend/src/index.js',
 ```
