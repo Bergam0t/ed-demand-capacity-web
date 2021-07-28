@@ -22,7 +22,7 @@ import logging
 import pandas as pd
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
+from datetime import datetime, timedelta
 import tempfile
 import os
 import io
@@ -381,8 +381,8 @@ class SessionDataProcessed(APIView):
                              "data_source": historic_data.source }, 
                             status=status.HTTP_200_OK)
         else:
-            return Response({'result': False,
-                            'data_source': "unknown"}, 
+            return Response({'result': "no data found",
+                            'data_source': "no data found"}, 
                             status=status.HTTP_200_OK)
 
 class DeleteSessionHistoricData(APIView):

@@ -181,7 +181,7 @@ function fetchDataProcessedBool() {
           response.json()
       )
       .then((json) => {
-          return json["result"];
+          return (json["result"] == "Complete" ? true : false);
       });
 }
 

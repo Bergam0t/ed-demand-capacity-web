@@ -525,7 +525,7 @@ export default function HistoricDemandData() {
       </Select>
                     </FormControl> 
                             <Button 
-                                color="secondary" 
+                                color="primary" 
                                 variant="contained" 
                                 component="label" 
                                 onClick={handleSubmitSelectedColumns}

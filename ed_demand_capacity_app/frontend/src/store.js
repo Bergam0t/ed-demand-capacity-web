@@ -182,14 +182,15 @@ export default {
 
     fetchInitialStateSessionDataProcessed: thunk(async (actions) => {
         const data = await FetchDataProcessed()
-        actions.setSessionDataProcessed(data["result"])
-        // This only runs on page load. Can assume if data is processed then
-        // columns were selected
-        // and if data hasn't finished processing, then columns won't be selected
+        actions.setSessionDataProcessed(data["result"] == "Complete" ? true : false )
+        // This only runs on page load. Can assume if data exists and is an excel model, then
+        // no column selection necessary
+        // If source is not Excel then if data is processed, we know columns were selected
+        // and if data has started processing but not finished, then columns will also be selected
         if (data["source"] == "excel") {
             actions.setColsSelected(true) 
         } else {
-            actions.setColsSelected(data);
+            actions.setColsSelected((data["result"] == "Started" || data["result"] == "Complete") ? true : false );
         }
 
 
