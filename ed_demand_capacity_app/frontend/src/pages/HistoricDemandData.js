@@ -625,23 +625,32 @@ export default function HistoricDemandData() {
                 <Grid container>
                     <Grid item xs={12}>
                         <Paper class={classes.redPaper} align="center">
-                            <Typography variant="h5">
+                            <Typography variant="h4">
                                 Warning!
                             </Typography>
-                            <Typography>
+                            <Typography variant="h6">
                                 Please do not upload any real data to this prototype. 
                                 <br /> 
                             </Typography>
                             <Grid container spacing = {1}>
                                 <Grid item xs={6}>
                                     <Button
-                                        variant="contained">
+                                        href='https://raw.githubusercontent.com/Bergam0t/ed-demand-capacity-web/main/ed_demand_capacity_app/sample_data/record_format_from_excel_populated_1.3.csv'
+                                        variant="contained"
+                                        download>
                                         Download a sample record-format dataset
                                     </Button>
+                                    <Typography>
+                                    <br /> Right-click on the page that opens and choose 'save as', then press back to return to this page.
+                                    </Typography>
                                     </Grid>
+
+                                    
                                     <Grid item xs={6}>
                                     <Button
-                                        variant="contained">
+                                        href='https://github.com/Bergam0t/ed-demand-capacity-web/raw/main/ed_demand_capacity_app/sample_data/ED%20Model%20-%20Populated%20v1.3.xlsb'
+                                        variant="contained"
+                                        download>
                                         Download a sample Excel model
                                     </Button>
                                     </Grid>
