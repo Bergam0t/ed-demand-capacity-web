@@ -74,11 +74,11 @@ export const setupItems = (
 
     <ListSubheader inset>Demand Setup</ListSubheader>
 
-    <ListItem button to="/historic-demand" component = { Link }>
+    <ListItem button to="/historical-demand" component = { Link }>
       <ListItemIcon>
         <HistoryIcon />
       </ListItemIcon>
-      <ListItemText primary="Historic Demand Data" />
+      <ListItemText primary="Historical Demand Data" />
     </ListItem>
 
   </div>
@@ -140,11 +140,11 @@ export const secondaryListItems = (
   <div>
     <ListSubheader inset>Model Outputs</ListSubheader>
     
-    <ListItem button to="/historic-demand-graphs" component = { Link }>
+    <ListItem button to="/historical-demand-graphs" component = { Link }>
       <ListItemIcon>
         <TimelineIcon />
       </ListItemIcon>
-      <ListItemText primary="Historic Arrivals Graph" />
+      <ListItemText primary="Historical Arrivals Graph" />
     </ListItem>
 
     <ListItem button to="/forecast-demand" component = { Link }>
