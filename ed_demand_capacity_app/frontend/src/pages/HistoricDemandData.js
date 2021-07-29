@@ -1,25 +1,34 @@
+import React, { useEffect } from "react";
 import {
     Grid,
     Typography,
     Button,
-    ButtonGroup,
+    Card,
     CardContent,
     Modal,
-    Paper
+    Paper,
+    InputLabel,
+    MenuItem,
+    FormControl,
+    Select,
+    CircularProgress,
+    Dialog,
+    DialogTitle,
+    CardMedia,
+    Box,
+    IconButton,
   } from '@material-ui/core';
-import React, { useEffect } from "react";
-import Card from '@material-ui/core/Card';
+import HelpIcon from '@material-ui/icons/Help';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import SaveIcon from '@material-ui/icons/Save';
+import CancelIcon from '@material-ui/icons/Cancel';
+
+
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import DisplayExistingData from "../components/LoadedExistingDataset"
 import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import { useStoreState, useStoreActions } from 'easy-peasy';
-
 
 
 // See https://stackoverflow.com/questions/57305141/react-django-rest-framework-session-is-not-persisting-working
@@ -37,7 +46,7 @@ const notify = () => toast.success('File uploaded successfully', {
     progress: undefined,
 });
 
-const notifyDelete = () => toast.success('Existing historic data deleted', {
+const notifyDelete = () => toast.success('Existing historical data deleted', {
     position: "top-right",
     autoClose: 5000,
     hideProgressBar: false,
@@ -96,6 +105,25 @@ const useStyles = makeStyles((theme) => ({
         elevation: 3,
         borderRadius: "4px"
     },
+
+    dialog: {
+        borderRadius: "10px",
+        height: "auto",
+      },
+
+    dialogPaper: {
+
+        width: '566px',
+        overflow: "hidden",
+    },
+
+    media: {
+        height: 320,
+      },
+
+      card: {
+        maxWidth: 566,
+      },
 }));
 
 
@@ -119,7 +147,7 @@ export default function HistoricDemandData() {
 
     const [successful_submission, set_successful_submission] = React.useState(null);
     
-    
+    const [learnMoreModalOpen, setLearnMoreModalOpen] = React.useState(false)
     const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = React.useState(false);
     
     const [dateTimeColumn, setDateTimeColumn] = React.useState('');
@@ -408,6 +436,56 @@ export default function HistoricDemandData() {
         )
     }
 
+    function learnMoreModal() {
+        return (
+        <Dialog
+        open={learnMoreModalOpen}
+        classes={{
+            root: classes.dialog,
+            paper: classes.dialogPaper
+        }}
+        onClose={() => setLearnMoreModalOpen(false)}
+        >
+            <Card className={classes.card}>
+                <CardMedia
+                className={classes.media}
+                image="https://github.com/Bergam0t/ed-demand-capacity-web/blob/capacity-calcs/ed_demand_capacity_app/staticfiles/exampleDataset.png?raw=true"
+                title="Contemplative Reptile"
+                />
+                <CardContent>
+                <Grid container>
+                    <Grid item xs={6} align="left">
+                    <DialogTitle>
+                        Record-format data
+                    </DialogTitle>
+                    </Grid>
+                    <Grid item xs={6} align="right">
+                    <IconButton onClick={() => setLearnMoreModalOpen(false)} >
+                        <CancelIcon />
+                    </IconButton>
+                    </Grid>
+                </Grid>
+                <Typography>
+                   Record-format data should have one row per patient who arrived at your ED. 
+                    <br /> <br />
+                   When you upload record format data, you will be given a chance to 
+                   select the name of the column containing your arrival time and date, and
+                   the name of the column that identifies the stream the patient was assigned to
+                   during triage. Therefore, the name of the columns does not matter as it will
+                   be standardised during processing.
+                   <br /> <br />
+                   The arrival time must be in a single column, not spread across two columns, but
+                   the app will be able to cope with most formats (e.g. 2017/02/27 12:00, 27/02/2017 12:00, 
+                   and 2017-02-27 12:00 would all be accepted)
+
+
+                </Typography>
+                </CardContent>
+            </Card>
+        </Dialog>
+        )
+    }
+
     // ----------------------------------- //
     // Actions to run on component load
     // ----------------------------------- //
@@ -421,7 +499,7 @@ export default function HistoricDemandData() {
           // the server is returning a json-like object rather than
           // a valid json
           set_session_has_historic_data(data)
-          console.log("Session has historic data? ", data)
+          console.log("Session has historical data? ", data)
         })
 
         // If there is data, get the column names from the data
@@ -466,10 +544,10 @@ export default function HistoricDemandData() {
           );
         }
 
-    // What to render if session has historic data, cols have been selected 
+    // What to render if session has historical data, cols have been selected 
     // but data not yet processed
     else if (!sessionDataProcessed && session_has_historic_data && colsSelected) {
-        console.log("Session has historic data, cols have been selected but data not yet processed")
+        console.log("Session has historical data, cols have been selected but data not yet processed")
         return (
             <div>
             <CircularProgress />
@@ -500,9 +578,9 @@ export default function HistoricDemandData() {
         // https://stackoverflow.com/questions/64298136/react-material-ui-select-not-working-properly
 
         
-        // What to render if session has historic data but cols not yet selected
+        // What to render if session has historical data but cols not yet selected
         if (session_has_historic_data && !colsSelected) {
-            console.log("Session has historic data but cols not yet selected")
+            console.log("Session has historical data but cols not yet selected")
             return (
                 <div>
                     <Paper class={classes.paper}>
@@ -576,12 +654,12 @@ export default function HistoricDemandData() {
         }
 
 
-        // If the user has historic data and they have selected which columns in the 
+        // If the user has historical data and they have selected which columns in the 
         // data are relevant (which defaults to true on page load and only gets set
-        // to false during data upload), display that historic data and give them the 
+        // to false during data upload), display that historical data and give them the 
         // option to remove it from the server.
         else if (session_has_historic_data && colsSelected && sessionDataProcessed) {
-            console.log("Session has historic data, cols have been selected and data has been processed.")
+            console.log("Session has historical data, cols have been selected and data has been processed.")
             return (
                 <div>
                     <Grid container spacing={3} align="center">
@@ -599,7 +677,7 @@ export default function HistoricDemandData() {
                                 aria-describedby="simple-modal-description"
                                 >
                                 <div className={classes.paper}>
-                                    <h2 id="simple-modal-title">Are you sure you want to delete this historic data?</h2>
+                                    <h2 id="simple-modal-title">Are you sure you want to delete this historical data?</h2>
                                     <p id="simple-modal-description">
                                     There is no way to get it back if you do!
 
@@ -641,7 +719,7 @@ export default function HistoricDemandData() {
             <div>
                 <Grid container>
                     <Grid item xs={12}>
-                        <Paper class={classes.redPaper} align="center">
+                        <Paper className={classes.redPaper} align="center">
                             <Typography variant="h4">
                                 Warning!
                             </Typography>
@@ -654,6 +732,7 @@ export default function HistoricDemandData() {
                                     <Button
                                         href='https://raw.githubusercontent.com/Bergam0t/ed-demand-capacity-web/main/ed_demand_capacity_app/sample_data/record_format_from_excel_populated_1.3.csv'
                                         variant="contained"
+                                        startIcon={<SaveIcon />}
                                         download>
                                         Download a sample record-format dataset
                                     </Button>
@@ -667,6 +746,7 @@ export default function HistoricDemandData() {
                                     <Button
                                         href='https://github.com/Bergam0t/ed-demand-capacity-web/raw/main/ed_demand_capacity_app/sample_data/ED%20Model%20-%20Populated%20v1.3.xlsb'
                                         variant="contained"
+                                        startIcon={<SaveIcon />}
                                         download>
                                         Download a sample Excel model
                                     </Button>
@@ -688,11 +768,20 @@ export default function HistoricDemandData() {
                             <br/>
                             Record format data means you have one row per patient. 
                             <br/><br/>
-                            Your data needs to contain columns for arrival date, arrival time, and stream.
-                            <br/><br/>
+                            Your data needs to contain one column with the date and time 
+                            of the patient's arrival, and stream.&nbsp;&nbsp;&nbsp;       
+                            <Button
+                                variant="contained"
+                                color="default"
+                                onClick={() => setLearnMoreModalOpen(true)}
+                                startIcon={<HelpIcon />}>
+                                Learn more 
+                            </Button>
+                            {learnMoreModal()}
+                        <br /> <br/><br/>
                         </Typography>
                         <form onSubmit={handleSubmit} id="csv">
-                            <Button color="secondary" variant="contained" component="label">
+                            <Button color="secondary" variant="contained" component="label" startIcon={<CloudUploadIcon />}>
                                 Upload record-format data
                                 <input
                                     type="file"
@@ -736,11 +825,11 @@ export default function HistoricDemandData() {
                         <Typography variant='h6'>
                             <br/>
                             If you have previously filled in the Excel model, you can upload the Excel file
-                            to extract the historic data in it. 
+                            to extract the historical data in it. 
                             <br/><br/>
                         </Typography>
                         <form onSubmit={handleSubmitExcel} id="xlsb">
-                        <Button color="secondary" variant="contained" component="label" onChange={handleFileChangeExcel}>
+                        <Button color="secondary" variant="contained" component="label" onChange={handleFileChangeExcel} startIcon={<CloudUploadIcon />}>
                             Upload Excel Model
                             <input
                                 type="file"
