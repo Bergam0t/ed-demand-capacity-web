@@ -594,7 +594,7 @@ export default function HistoricDemandData() {
                             </Button>
                             <Modal
                                 open={deleteConfirmationModalOpen}
-                                onClose={setDeleteConfirmationModalOpen}
+                                onClose={() => setDeleteConfirmationModalOpen(false)}
                                 aria-labelledby="simple-modal-title"
                                 aria-describedby="simple-modal-description"
                                 >
@@ -613,7 +613,7 @@ export default function HistoricDemandData() {
                                     <Button 
                                         variant="contained" 
                                         color="primary" 
-                                        onClick={handleClose}> No, Go Back </Button>
+                                        onClick={() => setDeleteConfirmationModalOpen(false)}> No, Go Back </Button>
                                     </div>
                                 </div>
                             </Modal>
