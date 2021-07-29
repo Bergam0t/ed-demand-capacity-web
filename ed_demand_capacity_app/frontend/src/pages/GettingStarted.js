@@ -13,7 +13,7 @@ export default function GettingStarted() {
             1. Upload historical demand information
         </Typography>
         <Typography variant="h6"> 
-            There are several options available for the format of the data - head to 'Historic demand data' to see them. 
+            There are several options available for the format of the data - head to 'Historical demand data' to see them. 
         </Typography>
         <br /><br />
         

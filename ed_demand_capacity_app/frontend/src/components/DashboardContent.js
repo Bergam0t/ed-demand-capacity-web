@@ -28,8 +28,8 @@ export default function DashboardContent() {
                 <Route exact path='/' component={ Welcome }/>
                 <Route path='/getting-started' component={ GettingStarted } />
                 <Route path='/notes' component={ Notes } />
-                <Route path='/historic-demand' component={ HistoricDemandData } />
-                <Route path='/historic-demand-graphs' component={ PlotHistoric } />
+                <Route path='/historical-demand' component={ HistoricDemandData } />
+                <Route path='/historical-demand-graphs' component={ PlotHistoric } />
                 <Route path='/login' component={ SignIn } />
                 <Route path='/forecast-demand' component={ PlotForecast } />
                 <Route path='/shift-types' component={ Shifts } />
