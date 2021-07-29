@@ -57,10 +57,12 @@ const notifyColsSelected = () => toast.success('Successfully selected relevant c
     progress: undefined,
 });
 
-// UPDATE TO IMPORT THIS FROM ELSEWHERE?
+// Set the font - Istok is similar to Frutiger, which is the NHS font
+// TODO: may be able to import this from elsewhere - it is defined in App.js,
+// which wraps this component
 const font =  "'Istok Web', sans-serif;";
 
-// Styling for modal
+// Styling 
 const useStyles = makeStyles((theme) => ({ 
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -70,7 +72,6 @@ const useStyles = makeStyles((theme) => ({
         fontFamily: font,
         alignItems: 'baseline'
     },
-
 
     root: {
         '& > *': {
@@ -97,52 +98,43 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-// const sessionHasHistoricData = useStoreState(state => state.sessionHasHistoricData)
 
 export default function HistoricDemandData() {
     
-    // state = {
-    //     existing_data_check_complete: false,
-    //     session_has_historic_data: null,
-    //     uploaded_data: null,
-    //     uploaded_data_excel: null,
-    //     successful_submission: null,
-    //     loggedIn: localStorage.getItem('token') ? true : false,
-    //     deleteConfirmationModalOpen: false,
-    //     colsSelected: true,
-    //     allDataframeColumnsList: null,
-    //     dateTimeColumn: '',
-    //     streamColumn: '',
-    //     waitingForDataProcessing: false,
-
-    //   };
-
     // Control of styling
     const classes = useStyles();
 
+    // Define all required state variables
+
+    const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem('token') ? true : false);
+
     const [existing_data_check_complete, set_existing_data_check_complete] = React.useState(false);
     const [session_has_historic_data, set_session_has_historic_data] = React.useState(null);
+    
     const [uploaded_data, set_uploaded_data] = React.useState(null);
     const [uploaded_data_excel, set_uploaded_data_excel] = React.useState(null);
-    const [successful_submission, set_successful_submission] = React.useState(null);
-    const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem('token') ? true : false);
-    const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = React.useState(false);
-    // const [colsSelected, setColsSelected] = React.useState(true);
-    // const [allDataframeColumnsList, setAllDataframeColumnsList] = React.useState();
-    const [dateTimeColumn, setDateTimeColumn] = React.useState('');
-    const [streamColumn, setStreamColumn] = React.useState('');
-    const [waitingForDataProcessing, setWaitingForDataProcessing] = React.useState(false);
-    const [errorMessagesColSelect, setErrorMessagesColSelect] = React.useState('');
-
+    
     const [submitButtonActive, setSubmitButtonActive] = React.useState(false);
     const [excelSubmitButtonActive, setExcelSubmitButtonActive] = React.useState(false);
 
-    const [waitingForFileSubmission, setWaitingForFileSubmission] = React.useState(false);
-    const [waitingForFileSubmissionExcel, setWaitingForFileSubmissionExcel] = React.useState(false);
+    const [successful_submission, set_successful_submission] = React.useState(null);
+    
+    
+    const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = React.useState(false);
+    
+    const [dateTimeColumn, setDateTimeColumn] = React.useState('');
+    const [streamColumn, setStreamColumn] = React.useState('');
+    
+    const [waitingForDataProcessing, setWaitingForDataProcessing] = React.useState(false);
+    const [errorMessagesColSelect, setErrorMessagesColSelect] = React.useState('');
 
     const [submitColsActive, setSubmitColsActive] = React.useState(false);
     const [waitingForColsSubmission, setWaitingForColsSubmission] = React.useState(false);
 
+    const [waitingForFileSubmission, setWaitingForFileSubmission] = React.useState(false);
+    const [waitingForFileSubmissionExcel, setWaitingForFileSubmissionExcel] = React.useState(false);
+
+    // Import global state variables from the redux store
     // Check for processed data
     const sessionDataProcessed = useStoreState(state => state.sessionDataProcessed);
     const toggleDataProcessed = useStoreActions((actions) => actions.setSessionDataProcessed);
@@ -150,34 +142,30 @@ export default function HistoricDemandData() {
     const colsSelected = useStoreState(state => state.colsSelected);
     const setColsSelected = useStoreActions((actions) => actions.setColsSelected);
 
+    // Fetch information relating to selection of columns 
     const allDataframeColumnsList = useStoreState(state => state.allDataframeColumnsList)
     const setAllDataframeColumnsList = useStoreActions((actions) => actions.setAllDataframeColumnsList)
     const fetchInitialColData = useStoreActions((actions) => actions.fetchInitialColData)
 
-    
-
-    function handleOpen() {
-        setDeleteConfirmationModalOpen(true)
-    };
-
-    function handleClose() {
-        setDeleteConfirmationModalOpen(false)
-    };
-
-    // ADD 'if response == 200' check to this
+    // TODO: add 'if response == 200' check to this
     function handleDeleteAndClose() {
+        /** 
+         * Handles the deletion of existing data
+         */
         fetch('/api/delete-session-historic-data', {method: 'POST'});
         setDeleteConfirmationModalOpen(false);
         set_session_has_historic_data(false);
         set_existing_data_check_complete(true);
         toggleDataProcessed(false);
         notifyDelete(); 
-
-
     };
 
     // This can't use the redux store because this is a functional component
     function fetchHistoricBool() {
+        /**
+         * Check whether there is historical data already for this user session
+         * Returns a boolean
+         */
         return fetch('api/session-has-historic-data')
             // Make sure to not wrap this first then statement in {}
             // otherwise it returns a promise instead of the json
@@ -191,6 +179,11 @@ export default function HistoricDemandData() {
     }
 
     function fetchColumnList() {
+        /**
+         * Return an array of strings that are the 
+         * column names of historical data that has 
+         * been uploaded to this user session
+         */
         return fetch('api/get-historic-data-columns')
             // Make sure to not wrap this first then statement in {}
             // otherwise it returns a promise instead of the json
@@ -205,19 +198,32 @@ export default function HistoricDemandData() {
     
 
     function getHeaders() {
-    if (loggedIn) {
-        return  {
-            'content-type': 'multipart/form-data',
-            'authorization': `JWT ${localStorage.getItem('access_token')}`
-          }
-    } else {
-        return  {
-            'content-type': 'multipart/form-data'
-          }
+        /**
+         * Get headers for the submission of historical data
+         * that depend on whether a user is logged in
+         */
+        if (loggedIn) {
+            return  {
+                'content-type': 'multipart/form-data',
+                'authorization': `JWT ${localStorage.getItem('access_token')}`
+            }
+        } else {
+            return  {
+                'content-type': 'multipart/form-data'
+            }
     }};
 
 
     function getHeadersColSelectRequest() {
+        /**
+         * Get headers for the submission of column selection
+         * that depend on whether a user is logged in
+         * 
+         * This is a separate function to the historical data 
+         * getheaders() because the content-type is different
+         * (but it may be worth rewriting as a single function
+         * with the content-type passed as a parameter)
+         */
         if (loggedIn) {
             return  {
                 'content-type': 'application/json',
@@ -231,7 +237,6 @@ export default function HistoricDemandData() {
     
 
     // Handle file upload
-    // From *TO DO*: Find link
     const handleFileChange = (e) => {
         set_uploaded_data(e.target.files[0])
         setSubmitButtonActive(true)
@@ -243,12 +248,10 @@ export default function HistoricDemandData() {
     };
 
     // Handle submission of uploaded file
-    // From *TO DO*: Find link 
     const handleSubmit = (e) => {
         e.preventDefault();
         setSubmitButtonActive(false);
         setWaitingForFileSubmission(true);
-        // console.log(this.state);
         let form_data = new FormData();
         form_data.append('uploaded_data', 
                             uploaded_data, 
@@ -256,7 +259,7 @@ export default function HistoricDemandData() {
                             );
         let url = '/api/historic-data';
         let conditional_request_headers = getHeaders();
-        // console.log(conditional_request_headers)
+        
         axios.post(url, form_data, {
             headers: conditional_request_headers
         })
@@ -279,7 +282,6 @@ export default function HistoricDemandData() {
                     // the server is returning a json-like object rather than
                     // a valid json
                     setAllDataframeColumnsList(data.map(data => ({label:data, value:data})))
-                        // existing_data_check_complete: true,
                       });
             })
             .then(() => setWaitingForFileSubmission(false));
@@ -319,7 +321,6 @@ export default function HistoricDemandData() {
                     setDateTimeColumn('')
                 } else {
                     // console.log(res)
-                    // console.error("Can't select these columns")
                     setErrorMessagesColSelect("The columns you selected cannot be processed. \
                                                Please ensure that the date column you have selected contains the date followed by the time of admission \
                                                and the stream column is recording the stream each patient was assigned to.")
@@ -328,8 +329,6 @@ export default function HistoricDemandData() {
             })
             // .catch(err => console.log(err))
     }
-
-    //const classes = useStyles();
 
     const handleSubmitExcel = (e) => {
         e.preventDefault();
@@ -387,6 +386,11 @@ export default function HistoricDemandData() {
     }
 
     function deleteAndTryAgain(message) {
+        /**
+         * Render a button that allows a user to delete their existing data
+         * 
+         * Takes a message that will be displayed above the button
+         */
         return (
             <div>
             <Typography variant="h6">
@@ -404,28 +408,33 @@ export default function HistoricDemandData() {
         )
     }
 
+    // ----------------------------------- //
+    // Actions to run on component load
+    // ----------------------------------- //
+    
     useEffect(() => { 
+        // Check whether there is historical data already associated
+        // with this user session
         fetchHistoricBool()
         .then((data) => {
           // It's necessary to use the next line as for some reason
           // the server is returning a json-like object rather than
           // a valid json
-            set_session_has_historic_data(data)
+          set_session_has_historic_data(data)
           console.log("Session has historic data? ", data)
         })
 
         // If there is data, get the column names from the data
         .then(() => {
             if (session_has_historic_data) {
-            // *TODO* Is this fetch needed? Check.
+            // *TODO* Is this fetch needed? Check. May be getting this elsewhere now.
             fetchColumnList()
             .then((data) => {
                 // It's necessary to use the next line as for some reason
                 // the server is returning a json-like object rather than
                 // a valid json
-                    console.log("Column List: ", data)
-                    setAllDataframeColumnsList(data.map(data => ({label:data, value:data})))
-                    // existing_data_check_complete: true,
+                console.log("Column List: ", data)
+                setAllDataframeColumnsList(data.map(data => ({label:data, value:data})))
 
                 {console.log("Column list data retrieved by fetchColumnList:", data)}
               });
@@ -457,6 +466,8 @@ export default function HistoricDemandData() {
           );
         }
 
+    // What to render if session has historic data, cols have been selected 
+    // but data not yet processed
     else if (!sessionDataProcessed && session_has_historic_data && colsSelected) {
         console.log("Session has historic data, cols have been selected but data not yet processed")
         return (
@@ -482,7 +493,6 @@ export default function HistoricDemandData() {
 
 
         // If the user has uploaded data but has not yet specified the relevant columns
-        // from the data, then 
         // This view will only be seen straight after successfully uploading data 
 
 
@@ -490,6 +500,7 @@ export default function HistoricDemandData() {
         // https://stackoverflow.com/questions/64298136/react-material-ui-select-not-working-properly
 
         
+        // What to render if session has historic data but cols not yet selected
         if (session_has_historic_data && !colsSelected) {
             console.log("Session has historic data but cols not yet selected")
             return (
@@ -505,10 +516,13 @@ export default function HistoricDemandData() {
                             onChange={handleChangeDateTimeCol}
                         >
                         {(allDataframeColumnsList || []).map((colName) => {
-         return <MenuItem key={colName.value} value={colName.value}>{colName.label}</MenuItem>
-      })}
-      </Select>
-
+                                return <MenuItem 
+                                            key={colName.value} 
+                                            value={colName.value}>
+                                        {colName.label}
+                                        </MenuItem>
+                            })}
+                            </Select>
                     </FormControl>
                     <FormControl className={classes.formControl}>
                         <InputLabel id="select-stream-column-label">Stream Column</InputLabel>
@@ -520,20 +534,25 @@ export default function HistoricDemandData() {
                         >
                         
                         {(allDataframeColumnsList || []).map((colName) => {
-         return <MenuItem key={colName.value} value={colName.value}>{colName.label}</MenuItem>
-      })}
-      </Select>
+                            return <MenuItem 
+                                        key={colName.value} 
+                                        value={colName.value}>
+                                    {colName.label}
+                                    </MenuItem>
+                                })}
+                                </Select>
                     </FormControl> 
-                            <Button 
-                                color="primary" 
-                                variant="contained" 
-                                component="label" 
-                                onClick={handleSubmitSelectedColumns}
-                                disabled={!submitColsActive}> 
-                                Confirm column selection
-                            </Button>
-                            </Paper>
-                            <br /> 
+                    
+                    <Button 
+                        color="primary" 
+                        variant="contained" 
+                        component="label" 
+                        onClick={handleSubmitSelectedColumns}
+                        disabled={!submitColsActive}> 
+                        Confirm column selection
+                    </Button>
+                    </Paper>
+                    <br /> 
                     <Typography> {errorMessagesColSelect} </Typography>
 
                     <Typography variant="h5"> Preview of your uploaded data </Typography>
@@ -557,7 +576,6 @@ export default function HistoricDemandData() {
         }
 
 
-
         // If the user has historic data and they have selected which columns in the 
         // data are relevant (which defaults to true on page load and only gets set
         // to false during data upload), display that historic data and give them the 
@@ -571,13 +589,12 @@ export default function HistoricDemandData() {
                             <Typography > Data has already been uploaded. </Typography>
                             <Button 
                                 variant="contained" 
-                                onClick={handleOpen}
+                                onClick={() => setDeleteConfirmationModalOpen(true)}
                             > Delete this data and upload new data
                             </Button>
                             <Modal
-                                // style={{ alignItems: "center", justifyContent: "center" }}
                                 open={deleteConfirmationModalOpen}
-                                onClose={handleClose}
+                                onClose={setDeleteConfirmationModalOpen}
                                 aria-labelledby="simple-modal-title"
                                 aria-describedby="simple-modal-description"
                                 >
