@@ -1,13 +1,20 @@
 # ed-demand-capacity-web
 
+This is a prototype of a web-based version of an Excel-based model for modelling demand and capacity for clinical decision making in type 1, 2 and 3 emergency departments. The Excel model can be found [here](https://www.england.nhs.uk/ourwork/demand-and-capacity/models/demand-and-capacity-emergency-department-model/). 
 
-
+The app is still being worked on. Planned features can be found [here](https://trello.com/b/u80fzOBi).
 
 If you have any questions about the development of the app, please get in touch with Sammi Rosser ([Bergam0t](https://github.com/Bergam0t)) via [Twitter](https://twitter.com/sammi_rosser), or open an issue on the respository. 
 
+
 ---
 
-# Virtual environments
+# Information for potential collaborators
+---
+
+The web app makes use of a Django REST API backend and a React frontend. They work together in the the way described in [this tutorial](https://www.valentinog.com/blog/drf/) and [this video series](https://www.youtube.com/watch?v=6c2NqDyxppU). 
+
+## Virtual environments
 To run the app on Windows, you need to use a conda environment because there is an issue with installing Prophet using pip. 
 
 However, when deploying to Heroku, it is better to use a pip requirements.txt file because this is required by Python and avoids the complication of needing additional buildpacks. 
@@ -23,7 +30,7 @@ Then run the following command:
 conda env export > environment.yml
 ```
 
-## Creating a requirements.txt file
+### Creating a requirements.txt file
 To create a requirements.txt suitable for Pip, first activate the conda environment from the root directory of the project (ed-demand-capacity-web):
 
 ```
@@ -35,7 +42,7 @@ Then run the following command:
 pip list --format=freeze > requirements.txt
 ```
 
-## Creating a new pip venv after updating required packages
+### Creating a new pip venv after updating required packages
 
 If on Windows, while in the root directory of the project (ed-demand-capacity-web):
 
@@ -46,7 +53,7 @@ pip install -r requirements.txt
 ```
 
 ---
-# Python version
+## Python version
 Using python 3.7.11 leads to a much quicker build time on Heroku because pystan (which is needed for Propht) already has wheels built whereas for python 3.8+ it has to build them from scratch (or something along those lines). 
 
 runtime.txt is used by Heroku to know which version of Python to use.
@@ -54,18 +61,18 @@ runtime.txt is used by Heroku to know which version of Python to use.
 However, the app was primarily built and tested with Python 3.8.5
 
 ---
-# Javascript packages
+## Javascript packages
 - When updating the packages.json and package-lock.json files, you need to then copy the updated files from ed-demand-capacity-web/ed_demand_capacity_app/frontend to the root (ed-demand-capacity-web). This is because Heroku looks for these files in the root.
 
-# Misc useful things relating to npm package management that tripped me up along the way...
+## Misc useful things relating to npm package management that tripped me up along the way...
 - `package.json` must specify `"@material-ui/lab": "4.0.0-alpha.58",` not `"@material-ui/lab": "*",`
 - npm install updates the package-lock.json file
 
 ---
 
-# Running the app in a development environment
+## Running the app in a development environment
 
-## Setting up an environment
+### Setting up an environment
 If you are running on Windows, you will need to be using conda for environment management as there are issues with installing the Facebook Prophet library with pip. 
 ```
 conda env create -f {PATH TO REPO}\ed-demand-capacity-web\environment.yml
@@ -74,7 +81,7 @@ conda env create -f {PATH TO REPO}\ed-demand-capacity-web\environment.yml
 If you are on Linux, you could instead use the requirements.txt to create a virtual environment if you prefer, and replace the conda commands below with the commands for activating that environment instead.
 
 
-## Changes to make to files before running development server
+### Changes to make to files before running development server
 In ed_demand_capacity_app/ed_demand_capacity_app/settings.py, uncomment the following line:
 ```
 os.environ['DATABASE_URL'] = "postgres://ozdqiskfjtelee:9cffeb67f7e9331ed83c5c04eb26a327b0bc6ab1e8a6768ee1a3fa164678d740@ec2-54-220-35-19.eu-west-1.compute.amazonaws.com:5432/dokmln8i3j7lk"
@@ -85,34 +92,34 @@ In ed_demand_capacity_app/frontend/webpack.config.js, comment out the following 
 entry: '/ed_demand_capacity_app/frontend/src/index.js',
 ```
 
-### A note on database connections
+#### A note on database connections
 In the development server, connection pooling does not occur, so you may reach the 20 connection limit on the Heroku database. 
 
 Once deployed, the use of connection pooling should mean that this does not happen.
 
 
-## Start a development server
+### Start a development server
 In one VS code cmd terminal (not powershell), run
 ```
 conda activate <ENVIRONMENT FROM ENVIRONMENT.YML>
 python {PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\manage.py runserver
 ```
 
-## Create a process that will manage long-running background tasks
+### Create a process that will manage long-running background tasks
 In another VS code terminal (cmd or powershell), run
 ```
 conda activate <ENVIRONMENT FROM ENVIRONMENT.YML>
 python {PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\manage.py process_tasks
 ```
 
-## Transpile the javascript using webpack
+### Transpile the javascript using webpack
 In another VS code terminal (cmd or powershell), run
 ```
 {PATH TO REPO}\ed-demand-capacity-web\ed_demand_capacity_app\frontend npm run dev
 ```
 
 
-## Alternative activation method (quicker to type!)
+### Alternative activation method (quicker to type!)
 
 Open the project in vs code.
 
@@ -150,9 +157,9 @@ npm run dev
 
 ---
 
-# Basic steps for adding a new feature
+## Basic steps for adding a new feature
 
-## Backend
+### Backend
 
 1. Add your database models to ed_demand_capacity_app/api/models.py
 
@@ -166,7 +173,7 @@ manage.py migrate
 4. Create endpoints for your API views in ed_demand_capacity_app/api/urls.py
 
 
-## Frontend
+### Frontend
 
 1. Create a page that will use the data from your views in ed_demand_capacity_app/frontend/src/pages
 
@@ -196,11 +203,11 @@ Note that for some reason the menu items are particularly stubborn about not ref
 
 ---
 
-# Tracking problems
+## Tracking problems encountered during development
 
 If you need finer-grained tracking of problems than the basic dev tools can provide, you can create additional log statements.
 
-## Frontend
+### Frontend
 
 In any javascript (.js) files, use
 
@@ -215,7 +222,7 @@ If you need this to happen during a return statement, you will need to wrap it i
 
 These error messages will then appear in the web console. In Chrome, you view this by right clicking on the page and choosing 'inspect'. In the box that then appears, choose 'Console' from the list of tabs at the top. 
 
-## Backend
+### Backend
 
 In Python (.py) files, use 
 
@@ -250,7 +257,7 @@ heroku logs --tail -a ed-demand-capacity-app
 
 ---
 
-# Heroku deployment troubleshooting
+## Heroku deployment troubleshooting
 
 1. Check that the following line in ed_demand_capacity_app/frontend/webpack.config.js is NOT commented out:
 ```
