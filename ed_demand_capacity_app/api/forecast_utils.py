@@ -155,7 +155,11 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
             )
             
             # Generate forecasting model
-            model = Prophet(interval_width=0.95)
+            model = Prophet(interval_width=0.85,
+                            yearly_seasonality=True,
+                            monthly_seasonality=True,
+                            daily_seasonality=True,
+                            )
             model.add_country_holidays(country_name='England')
             model.fit(stream_only)
             log.info(f'Model generated for stream {stream}')
