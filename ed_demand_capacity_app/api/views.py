@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
+from background_task.models import Task as BackgroundTasks
 
 # DRF imports
 from rest_framework import generics
@@ -449,7 +450,21 @@ class DeleteSessionHistoricData(APIView):
         # for filepath in forecast_filepaths:
         #     deletion_attempt(filepath)
 
-
+        # Delete any remaining background tasks that have not yet completed
+        background_tasks = BackgroundTasks.objects.all()
+        my_tasks = []
+        for task in background_tasks:
+            try:
+                if task.task_params[1]['session_id'] == uploader:
+                    my_tasks.append(task.id)
+            except:
+                pass
+        for id in my_tasks:
+            BackgroundTasks.objects.delete(id=id)
+        
+        # These background tasks will either not have been started or, 
+        # more likely, will have failed and be waiting to start again 
+        log.info(f"{len(my_tasks)} unstarted background tasks deleted")
 
         return Response({'result': 'Session data deleted'}, 
                         status=status.HTTP_200_OK)
