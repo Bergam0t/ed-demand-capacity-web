@@ -49,14 +49,18 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
     historic_data.save(update_fields=['processing_complete'])
 
     historic_df = pd.read_feather(historic_data.uploaded_data)
-
+    log.info(historic_df.head(2))
 
     # --------------------------
     # Create scenario entry
     # -------------------------
 
     # Get last date
-    latest_date_in_df = historic_df['date'].max()
+    # TODO: Rename the excel model columns earlier to remove need for this step
+    if data_source == "record_csv":
+        latest_date_in_df = historic_df['date'].max()
+    else:
+        latest_date_in_df = historic_df['Date'].max()
 
     # Create scenario objects with an initial rota date/start date of interest
     queryset = Scenario.objects.filter(user_session=session_id)
@@ -155,9 +159,14 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
             )
             
             # Generate forecasting model
+            # Note that the existing R app specifies monthly seasonality
+            # but according to R docs that isn't an option, and 
+            # in Python it causes the forecast to fail
+            # It could be added manually but leaving out for now
+            # for consistency with the R app
             model = Prophet(interval_width=0.85,
                             yearly_seasonality=True,
-                            monthly_seasonality=True,
+                            # monthly_seasonality=True,
                             daily_seasonality=True,
                             )
             model.add_country_holidays(country_name='England')
