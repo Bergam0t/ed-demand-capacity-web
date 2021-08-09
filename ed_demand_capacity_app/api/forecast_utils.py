@@ -58,9 +58,11 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
     # Get last date
     # TODO: Rename the excel model columns earlier to remove need for this step
     if data_source == "record_csv":
-        latest_date_in_df = historic_df['date'].max()
+        latest_date_in_df = historic_df['date'].max(skipna=True)
     else:
-        latest_date_in_df = historic_df['Date'].max()
+        latest_date_in_df = historic_df['Date'].max(skipna=True)
+    
+    log.info(f"Latest date in dataframe: {latest_date_in_df}")
 
     # Create scenario objects with an initial rota date/start date of interest
     queryset = Scenario.objects.filter(user_session=session_id)
