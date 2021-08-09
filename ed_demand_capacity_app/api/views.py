@@ -618,12 +618,22 @@ class PlotlyTimeSeriesMostRecent(APIView):
         
         plotting_df_ms = pivot_dt.resample('MS').sum()[1:-1]
         log.info("Resampling complete")
-        
+
+        stream_list = plotting_df_ms.columns
+
+        plotting_df_ms['days_in_month'] = plotting_df_ms.index.days_in_month
+        log.info(plotting_df_ms.columns)
+
+        # Update to average daily attendances rather than total as total is made slightly 
+        # meaningless by the different numbers of days in each month
+        for col in stream_list:
+            plotting_df_ms[col] = (plotting_df_ms[col] / plotting_df_ms['days_in_month']).round(2)
+
         fig = px.line(data_frame=plotting_df_ms.reset_index(), 
                       x=date_col, 
-                      y=plotting_df_ms.columns,
+                      y=stream_list,
                       labels={date_col: 'Date',
-                              'value': 'Number of visits per month',
+                              'value': 'Average number of attendances per day in month',
                               'variable': 'Stream'})
 
         return Response(fig.to_json(), status=status.HTTP_200_OK)
