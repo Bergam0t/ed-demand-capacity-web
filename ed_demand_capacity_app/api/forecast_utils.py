@@ -126,8 +126,8 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
             # If time request was originally triggered at is after the time the model
             # we are looking at was created, this suggests that the new request should
             # take precendence and overwrite the models and forecasts
-            log.info(f"Existing models created at {existing_models.created_at}")
-            log.info(f"Processing initialised at {historic_data.processing_initialised_at}")
+            log.info(f"Existing models created at {existing_models.last()['created_at']}")
+            log.info(f"Processing initialised at {historic_data['processing_initialised_at']}")
             if existing_models.created_at < historic_data.processing_initialised_at:
                 return True
             else:
