@@ -446,7 +446,7 @@ export default function Rotas() {
         
             <Grid item xs={12}>
               <DialogContentText>
-                  Here you can specify the shifts that an individual resource (i.e. a medic working on triage) will be working in a given week.
+                  Here you can specify the shifts that an individual resource (i.e. a medic making clinical decisions) will be working in a given week.
               </DialogContentText>
             </Grid>
 
