@@ -37,6 +37,13 @@ log = logging.getLogger(__name__)
 @background(schedule=0)
 def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()):
     '''
+    Function that performs all background tasks relating to Prophet model and forecast generation
+
+    Runs immediately when triggered, but in a background task, not the main Python task
+
+    This is necessary when running on Heroku to avoid hitting the request timeout limit
+
+    No values returned
     '''
     log.info('generate_prophet_models() triggered in background')
     
@@ -259,62 +266,21 @@ def generate_prophet_models(session_id, data_source, triggered_at=datetime.now()
     historic_data.save(update_fields=['processing_complete'])
             
 
-
-
-
-# plot_list = []
-
-#     # Begin iterating through streams
-#     for stream in grouped.stream.unique():
-#         # At the moment the name is hardcoded - this needs to change to iterate through given streams
-#         stream_only = grouped[grouped['stream'] == stream]
-#         # Get into correct format for Prophet
-#         stream_only = (
-#             stream_only.drop('stream', axis=1)
-#             .rename({'date_time_hour_start': 'ds', 
-#                         'dummy': 'y'}, axis=1)
-#                         )
-
-#         # log.info(stream_only.head(2))
-        
-#         # 1 week forecast
-#         model = Prophet(interval_width=0.95)
-#         model.add_country_holidays(country_name='England')
-#         model.fit(stream_only)
-#         future = model.make_future_dataframe(periods=24*7, freq='H', include_history=False)
-#         fcst = model.predict(future)
-
-#         fig  = plot_plotly(model, fcst)
-
-#         # Update the x-axis range so we only display the future (i.e. the prediction),
-#         # not the historic data, otherwise the period we are interested in is so small 
-#         # as to not be visible
-#         fig = fig.update_layout(xaxis_range=[stream_only.ds.max().to_pydatetime(), 
-#                                                 fcst.ds.max()])
-
-#         plot_list.append({'title': stream, 'fig_json': fig.to_json()})
-#         log.info('Plot created for stream' + str(stream))
-
-#     return Response(plot_list, status=status.HTTP_200_OK)
-
-
-
-
-
-
 def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend=False, 
                 changepoints=False, changepoints_threshold=0.01, 
                 xlabel='ds', ylabel='y', figsize=(900, 600),
                 exclude_history=False, history_as_lines=False,
-                history_to_include='All'):
+                history_to_include='All', show_legend=False):
     """
     Plot the Prophet forecast with Plotly offline.
 
     ---------------------------
-    MODIFIED VERSION OF PLOT_PLOTLY FROM THE PROPHET LIBRARY
+    !!! Note from Bergam0t: MODIFIED VERSION OF PLOT_PLOTLY FROM THE PROPHET LIBRARY !!!
 
     The original function does not allow you to leave out the historic data, and as there is 
-    so much in this model it was unbearably slow to plot 
+    so much in this model it was unbearably slow to plot.
+
+    I have left most of the rest of the code in this function untouched.  
 
     ---------------------------
 
@@ -342,6 +308,11 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
     history_as_lines: optional boolean to plot history as a line instead of as marker points
     history_to_include: optional timedelta to specify the amount of history to include. Will
         be ignored if exclude_history == True.
+    show_legend: optional boolean to show a legend. Note that due to the way the plot is built
+        up, the lower bound doesn't show up well in the legend (it appears blank instead of
+        being shaded). Therefore have opted to just show predicted and actual in key. However,
+        even 'predicted' isn't quite right - shows some of the lower bound in the key, but this
+        doesn't actually seem to be a problem when choosing to hide the trace. 
 
     Returns
     -------
@@ -385,7 +356,9 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
             y=fcst['yhat_lower'],
             mode='lines',
             line=dict(width=0),
-            hoverinfo='skip'
+            hoverinfo='skip',
+            name='Lower Confidence Interval',
+            showlegend=False
         ))
     # Add prediction
     data.append(go.Scatter(
@@ -406,7 +379,9 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
             line=dict(width=0),
             fillcolor=error_color,
             fill='tonexty',
-            hoverinfo='skip'
+            hoverinfo='skip',
+            name='Upper Confidence Interval',
+            showlegend=False
         ))
     # Add caps
     if 'cap' in fcst and plot_cap:
@@ -485,4 +460,6 @@ def plot_plotly_history_optional(m, fcst, uncertainty=True, plot_cap=True, trend
         ),
     )
     fig = go.Figure(data=data, layout=layout)
+    if show_legend==True:
+        fig.update_layout(showlegend=True)
     return fig

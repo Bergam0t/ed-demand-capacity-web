@@ -98,7 +98,8 @@ class ProphetForecastIndividualPlot(APIView):
         model = model_from_json(prophet_model.prophet_model_json)
 
         fig  = plot_plotly_history_optional(model, fcst, 
-            history_to_include=timedelta(days=365))
+            history_to_include=timedelta(days=365),
+            xlabel='Date', ylabel='Predicted Attendances for Stream', show_legend=True)
 
         plot_list = [{'title': stream, 'fig_json': fig.to_json()}]
         log.info('Plot created for stream ' + str(stream))
