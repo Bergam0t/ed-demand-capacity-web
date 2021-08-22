@@ -116,7 +116,6 @@ export default function EDSettings() {
     const [helpVideoBoxRolesOpen, setHelpVideoBoxRolesOpen] = React.useState(false)
 
 
-
     const fetchStreams = () => {
         /**
          * Fetch a list of streams from the API
@@ -260,6 +259,7 @@ export default function EDSettings() {
         setstreamValuesChanged(false);
         // Set the streams back 
         setStreams(streamsOriginal)
+
     }
 
     // Toast notification for successful changes to streams
@@ -580,14 +580,13 @@ export default function EDSettings() {
                         <TableRow key={roleType.id}> 
                         <TableCell>{roleType.role_name}</TableCell> 
 
-                        {(roleType['decisions_per_hour_per_stream']).map((decisions) => (
-                            
-                            streams.map((stream) => {
-
+                            {(streams.map((stream) => (
+                                roleType['decisions_per_hour_per_stream']).map((decisions) => {
                                 // Check whether the item is the one we're looking for
                                 // This is to ensure the stream values never become decoupled from the relevant
                                 // stream headers
                                 if (decisions['stream_name'] == stream['stream_name']) {
+                                    console.log("It's a match")
                                     return (<TableCell align="left">{decisions['decisions_per_hour']}</TableCell>)
                                     }
                             })
