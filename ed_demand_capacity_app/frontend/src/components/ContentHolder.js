@@ -145,7 +145,7 @@ const useStyles = makeStyles((theme) => ({
     
   }));
 
-const drawerWidth = 330;
+const drawerWidth = 350;
 
 
 
