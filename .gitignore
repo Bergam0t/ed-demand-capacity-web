@@ -21,7 +21,7 @@ ed_demand_capacity_app/sample_data/SO test data.csv
 ed_demand_capacity_app/uploads/historic_data/*.csv
 
 *.sqlite3
-*.ftr
+ed_demand_capacity_app/*.ftr
 *.pkl
 *.pyc
 env_test_ed
