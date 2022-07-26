@@ -7,6 +7,13 @@ The app is still being worked on. Planned features can be found [here](https://t
 If you have any questions about the development of the app, please get in touch with Sammi Rosser ([Bergam0t](https://github.com/Bergam0t)) via [Twitter](https://twitter.com/sammi_rosser), or open an issue on the respository. 
 
 
+## UPDATE July 2022
+The Heroku prototype will no longer work due to deletion of the Amazon S3 bucket that was required for storage. 
+Please view the video below instead to see the features of t he model. 
+
+
+
+
 ## Features in the model as of August 2021
 
 https://user-images.githubusercontent.com/29951987/130359771-6f6c9de3-5255-4145-a696-c9790c26ea9c.mp4
